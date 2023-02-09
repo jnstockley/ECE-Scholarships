@@ -1,3 +1,6 @@
+'''
+about page render
+'''
 import streamlit as st
 
 st.title("Example about page")
