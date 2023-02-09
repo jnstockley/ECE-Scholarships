@@ -2,3 +2,5 @@
 SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
 poetry run pylint $SCRIPT_DIR/../src/
+
+poetry run pylint $SCRIPT_DIR/../tests/
