@@ -17,7 +17,16 @@ pylint = "^2.16.1"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
+autohooks = "^23.1.0"
+autohooks-plugin-pylint = "^22.8.1"
 
+
+[tool.autohooks]
+mode = "poetry"
+pre-commit = ["autohooks.plugins.pylint"]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.autohooks.plugins.pylint]
+arguments = ["--rcfile=.pylintrc", "-s", "n"]
