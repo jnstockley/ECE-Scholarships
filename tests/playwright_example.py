@@ -3,8 +3,7 @@ Example Playwright test
 '''
 from playwright.sync_api import Page, expect
 
-
-def playwright_test(page: Page):
+def test_example(page: Page):
     '''
     Example playwright test
     :param page:
