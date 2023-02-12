@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+SCRIPT_DIR=$( pwd; )/$( dirname -- "$0"; );
 
 poetry run streamlit run $SCRIPT_DIR/../src/home.py &
 sleep 2
