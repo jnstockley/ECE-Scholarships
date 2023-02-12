@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
-SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+if [ -z ${SCRIPT_DIR+x} ]; then
+  SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+fi
 
 poetry run pylint $SCRIPT_DIR/../src
 poetry run pylint $SCRIPT_DIR/../tests
