@@ -53,7 +53,7 @@ jobs:
       #  -----          Run linter          -----
       #----------------------------------------------
       - name: Run PyLint
-        run: sh scripts/lint.sh
+        run: bash scripts/lint.sh
   playwright-linux:
     name: test-playwright
     runs-on: ubuntu-latest
@@ -82,7 +82,7 @@ jobs:
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        run: sh scripts/playwright.sh
+        run: bash scripts/playwright.sh
   pyunit:
     name: test-pyunit
     runs-on: ubuntu-latest
@@ -108,4 +108,4 @@ jobs:
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        run: sh scripts/pyunit.sh
+        run: bash scripts/pyunit.sh
