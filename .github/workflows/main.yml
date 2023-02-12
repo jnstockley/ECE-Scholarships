@@ -62,3 +62,29 @@ jobs:
       #----------------------------------------------
       - name: Run your tests
         run: sh scripts/playwright.sh
+  pyunit:
+    name: test-pyunit
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install
+      #----------------------------------------------
+      #  -----     Run PlayWright Tests     -----
+      #----------------------------------------------
+      - name: Run your tests
+        run: sh scripts/pyunit.sh
