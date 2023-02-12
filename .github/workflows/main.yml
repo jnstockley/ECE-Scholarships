@@ -32,7 +32,7 @@ jobs:
       #  -----          Run linter          -----
       #----------------------------------------------
       - name: Run PyLint
-      - run: sh scripts/lint.sh
+        run: sh scripts/lint.sh
   playwright-linux:
     name: test-playwright
     runs-on: ubuntu-latest
