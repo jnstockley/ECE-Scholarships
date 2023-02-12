@@ -1,0 +1,12 @@
+steps:
+  - uses: microsoft/playwright-github-action@v1
+  - name: Set up Python
+    uses: actions/setup-python@v2
+    with:
+      python-version: 3.11
+  - name: Install dependencies
+    run: poetry install
+  - name: Ensure browsers are installed
+    run: poetry run playwright install
+  - name: Run your tests
+    run: sh scripts/playwright.sh
