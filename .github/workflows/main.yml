@@ -11,16 +11,28 @@ jobs:
     name: test-playwright
     runs-on: ubuntu-latest
     steps:
+      #----------------------------------------------
+      #       check-out repo and set-up python
+      #----------------------------------------------
       - uses: microsoft/playwright-github-action@v1
-      - name: Set up Python
-        uses: actions/setup-python@v2
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
         with:
-          python-version: 3.11
+          python-version: '3.11'
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
       - name: Install poetry
         uses: snok/install-poetry@v1
       - name: Install dependencies
         run: poetry install
       - name: Ensure browsers are installed
         run: poetry run playwright install
+      #----------------------------------------------
+      #  -----     Run PlayWright Tests     -----
+      #----------------------------------------------
       - name: Run your tests
         run: sh scripts/playwright.sh
