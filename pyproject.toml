@@ -13,6 +13,7 @@ watchdog = "^2.2.1"
 pandas = "^1.5.3"
 numpy = "^1.24.2"
 pylint = "^2.16.1"
+coverage = "^7.1.0"
 
 
 [tool.poetry.group.dev.dependencies]

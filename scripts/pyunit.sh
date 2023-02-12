@@ -7,4 +7,4 @@ while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
-poetry run python -m unittest discover -s tests.unit -p "*.py"
+poetry run coverage run --source src -m unittest discover -s tests.unit -p "*.py"
