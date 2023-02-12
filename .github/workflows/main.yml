@@ -7,6 +7,32 @@ on:
       - develop
 
 jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      #----------------------------------------------
+      #  -----  install & configure poetry  -----
+      #----------------------------------------------
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+      - name: Install dependencies
+        run: poetry install
+      #----------------------------------------------
+      #  -----          Run linter          -----
+      #----------------------------------------------
+      - name: Run PyLint
+      - run: sh scripts/lint.sh
   playwright-linux:
     name: test-playwright
     runs-on: ubuntu-latest
