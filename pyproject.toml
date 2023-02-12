@@ -19,7 +19,8 @@ pylint = "^2.16.1"
 autopep8 = "^2.0.1"
 autohooks = "^23.1.0"
 autohooks-plugin-pylint = "^22.8.1"
-
+playwright = "^1.30.0"
+pytest-playwright = "^0.3.0"
 
 [tool.autohooks]
 mode = "poetry"
