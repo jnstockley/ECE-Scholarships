@@ -7,6 +7,5 @@ while [ -L "$SOURCE" ]; do # resolve $SOURCE until the file is no longer a symli
 done
 SCRIPT_DIR=$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )
 
-poetry run streamlit run $SCRIPT_DIR/../src/home.py &
-sleep 2
-poetry run pytest $SCRIPT_DIR/../tests/feature/playwright*.py
+sh $SCRIPT_DIR/playwright.sh
+sh $SCRIPT_DIR/pyunit.sh
