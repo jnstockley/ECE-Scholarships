@@ -111,7 +111,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #       check-out repo and set-up python
+      #             Setup environment
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
@@ -120,11 +120,33 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      #----------------------------------------------
-      #  -----  install & configure poetry  -----
-      #----------------------------------------------
       - name: Install poetry
         uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
+      #----------------------------------------------
+      #  -----   install poetry packages    -----
+      #----------------------------------------------
       - name: Install dependencies
         run: poetry install
       #----------------------------------------------
