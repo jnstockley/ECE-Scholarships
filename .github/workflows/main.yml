@@ -1,0 +1,156 @@
+name: "CI"
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
+      #----------------------------------------------
+      #  -----   install poetry packages    -----
+      #----------------------------------------------
+      - name: Install dependencies
+        run: poetry install
+      #----------------------------------------------
+      #  -----          Run linter          -----
+      #----------------------------------------------
+      - name: Run PyLint
+        run: bash scripts/lint.sh
+  playwright-linux:
+    name: test-playwright
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - uses: microsoft/playwright-github-action@v1
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
+      #----------------------------------------------
+      #  -----   install poetry packages    -----
+      #----------------------------------------------
+      - name: Install dependencies
+        run: poetry install
+      - name: Ensure browsers are installed
+        run: poetry run playwright install
+      #----------------------------------------------
+      #  -----     Run PlayWright Tests     -----
+      #----------------------------------------------
+      - name: Run your tests
+        run: bash scripts/playwright.sh
+  pyunit:
+    name: test-pyunit
+    runs-on: ubuntu-latest
+    steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
+      #----------------------------------------------
+      #  -----   install poetry packages    -----
+      #----------------------------------------------
+      - name: Install dependencies
+        run: poetry install
+      #----------------------------------------------
+      #  -----     Run PlayWright Tests     -----
+      #----------------------------------------------
+      - name: Run your tests
+        run: bash scripts/pyunit.sh

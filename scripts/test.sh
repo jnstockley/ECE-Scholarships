@@ -6,7 +6,7 @@ if [ -z ${SCRIPT_DIR+x} ]; then
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   fi
 fi
+export SCRIPT_DIR=$SCRIPT_DIR
 
-poetry run streamlit run $SCRIPT_DIR/../src/home.py &
-sleep 2
-poetry run pytest $SCRIPT_DIR/../tests/feature/playwright*.py
+sh $SCRIPT_DIR/playwright.sh
+sh $SCRIPT_DIR/pyunit.sh

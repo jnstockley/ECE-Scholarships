@@ -7,6 +7,4 @@ if [ -z ${SCRIPT_DIR+x} ]; then
   fi
 fi
 
-poetry run streamlit run $SCRIPT_DIR/../src/home.py &
-sleep 2
-poetry run pytest $SCRIPT_DIR/../tests/feature/playwright*.py
+poetry run coverage run --source src -m unittest discover -s tests.unit -p "*.py"
