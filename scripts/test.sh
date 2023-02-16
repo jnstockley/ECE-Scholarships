@@ -1,4 +1,4 @@
-#!/usr/bin/env bash\
+#!/usr/bin/env bash
 OS="$(uname -s)"
 if [ -z ${SCRIPT_DIR+x} ]; then
   SCRIPT_DIR=$( pwd )/$( dirname -- "$0" );
@@ -7,6 +7,8 @@ if [ -z ${SCRIPT_DIR+x} ]; then
   fi
 fi
 export SCRIPT_DIR=$SCRIPT_DIR
+PWD=$( pwd )
 
-sh $SCRIPT_DIR/playwright.sh
-sh $SCRIPT_DIR/pyunit.sh
+cd $SCRIPT_DIR/../
+poetry run python -m tests.cli
+cd $PWD
