@@ -3,17 +3,17 @@ Main application homepage.
 '''
 import streamlit as st
 import pandas as pd
-import numpy as np
 
 st. set_page_config(layout="wide")
 
 st.title('Review Applicants')
 
-current_filter = st.selectbox("Which filter would you like to apply?", ("Evan's custom filter", "Scholarship 1", "Scholarship 2"))
+current_filter = st.selectbox("Which filter would you like to apply?",
+                              ("Evan's custom filter", "Scholarship 1", "Scholarship 2"))
 
 st.write("Current filter:", current_filter)
 
-df = pd.read_excel("./tests/data/ECE Scholarship Applicants.xlsx", nrows = 15)
+df = pd.read_excel("./tests/data/ECE Scholarship Applicants.xlsx", nrows=15)
 st.write("***Example With Actions")
 colms = st.columns((1, 2, 1, 1, 1))
 fields = ["UID", "Name", "Program", "Sex", "Review"]
@@ -26,13 +26,13 @@ for x, uid in enumerate(df["UID"]):
     col2.write(df["Name"][x])
     col3.write(df["Programs"][x])
     col4.write(df["Sex"][x])
-    reviewed = False
-    button_type = "Review" if not reviewed else "Rereview"
+    REVIEWED = False
+    BUTTON_TYPE = "Review" if not REVIEWED else "Rereview"
     button_phold = col5.empty()  # create a placeholder
-    do_action = button_phold.button(button_type, key=x)
+    do_action = button_phold.button(BUTTON_TYPE, key=x)
     if do_action:
-        pass # do some action with a row's data
-        button_phold.empty()  #  remove button
+        # do some action with a row's data
+        button_phold.empty()  # remove button
 
 
 st.write("***Example with Built In Table")
