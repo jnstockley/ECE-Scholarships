@@ -2,13 +2,9 @@
 Example Playwright test
 '''
 from playwright.sync_api import Page, expect
+import coverage
 
 def test_example(page: Page):
-    '''
-    Example playwright test
-    :param page:
-    :return:
-    '''
     root_url = "http://localhost:8501"
     page.goto(root_url)
 
