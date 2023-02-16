@@ -14,7 +14,7 @@ current_filter = st.selectbox("Which filter would you like to apply?", ("Evan's 
 st.write("Current filter:", current_filter)
 
 df = pd.read_excel("./tests/data/ECE Scholarship Applicants.xlsx", nrows = 15)
-st.write("Example With Actions")
+st.write("***Example With Actions")
 colms = st.columns((1, 2, 1, 1, 1))
 fields = ["UID", "Name", "Program", "Sex", "Review"]
 for col, field_name in zip(colms, fields):
@@ -35,7 +35,7 @@ for x, uid in enumerate(df["UID"]):
         button_phold.empty()  #  remove button
 
 
-st.write("Example with Built In Table")
+st.write("***Example with Built In Table")
 st.dataframe(df)
 
 st.button("Export current data")
