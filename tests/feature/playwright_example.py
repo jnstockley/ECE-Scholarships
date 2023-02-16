@@ -1,6 +1,7 @@
 '''
 Example Playwright test
 '''
+import time
 from playwright.sync_api import Page, expect
 
 def test_example(page: Page):
@@ -12,7 +13,7 @@ def test_example(page: Page):
 
     # Expects title of home page to be `home . Streamlit`
     expect(page).to_have_title("home · Streamlit")
-
+    time.sleep(2)
     # create a locator for the `about` page
     about = page.get_by_role("link", name="About")
 
