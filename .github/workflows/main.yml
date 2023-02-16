@@ -105,7 +105,7 @@ jobs:
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        run: bash scripts/playwright.sh
+        run: poetry run python -m tests.cli --test playwright
   pyunit:
     name: test-pyunit
     runs-on: ubuntu-latest
@@ -153,4 +153,4 @@ jobs:
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        run: bash scripts/pyunit.sh
+        run: poetry run python -m tests.cli --test pyunit
