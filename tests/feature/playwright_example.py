@@ -2,10 +2,12 @@
 Example Playwright test
 '''
 from playwright.sync_api import Page, expect
-import coverage
 
 def test_example(page: Page):
-    root_url = "http://localhost:8501"
+    '''
+    Example playwright test.
+    '''
+    root_url = "http://localhost:9000"
     page.goto(root_url)
 
     # Expects title of home page to be `home . Streamlit`

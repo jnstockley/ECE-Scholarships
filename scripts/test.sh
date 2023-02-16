@@ -1,4 +1,4 @@
-#!/usr/bin/env bash\
+#!/usr/bin/env bash
 OS="$(uname -s)"
 if [ -z ${SCRIPT_DIR+x} ]; then
   SCRIPT_DIR=$( pwd )/$( dirname -- "$0" );
@@ -7,6 +7,11 @@ if [ -z ${SCRIPT_DIR+x} ]; then
   fi
 fi
 export SCRIPT_DIR=$SCRIPT_DIR
+PWD=$( pwd )
 
-sh $SCRIPT_DIR/playwright.sh
-sh $SCRIPT_DIR/pyunit.sh
+cd SCRIPT_DIR/../../
+parallel -u ::: 'poetry run coverage run --source src -m unittest discover -s tests.unit -p "*.py" &&\
+ poetry run coverage run --append --source src -m streamlit run ./src/home.py'\
+  'sleep 5 && poetry run pytest ./tests/feature/playwright*.py'
+poetry run coverage report
+cd $PWD
