@@ -1,4 +1,4 @@
-#!/usr/bin/env bash\
+#!/usr/bin/env bash
 OS="$(uname -s)"
 if [ -z ${SCRIPT_DIR+x} ]; then
   SCRIPT_DIR=$( pwd )/$( dirname -- "$0" );
@@ -6,7 +6,9 @@ if [ -z ${SCRIPT_DIR+x} ]; then
     SCRIPT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
   fi
 fi
+export SCRIPT_DIR=$SCRIPT_DIR
+PWD=$( pwd )
 
-poetry run streamlit run $SCRIPT_DIR/../src/home.py &
-sleep 2
-poetry run pytest $SCRIPT_DIR/../tests/feature/playwright*.py
+cd $SCRIPT_DIR/../
+poetry run python -m tests.cli --test playwright
+cd $PWD

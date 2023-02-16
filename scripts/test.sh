@@ -9,9 +9,6 @@ fi
 export SCRIPT_DIR=$SCRIPT_DIR
 PWD=$( pwd )
 
-cd SCRIPT_DIR/../../
-parallel -u ::: 'poetry run coverage run --source src -m unittest discover -s tests.unit -p "*.py" &&\
- poetry run coverage run --append --source src -m streamlit run ./src/home.py'\
-  'sleep 5 && poetry run pytest ./tests/feature/playwright*.py'
-poetry run coverage report
+cd $SCRIPT_DIR/../
+poetry run python -m tests.cli
 cd $PWD
