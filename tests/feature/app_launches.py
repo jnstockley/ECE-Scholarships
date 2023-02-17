@@ -7,8 +7,8 @@ def test_home_page_present(page: Page):
     '''
     As a user, upon opening the app I shall be greeted with a homepage.
     '''
-    root_url = "http://localhost:9000"
+    root_url = "http://localhost:9000/"
     page.goto(root_url)
 
-    # Expects title of home page to be `home . Streamlit`
-    expect(page).to_have_title("home · Streamlit")
+    # Expects page to have title Review Application
+    expect(page.locator("span", has_text="Review Applicants")).to_have_text("Review Applicants")
