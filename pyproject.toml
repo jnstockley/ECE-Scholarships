@@ -16,7 +16,6 @@ pylint = "^2.16.1"
 coverage = "^7.1.0"
 typer = "^0.7.0"
 
-
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
 autohooks = "^23.1.0"
