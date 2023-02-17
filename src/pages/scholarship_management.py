@@ -4,7 +4,6 @@ scholarship managment page render
 import streamlit as st
 from streamlit_extras.stateful_button import button
 
-
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
