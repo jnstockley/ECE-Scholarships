@@ -1,1 +1,1 @@
-poetry run streamlit run src/main.py
+poetry run streamlit run --client.showErrorDetails false src/home.py

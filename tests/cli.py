@@ -6,7 +6,7 @@ import subprocess
 import typer
 
 CMD = {
-    'STREAMLIT_RUN': 'streamlit run src/home.py --server.port 9000 --server.headless true',
+    'STREAMLIT_RUN': 'streamlit run src/home.py --client.showErrorDetails false --server.port 9000 --server.headless true',
     'PLAYWRIGHT': 'pytest ./tests/feature/playwright*.py',
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'

@@ -14,10 +14,5 @@ class SimpleTestCase(unittest.TestCase):
         temp2 = 544
         assert temp1 == temp2, "equality not calculating values correctly"
 
-    def test_hello(self):
-        """Testing hello world!"""
-        #assert hello() == 'hello world'
-
-
 if __name__ == '__main__':
     unittest.main()
