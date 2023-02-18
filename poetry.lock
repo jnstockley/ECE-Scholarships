@@ -513,6 +513,18 @@ files = [
 ]
 
 [[package]]
+name = "et-xmlfile"
+version = "1.1.0"
+description = "An implementation of lxml.xmlfile for the standard library"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "et_xmlfile-1.1.0-py3-none-any.whl", hash = "sha256:a2ba85d1d6a74ef63837eed693bcb89c3f752169b0e3e7ae5b16ca5e1b3deada"},
+    {file = "et_xmlfile-1.1.0.tar.gz", hash = "sha256:8eb9e2bc2f8c97e37a2dc85a09ecdcdec9d8a396530a6d5a33b30b9a92da0c5c"},
+]
+
+[[package]]
 name = "faker"
 version = "17.0.0"
 description = "Faker is a Python package that generates fake data for you."
@@ -1361,6 +1373,21 @@ files = [
 ]
 
 [[package]]
+name = "openpyxl"
+version = "3.1.1"
+description = "A Python library to read/write Excel 2010 xlsx/xlsm files"
+category = "main"
+optional = false
+python-versions = ">=3.6"
+files = [
+    {file = "openpyxl-3.1.1-py2.py3-none-any.whl", hash = "sha256:a0266e033e65f33ee697254b66116a5793c15fc92daf64711080000df4cfe0a8"},
+    {file = "openpyxl-3.1.1.tar.gz", hash = "sha256:f06d44e2c973781068bce5ecf860a09bcdb1c7f5ce1facd5e9aa82c92c93ae72"},
+]
+
+[package.dependencies]
+et-xmlfile = "*"
+
+[[package]]
 name = "packaging"
 version = "23.0"
 description = "Core utilities for Python packages"
@@ -2070,6 +2097,22 @@ files = [
 htbuilder = "*"
 
 [[package]]
+name = "st-pages"
+version = "0.3.2"
+description = "An experimental version of Streamlit Multi-Page Apps"
+category = "main"
+optional = false
+python-versions = ">=3.8, !=2.7.*, !=3.0.*, !=3.1.*, !=3.2.*, !=3.3.*, !=3.4.*, !=3.5.*, !=3.6.*, !=3.7.*"
+files = [
+    {file = "st_pages-0.3.2-py3-none-any.whl", hash = "sha256:bda9ee1c6115f711aec11eec22cf2ef8e50c7054390491ce0a559b676c85123a"},
+    {file = "st_pages-0.3.2.tar.gz", hash = "sha256:4707a3ede6203e5523c7f70d1fdc70167b4f36b53ccc075d89b1fe142cad9ce6"},
+]
+
+[package.dependencies]
+numpy = ">=1.23.4,<2.0.0"
+streamlit = ">=1.10.0"
+
+[[package]]
 name = "streamlit"
 version = "1.18.1"
 description = "The fastest way to build data apps in Python"
@@ -2565,4 +2608,4 @@ testing = ["flake8 (<5)", "func-timeout", "jaraco.functools", "jaraco.itertools"
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "9a844e30fcd83fefc6ceaf1468fdd82bd69477ad94a451db149c667ed001e2a9"
+content-hash = "4ff06ae278122f94d03e20206e7f7af37e3b2064faa2d25347748b3548fecd74"

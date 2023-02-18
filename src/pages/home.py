@@ -1,10 +1,8 @@
 '''
-Main application homepage.
+Homepage view.
 '''
 import streamlit as st
 import pandas as pd
-
-st. set_page_config(layout="wide")
 
 st.title('Review Applicants')
 
@@ -13,7 +11,7 @@ current_filter = st.selectbox("Which filter would you like to apply?",
 
 st.write("Current filter:", current_filter)
 
-df = pd.read_excel("./tests/data/ECE Scholarship Applicants.xlsx", nrows=15)
+df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=15)
 st.write("***Example With Actions")
 colms = st.columns((1, 2, 1, 1, 1))
 fields = ["UID", "Name", "Program", "Sex", "Review"]
