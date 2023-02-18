@@ -3,7 +3,7 @@
 Render view for import data page
 '''
 import streamlit as st
-from utils.html import centered_text
+from src.utils.html import centered_text
 
 st.title("Import Data")
 st.write("Add files to be imported. Multiple files can be selected and the application will attempt to merge them.")

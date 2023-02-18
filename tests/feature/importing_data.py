@@ -1,8 +1,6 @@
 '''
 Test functionality of the import document tools.
 '''
-import os
-import time
 from playwright.sync_api import Page, expect
 
 # TESTS:
