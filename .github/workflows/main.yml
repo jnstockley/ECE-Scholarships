@@ -54,7 +54,10 @@ jobs:
       #  -----          Run linter          -----
       #----------------------------------------------
       - name: Run PyLint
-        run: bash scripts/lint.sh
+        run: |
+          poetry run pylint src
+          poetry run pylint tests
+
   playwright-linux:
     name: test-playwright
     runs-on: ubuntu-latest
