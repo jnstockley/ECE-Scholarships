@@ -108,10 +108,7 @@ jobs:
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        run: |
-          poetry run streamlit run src/main.py --client.showErrorDetails false --server.port 9000 --server.headless true &
-          poetry run pytest ./tests/feature/*.py
-
+        run: poetry run python -m tests.cli --test playwright
   pyunit:
     name: test-pyunit
     runs-on: ubuntu-latest
@@ -159,4 +156,4 @@ jobs:
       #  -----       Run PyUnit Tests       -----
       #----------------------------------------------
       - name: Run your tests
-        run: poetry run python -m unittest discover -s tests.unit -p "*.py"
+        run: poetry run python -m tests.cli --test pyunit
