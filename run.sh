@@ -1,1 +1,2 @@
-poetry run streamlit run --client.showErrorDetails false src/main.py
+#!/usr/bin/env bash
+poetry run streamlit run src/main.py

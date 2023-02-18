@@ -4,6 +4,7 @@ Homepage view.
 import streamlit as st
 import pandas as pd
 
+st.set_page_config(layout="wide")
 st.title('Review Applicants')
 
 current_filter = st.selectbox("Which filter would you like to apply?",
