@@ -13,6 +13,7 @@ show_pages(
     [
         Page("src/home.py", "Home"),
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
+        Page("src/pages/import.py", "Import Data")
     ]
 )
 
