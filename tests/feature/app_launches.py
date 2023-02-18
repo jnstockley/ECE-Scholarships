@@ -16,4 +16,4 @@ def test_home_page_present(page: Page):
     page.goto(root_url)
 
     # Expects page to have title Review Application
-    expect(page.locator("span", has_text="Review Applicants")).to_have_text("Review sApplicants")
+    expect(page.locator("span", has_text="Review Applicants")).to_have_text("Review Applicants")
