@@ -6,7 +6,7 @@ import subprocess
 import typer
 
 CMD = {
-    'STREAMLIT_RUN': 'streamlit run src/home.py --client.showErrorDetails false --server.port 9000 --server.headless true',
+    'STREAMLIT_RUN': 'streamlit run src/main.py --client.showErrorDetails false --server.port 9000 --server.headless true',
     'PLAYWRIGHT': 'pytest ./tests/feature/*.py',
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'
@@ -24,7 +24,7 @@ def run(test: str = 'all'):
         poetry_pyunit_cmd =f"poetry run coverage run --source src -m {CMD['PYUNIT']}"
         subprocess.run(poetry_pyunit_cmd, check=False, shell=True)
 
-        print('Launcing Streamlit server')
+        print('Launching Streamlit server')
         streamlit_cmd =f"poetry run coverage run --append --source src -m {CMD['STREAMLIT_RUN']}"
         # pylint: disable-next=consider-using-with
         streamlit_process = subprocess.Popen(streamlit_cmd, stdout=subprocess.PIPE, shell=True)
