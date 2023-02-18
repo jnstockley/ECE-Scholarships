@@ -13,4 +13,4 @@ show_pages(
         Page("src/pages/home.py", "Home"),
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
     ]
-) 
+)
