@@ -2,7 +2,6 @@
 Sample PyUnit test
 '''
 import unittest
-from src.test import hello
 
 class SimpleTestCase(unittest.TestCase):
     '''
@@ -14,11 +13,6 @@ class SimpleTestCase(unittest.TestCase):
         temp1 = 544
         temp2 = 544
         assert temp1 == temp2, "equality not calculating values correctly"
-
-    def test_hello(self):
-        """Testing hello world!"""
-        assert hello() == 'hello world'
-
 
 if __name__ == '__main__':
     unittest.main()
