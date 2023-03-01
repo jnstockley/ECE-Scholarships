@@ -3,6 +3,9 @@ Several merging functions needed for combining dataframes.
 '''
 import pandas as pd
 
+# Two options for calculating string diff: difflib, or fuzzywuzzy
+# Use fuzzywuzzy: https://pypi.org/project/fuzzywuzzy/
+
 def find_columns_to_merge(_dfs: list[pd.DataFrame], _similarity: float) -> dict[str, list[str]]:
     '''
     Given a list of dataframes, finds columns similar between two or more
