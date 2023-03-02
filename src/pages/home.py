@@ -4,7 +4,7 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 
 # Packages used in code
 import streamlit as st
-import pandas as pd 
+import pandas as pd
 from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 from streamlit_extras.stateful_button import button
 
@@ -36,7 +36,7 @@ custom_css = {}
 
 # Building the table
 grid_table = AgGrid(
-    df, 
+    df,
     gridOptions=gridoptions,
     theme='balham',
     custom_css=custom_css,
