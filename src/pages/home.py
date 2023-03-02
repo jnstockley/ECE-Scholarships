@@ -7,6 +7,7 @@ import streamlit as st
 import pandas as pd 
 import numpy as np
 from st_aggrid import GridOptionsBuilder, AgGrid, GridUpdateMode, DataReturnMode
+from streamlit_extras.stateful_button import button
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -34,7 +35,18 @@ grid_table = AgGrid(df, gridOptions=gridoptions)
 sel_rows = grid_table["selected_rows"]
 st.write(sel_rows)
 
-st.button("Export current data")
+with st.container():
+    col1, col2, col3= st.columns(3)
+    with col1:
+        if button('Review Selected Students', key='Create New Scholarship'):
+            st.write('form for creating')
+    with col2:
+        if button('See Distribution of Selected Students', key='Edit Existing Scholarship'):
+            st.write('form for editing')
+    with col3:
+        if button('Export Selected Students', key='Delete Existing Scholarship'):
+            st.write('form for deleting')
+
 
 '''
 grid_response = AgGrid(
