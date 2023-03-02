@@ -13,6 +13,7 @@ st.set_page_config(layout="wide")
 
 # Accessing test data (Will need to replace with Teams support)
 df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=15)
+df.insert(0, 'Selection', None)
 
 st.title("Home")
 st.header("Review Applicants")
