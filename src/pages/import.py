@@ -5,6 +5,7 @@ Render view for import data page
 import streamlit as st
 import pandas as pd
 from utils.html import centered_text
+from utils import merge
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
@@ -98,7 +99,7 @@ def display_alignment_column_form():
 
         # do alignment thingys
         #update_merge_columns()
-
+        merge.align_dfs_along_columns(alignment_columns, datasets)
         st.experimental_rerun()
 
 # PAGE RENDER LOGIC
