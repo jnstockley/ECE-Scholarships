@@ -67,8 +67,8 @@ def display_alignment_column_form():
 
     alignment_form = st.form("alignment_input_form")
     alignment_columns_input = alignment_form.text_input(label='columns')
-    alignment_form.write(
-        '_separate columns with "," - for example: "UID,UID.1,student_id" would be a valid input._')
+    alignment_form.write('**separate columns with ","**')
+    alignment_form.write('*for example: "UID,UID.1,student_id" would be a valid input.*')
     alignment_form_submit = alignment_form.form_submit_button("submit")
 
     if alignment_form_submit:
