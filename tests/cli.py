@@ -30,7 +30,11 @@ def run(test: str = 'all'):
         streamlit_process = subprocess.Popen(streamlit_cmd, stderr=subprocess.STDOUT, shell=True)
 
         time.sleep(4)
-        subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
+        try:
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
+        except Exception as exc:
+            streamlit_process.terminate()
+            raise exc
 
         streamlit_process.terminate()
 
