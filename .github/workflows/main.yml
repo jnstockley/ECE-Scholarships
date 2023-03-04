@@ -12,26 +12,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
-      #----------------------------------------------
       #             Setup environment
       #----------------------------------------------
       - name: Check out repository
@@ -45,6 +25,26 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-lint-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
@@ -63,26 +63,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
-      #----------------------------------------------
       #             Setup environment
       #----------------------------------------------
       - uses: microsoft/playwright-github-action@v1
@@ -97,6 +77,26 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-playwright-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
@@ -114,26 +114,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
-      #----------------------------------------------
       #             Setup environment
       #----------------------------------------------
       - name: Check out repository
@@ -147,6 +127,26 @@ jobs:
         uses: snok/install-poetry@v1
         with:
           virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
+      #                 Load Cache
+      #----------------------------------------------
+      - name: Cache packages
+        id: cache-poetry
+        uses: actions/cache@v3
+        env:
+          cache-name: cache-poetry-pyunit-packages
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-build-${{ env.cache-name }}-
+            ${{ runner.os }}-build-
+            ${{ runner.os }}-
+      
+      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
+        name: List the state of poetry packages
+        continue-on-error: true
+        run: poetry env list
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
