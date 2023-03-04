@@ -41,7 +41,7 @@ def run(test: str = 'all'):
         print('COVERAGE REPORT:')
         subprocess.run(CMD['REPORT'], check= False, shell=True)
     elif test == 'playwright':
-        print('Launcing Streamlit server')
+        print('Launching Streamlit server')
         streamlit_cmd =f"poetry run {CMD['STREAMLIT_RUN']}"
         # pylint: disable-next=consider-using-with
         streamlit_process = subprocess.Popen(streamlit_cmd, stderr=subprocess.STDOUT, shell=True)
