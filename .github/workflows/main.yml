@@ -18,7 +18,7 @@ jobs:
         id: cache-poetry
         uses: actions/cache@v3
         env:
-          cache-name: cache-poetry-packages
+          cache-name: cache-poetry-lint-packages
         with:
           path: ~/.cache
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
@@ -69,7 +69,7 @@ jobs:
         id: cache-poetry
         uses: actions/cache@v3
         env:
-          cache-name: cache-poetry-packages
+          cache-name: cache-poetry-playwright-packages
         with:
           path: ~/.cache
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
@@ -120,7 +120,7 @@ jobs:
         id: cache-poetry
         uses: actions/cache@v3
         env:
-          cache-name: cache-poetry-packages
+          cache-name: cache-poetry-pyunit-packages
         with:
           path: ~/.cache
           key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
