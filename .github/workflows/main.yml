@@ -12,34 +12,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-lint-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      #----------------------------------------------
       #             Setup environment
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
+          cache: 'poetry'
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
