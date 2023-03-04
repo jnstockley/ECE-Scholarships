@@ -12,6 +12,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
+      #----------------------------------------------
       #                 Load Cache
       #----------------------------------------------
       - name: Cache packages
@@ -32,20 +46,6 @@ jobs:
         continue-on-error: true
         run: poetry env list
       #----------------------------------------------
-      #             Setup environment
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
-      #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
       - name: Install dependencies
@@ -62,6 +62,21 @@ jobs:
     name: test-playwright
     runs-on: ubuntu-latest
     steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - uses: microsoft/playwright-github-action@v1
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
       #----------------------------------------------
       #                 Load Cache
       #----------------------------------------------
@@ -83,21 +98,6 @@ jobs:
         continue-on-error: true
         run: poetry env list
       #----------------------------------------------
-      #             Setup environment
-      #----------------------------------------------
-      - uses: microsoft/playwright-github-action@v1
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
-      #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
       - name: Install dependencies
@@ -113,6 +113,20 @@ jobs:
     name: test-pyunit
     runs-on: ubuntu-latest
     steps:
+      #----------------------------------------------
+      #             Setup environment
+      #----------------------------------------------
+      - name: Check out repository
+        uses: actions/checkout@v3
+      - name: Set up python
+        id: setup-python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      - name: Install poetry
+        uses: snok/install-poetry@v1
+        with:
+          virtualenvs-path: ~/.cache/virtualenvs
       #----------------------------------------------
       #                 Load Cache
       #----------------------------------------------
@@ -133,20 +147,6 @@ jobs:
         name: List the state of poetry packages
         continue-on-error: true
         run: poetry env list
-      #----------------------------------------------
-      #             Setup environment
-      #----------------------------------------------
-      - name: Check out repository
-        uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
