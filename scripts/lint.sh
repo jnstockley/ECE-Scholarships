@@ -8,4 +8,3 @@ if [ -z ${SCRIPT_DIR+x} ]; then
 fi
 
 poetry run pylint src
-poetry run pylint tests

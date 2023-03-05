@@ -1,4 +1,3 @@
-
 '''
 Render view for import data page
 '''
@@ -9,7 +8,6 @@ from utils import merge
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
-
 # HELPERS AND FLOW MANAGEMENT
 
 if 'view' not in st.session_state:

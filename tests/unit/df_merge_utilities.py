@@ -1,3 +1,6 @@
+'''
+Utilities for merging dfs
+'''
 import unittest
 
 class MergingDataframesTest(unittest.TestCase):
@@ -15,8 +18,5 @@ if __name__ == '__main__':
     unittest.main()
 
 
-'''
-Simple Design Idea:
-class StudentData()
-
-'''
+#Simple Design Idea:
+#class StudentData()
