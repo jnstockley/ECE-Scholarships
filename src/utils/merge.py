@@ -40,19 +40,24 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
         # Drop df references with no more duplicates
         for match in list(matches):
             local_duplicates = set.intersection(duplicates, set(match[1].columns))
+
+            print(f"local duplicates: {local_duplicates}")
             if len(local_duplicates) == 0:
                 matches.remove(match)
 
         for duplicate in duplicates:
             # filename: value
             values = {}
-            for match in matches:
+            for match_i, match in enumerate(matches):
                 filename = match[0]
                 data = match[1]
                 values[filename] = data[duplicate].tolist()[0]
+                matches[match_i] = (match[0], match[1].loc[:, match[1].columns != duplicate])
 
-            duplicate_data = pd.DataFrame(values)
-            common_columns[duplicate] = duplicate_data
+            if not len((pair[1] for pair in values.items())) == 1:
+                # Set contains unique elements, so if set length >1, then there are 2 or more
+                # datasets with different values for the duplicate column.
+                common_columns[duplicate] = pd.DataFrame(values, index=['Values'])
 
     return common_columns
 
@@ -79,7 +84,6 @@ def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: lis
 
     output_columns = set.union(*[set(sheet.get_df()) for sheet in sheets])
     output_columns = [alignment_col_name] + [col for col in output_columns if col not in alignment_columns]
-    print(output_columns)
 
     rows = []
     for align_row in new_alignment_col:
