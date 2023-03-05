@@ -4,7 +4,6 @@ Render view for import data page
 import streamlit as st
 import pandas as pd
 from utils.html import centered_text
-from utils import merge
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
@@ -64,40 +63,20 @@ def display_alignment_column_form():
         st.experimental_rerun()
 
     alignment_form = st.form("alignment_input_form")
-    alignment_columns_input = alignment_form.text_input(label='columns')
-    alignment_form.write('**separate columns with ","**')
-    alignment_form.write('*for example: "UID,UID.1,student_id" would be a valid input.*')
+    alignment_form.write('**Select 1 column from each file:**')
+
+    alignment_input_map = [] # (col to align, dataframe)
+    for file in st.session_state.import_files:
+        data = pd.read_excel(file)
+        drop_down = alignment_form.selectbox(file.name, data.columns.tolist())
+        alignment_input_map.append((drop_down, data))
+
     alignment_form_submit = alignment_form.form_submit_button("submit")
 
     if alignment_form_submit:
-        alignment_columns = [word.strip().lower()
-                             for word in alignment_columns_input.split(',')]
-        datasets = [pd.read_excel(file)
-                    for file in st.session_state.import_files]
-
-        # Verify each column exists once in each dataset.
-        valid_input = True
-        for data in datasets:
-            columns = [col.lower() for col in data.columns]
-            found = False
-
-            for alignment_column in alignment_columns:
-                if alignment_column in columns:
-                    found = True
-                    break
-
-            if not found:
-                valid_input = False
-                break
-
-        if not valid_input:
-            st.write(
-                "An inputted column was not found in any dataset. Please retry")
-            return
-
         # do alignment thingys
         #update_merge_columns()
-        merge.align_dfs_along_columns(alignment_columns, datasets)
+        #merge.align_dfs_along_columns(alignment_columns, datasets)
         st.experimental_rerun()
 
 # PAGE RENDER LOGIC
