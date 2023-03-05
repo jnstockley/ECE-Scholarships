@@ -1,12 +1,25 @@
 '''
 Render view for import data page
+
+State
+-----
+view : str
+    Current view to be rendered
+import_files : list[UploadFile]
+    Comes from file uploaded, list of UploadedFile objects.
+alignment_map : list[(str, pd.DataFrame)]
+    Alignment columns to select from each dataframe. Created during alignment form step
+drop_missing : bool
+    Whether or not the user checked drop_missing on alignment column form.
 '''
 import streamlit as st
 import pandas as pd
 from utils.html import centered_text
+from utils import merge
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
+MERGE_ALIGNMENT_ROWS = 2
 # HELPERS AND FLOW MANAGEMENT
 
 if 'view' not in st.session_state:
@@ -28,7 +41,6 @@ def display_file_upload():
 
             st.session_state['import_files'] = import_files
             st.session_state['view'] = ALIGNMENT_COLUMNS
-            print(st.session_state['view'])
 
             st.experimental_rerun()
 
@@ -66,18 +78,38 @@ def display_alignment_column_form():
     alignment_form.write('**Select 1 column from each file:**')
 
     alignment_input_map = [] # (col to align, dataframe)
+
     for file in st.session_state.import_files:
         data = pd.read_excel(file)
         drop_down = alignment_form.selectbox(file.name, data.columns.tolist())
         alignment_input_map.append((drop_down, data))
 
+    drop_missing_checkbox = alignment_form.checkbox('Drop missing?')
+
+    with alignment_form.expander('What does this mean?'):
+        st.write(
+            '''A row will only be included if the value in its alignment column is present in all your imported data sets.
+            For example, if you align the datasets based on the student ID column, a UID present in only 1/2 imported files
+            will be dropped if you check "Drop missing"
+                 ''')
+
     alignment_form_submit = alignment_form.form_submit_button("submit")
 
     if alignment_form_submit:
-        # do alignment thingys
-        #update_merge_columns()
-        #merge.align_dfs_along_columns(alignment_columns, datasets)
+        # sort in size order
+        st.session_state.alignment_map = [(pair[0], pair[1]) for pair in alignment_input_map]
+        st.session_state.drop_missing = drop_missing_checkbox
+
+        st.session_state.view = MERGE_ALIGNMENT_ROWS
         st.experimental_rerun()
+
+def display_align_row():
+    '''
+    Align rows display routine
+    '''
+    combine_columns = [pair[1][pair[0]] for pair in st.session_state.alignment_map]
+    merge.combine_columns(combine_columns, st.session_state.drop_missing)
+
 
 # PAGE RENDER LOGIC
 VIEW = st.session_state.view
@@ -85,3 +117,5 @@ if VIEW == IMPORT_PAGE:
     display_file_upload()
 elif VIEW == ALIGNMENT_COLUMNS:
     display_alignment_column_form()
+elif VIEW == MERGE_ALIGNMENT_ROWS:
+    display_align_row()
