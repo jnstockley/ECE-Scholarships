@@ -1,9 +1,11 @@
 '''
 Test functionality of the import document tools.
 '''
+import os
 from playwright.sync_api import Page, expect
 
-SAMPLE_FILE_PATHS = ['/Users/pp-brandon/Projects/team_02/tests/data/ece_scholarship_applicants.xlsx', '/Users/pp-brandon/Projects/team_02/tests/data/ece_school_applicants.xlsx']
+ABSOLUTE_PATH = os.path.dirname(__file__)
+SAMPLE_FILE_PATHS = [os.path.join(ABSOLUTE_PATH, '../data/ece_scholarship_applicants.xlsx'), os.path.join(ABSOLUTE_PATH, '../data/ece_school_applicants.xlsx')]
 
 # TESTS:
 def test_import_page(page: Page):
