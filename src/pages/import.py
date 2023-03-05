@@ -6,7 +6,7 @@ State
 view : str
     Current view to be rendered
 import_files : list[UploadFile]
-    Comes from file uploaded, list of UploadedFile objects.
+    Comes from file uploaded, list of ImportedSheet
 alignment_map : list[(str, pd.DataFrame)]
     Alignment columns to select from each dataframe. Created during alignment form step
 drop_missing : bool
@@ -16,6 +16,7 @@ import streamlit as st
 import pandas as pd
 from utils.html import centered_text
 from utils import merge
+#from models.imported_sheet import ImportedSheet
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1

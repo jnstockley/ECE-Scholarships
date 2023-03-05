@@ -10,11 +10,11 @@ class ImportedSheet:
     '''
     def __init__(self, path):
         '''
-        Initialize an object given a path. Loads dataframe.
+        Initialize an object given a path.
         '''
         self._path = path
         self._file_name = os.path.basename(path)
-        self._load_file_into_memory()
+        self._data = None
 
     def get_file_name(self):
         '''
@@ -26,7 +26,10 @@ class ImportedSheet:
         '''
         Gets the pandas dataframe
         '''
-        return self.data
+        if self._data is None:
+            self._load_file_into_memory()
+
+        return self._data
 
     def get_path(self):
         '''
@@ -39,4 +42,4 @@ class ImportedSheet:
         Takes the file path and loads it into memory
         Will handle whether file is csv or excel.
         '''
-        self.data = pd.read_excel(self._path)
+        self._data = pd.read_excel(self._path)
