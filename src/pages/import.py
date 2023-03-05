@@ -93,6 +93,7 @@ def display_alignment_column_form():
             will be dropped if you check "Drop missing"
                  ''')
 
+    #final_column_name_input = alignment_form.text_input('Final column name:')
     alignment_form_submit = alignment_form.form_submit_button("submit")
 
     if alignment_form_submit:
@@ -112,7 +113,10 @@ def display_align_row():
 
     alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
     alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
-    merge.find_duplicates(alignment_columns, combined_column.tolist()[0], alignment_sheets)
+    column_data_comparison_tables = merge.find_duplicates(alignment_columns, combined_column.tolist()[40], alignment_sheets)
+
+    for comparison_table in column_data_comparison_tables.items():
+        st.dataframe(comparison_table)
 
 
 # PAGE RENDER LOGIC

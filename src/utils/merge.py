@@ -9,41 +9,55 @@ def combine_data(_alignment_columns, _aligned_row, _dfs: list[pd.DataFrame]):
     Test
     '''
 
-def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: list[ImportedSheet]) -> pd.DataFrame:
+def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: list[ImportedSheet]) -> dict[str, pd.DataFrame]:
     '''
     Given alignment columns to reference and a set of dataframes which contains one of the alignment columns
     and atleast one dataframe that has the alignment row data provided within its alignment_column, this will check
     to see if any other dataframes containing that alignment row data in their alignment column has duplicate columns with varing data
     and if so, return a dataframe with those conflict rows.
+
+    Returns
+    -------
+    Maping of duplicate column name -> dataframe containing columns for the filename, and associated value
     '''
+    # (filename, cut dataset)
     matches = []
 
     for sheet in sheets:
         data = sheet.get_df()
         for col in alignment_columns:
             if col in data.columns:
-                col_data = data[col].tolist()
-                if col_data.count(alignment_row_data) == 1:
-                    matches.append(data.loc[data[col] == alignment_row_data,:])
-                    print(matches[-1].head())
-                    #match found, no need to check other alignment_columns.
+                if data[col].tolist().count(alignment_row_data) == 1:
+                    matches.append((sheet.file_name ,data.loc[data[col] == alignment_row_data,:]))
+                    #match found for given sheet, no need to check other alignment_columns.
                     break
 
-    # Key = the column name, value = ... ?
-    _common_columns = {}
+    # Key = the column name, value = dataframe with file names as columns and value being different value ?
+    common_columns = {}
+    print(len(matches))
 
     while len(matches) > 1:
-        duplicates = set.intersection(*[set(match.columns) for match in matches])
-        _differing_values = {}
-
+        duplicates = set.intersection(*[set(match[1].columns) for match in matches])
+        print(duplicates)
         # Drop df references with no more duplicates
         for match in list(matches):
-            local_duplicates = set.intersection(duplicates, set(match.columns))
+            local_duplicates = set.intersection(duplicates, set(match[1].columns))
             if len(local_duplicates) == 0:
                 matches.remove(match)
 
-        for _duplicate in duplicates:
-            pass
+        for duplicate in duplicates:
+            # filename: value
+            values = {}
+            for match in matches:
+                filename = match[0]
+                data = match[1]
+                values[filename] = data[duplicate].tolist()[0]
+
+            duplicate_data = pd.DataFrame(values)
+            common_columns[duplicate] = duplicate_data
+
+    return common_columns
+
 
 def combine_columns(columns: list[pd.Series], drop_missing: bool) -> pd.Series:
     '''
