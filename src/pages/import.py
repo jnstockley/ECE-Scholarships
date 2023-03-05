@@ -13,6 +13,10 @@ drop_missing : bool
     Whether or not the user checked drop_missing on alignment column form.
 final_column_name_input : str
     Name of the alignment column in the combined dataset
+check_duplicate_column_index : int
+    Row index to check for duplicate columns
+final_alignment_column : pd.Series
+    The final alignment column in the output merged DF
 '''
 import streamlit as st
 from utils.html import centered_text
@@ -21,7 +25,8 @@ from models.imported_sheet import ImportedSheet
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
-MERGE_ALIGNMENT_ROWS = 2
+DUPLICATE_COLUMN_HANDLER = 2
+IMPORT_COMPLETE = 4
 # HELPERS AND FLOW MANAGEMENT
 
 if 'view' not in st.session_state:
@@ -107,23 +112,52 @@ def display_alignment_column_form():
         st.session_state.drop_missing = drop_missing_checkbox
         st.session_state.alignment_column_name = final_column_name_input
 
-        st.session_state.view = MERGE_ALIGNMENT_ROWS
+        combine_columns = [pair[1].get_df()[pair[0]] for pair in alignment_input_map]
+        st.session_state.final_alignment_column = merge.combine_columns(combine_columns, drop_missing_checkbox)
+
+        st.session_state.view = DUPLICATE_COLUMN_HANDLER
         st.experimental_rerun()
 
-def display_align_row():
+def display_duplicate_column_form():
     '''
     Align rows display routine
     '''
-    combine_columns = [pair[1].get_df()[pair[0]] for pair in st.session_state.alignment_map]
-    combined_column = merge.combine_columns(combine_columns, st.session_state.drop_missing)
+    if 'check_duplicate_column_index' not in st.session_state:
+        st.session_state.check_duplicate_column_index = 0
+
+    if len(st.session_state.final_alignment_column.tolist()) == st.session_state.check_duplicate_column_index:
+        st.session_state.view = IMPORT_COMPLETE
+        st.experimental_rerun()
 
     alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
     alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
-    column_data_comparison_tables = merge.find_duplicates(alignment_columns, combined_column.tolist()[40], alignment_sheets)
+    alignment_col_row_value = st.session_state.final_alignment_column.tolist()[st.session_state.check_duplicate_column_index]
+
+    column_data_comparison_tables = merge.find_duplicates(alignment_columns, alignment_col_row_value, alignment_sheets)
+
+    if len(column_data_comparison_tables.items()) == 0:
+        print('none')
+        st.session_state.check_duplicate_column_index +=1
+        st.experimental_rerun()
+
+    st.header('Duplicate Column(s) Found')
+    duplicate_handler_form = st.form()
+    st.write(f'For the alignment column value {alignment_col_row_value}, please select which data to keep:')
 
     for comparison_table in column_data_comparison_tables.items():
         st.dataframe(comparison_table)
 
+    next_button = duplicate_handler_form.form_submit_button()
+    if next_button:
+        st.session_state.check_duplicate_column_index +=1
+        st.experimental_rerun()
+
+def display_done_view():
+    '''
+    Import completed view
+    '''
+    st.write('import complete!')
+    st.button('import another')
 
 # PAGE RENDER LOGIC
 VIEW = st.session_state.view
@@ -131,5 +165,7 @@ if VIEW == IMPORT_PAGE:
     display_file_upload()
 elif VIEW == ALIGNMENT_COLUMNS:
     display_alignment_column_form()
-elif VIEW == MERGE_ALIGNMENT_ROWS:
-    display_align_row()
+elif VIEW == DUPLICATE_COLUMN_HANDLER:
+    display_duplicate_column_form()
+elif VIEW == IMPORT_COMPLETE:
+    display_done_view()
