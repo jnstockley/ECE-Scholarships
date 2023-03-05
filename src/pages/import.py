@@ -11,6 +11,8 @@ alignment_map : list[(str, pd.DataFrame)]
     Alignment columns to select from each dataframe. Created during alignment form step
 drop_missing : bool
     Whether or not the user checked drop_missing on alignment column form.
+final_column_name_input : str
+    Name of the alignment column in the combined dataset
 '''
 import streamlit as st
 from utils.html import centered_text
@@ -93,13 +95,17 @@ def display_alignment_column_form():
             will be dropped if you check "Drop missing"
                  ''')
 
-    #final_column_name_input = alignment_form.text_input('Final column name:')
+    final_column_name_input = alignment_form.text_input('Final column name:')
     alignment_form_submit = alignment_form.form_submit_button("submit")
 
     if alignment_form_submit:
+        if final_column_name_input.strip() == '':
+            st.write('Error: please specify your final combined alignment column name')
+            return
         # sort in size order
         st.session_state.alignment_map = alignment_input_map
         st.session_state.drop_missing = drop_missing_checkbox
+        st.session_state.alignment_column_name = final_column_name_input
 
         st.session_state.view = MERGE_ALIGNMENT_ROWS
         st.experimental_rerun()

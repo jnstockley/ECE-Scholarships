@@ -34,11 +34,9 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
 
     # Key = the column name, value = dataframe with file names as columns and value being different value ?
     common_columns = {}
-    print(len(matches))
 
     while len(matches) > 1:
         duplicates = set.intersection(*[set(match[1].columns) for match in matches])
-        print(duplicates)
         # Drop df references with no more duplicates
         for match in list(matches):
             local_duplicates = set.intersection(duplicates, set(match[1].columns))
