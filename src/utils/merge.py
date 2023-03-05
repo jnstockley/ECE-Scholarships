@@ -41,7 +41,6 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
         for match in list(matches):
             local_duplicates = set.intersection(duplicates, set(match[1].columns))
 
-            print(f"local duplicates: {local_duplicates}")
             if len(local_duplicates) == 0:
                 matches.remove(match)
 
@@ -54,12 +53,21 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
                 values[filename] = data[duplicate].tolist()[0]
                 matches[match_i] = (match[0], match[1].loc[:, match[1].columns != duplicate])
 
-            if not len((pair[1] for pair in values.items())) == 1:
+            if not len(set(pair[1] for pair in values.items())) == 1:
                 # Set contains unique elements, so if set length >1, then there are 2 or more
                 # datasets with different values for the duplicate column.
                 common_columns[duplicate] = pd.DataFrame(values, index=['Values'])
 
     return common_columns
+
+def replace_alignment_row_duplicate_column_value(alignment_value, duplicate_col_value, duplicate_column_name:str, alignment_columns: list[str], sheets: list[ImportedSheet]):
+    '''
+    Will find the row containing the alignment_value in each sheet, and replace its duplicate column value with duplicate_col_value
+    '''
+    for dataset in [sheet.get_df() for sheet in sheets]:
+        for ali_column in alignment_columns:
+            if ali_column in dataset.columns:
+                dataset.loc[dataset[ali_column] == alignment_value, duplicate_column_name] = duplicate_col_value
 
 def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: list[str], new_alignment_col: pd.Series, sheets: list[ImportedSheet]):
     '''
