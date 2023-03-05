@@ -2,13 +2,14 @@
 Several merging functions needed for combining dataframes.
 '''
 import pandas as pd
+from models.imported_sheet import ImportedSheet
 
 def combine_data(_alignment_columns, _aligned_row, _dfs: list[pd.DataFrame]):
     '''
     Test
     '''
 
-def find_duplicates(alignment_columns: list[str], alignment_row_data, dfs: list[(str, pd.DataFrame)]) -> pd.DataFrame:
+def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: list[ImportedSheet]) -> pd.DataFrame:
     '''
     Given alignment columns to reference and a set of dataframes which contains one of the alignment columns
     and atleast one dataframe that has the alignment row data provided within its alignment_column, this will check
@@ -17,7 +18,8 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, dfs: list[
     '''
     matches = []
 
-    for data in dfs:
+    for sheet in sheets:
+        data = sheet.get_df()
         for col in alignment_columns:
             if col in data.columns:
                 col_data = data[col].tolist()

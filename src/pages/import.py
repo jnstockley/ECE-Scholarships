@@ -13,7 +13,6 @@ drop_missing : bool
     Whether or not the user checked drop_missing on alignment column form.
 '''
 import streamlit as st
-import pandas as pd
 from utils.html import centered_text
 from utils import merge
 from models.imported_sheet import ImportedSheet
@@ -40,8 +39,7 @@ def display_file_upload():
             if not isinstance(import_files, list):
                 import_files = [import_files]
 
-            print(import_files[0])
-            st.session_state.imported_sheets = [ImportedSheet(file.path) for file in import_files]
+            st.session_state.imported_sheets = [ImportedSheet(file) for file in import_files]
             st.session_state.view = ALIGNMENT_COLUMNS
 
             st.experimental_rerun()
@@ -81,10 +79,10 @@ def display_alignment_column_form():
 
     alignment_input_map = [] # (col to align, dataframe)
 
-    for file in st.session_state.imported_sheets:
-        data = pd.read_excel(file)
-        drop_down = alignment_form.selectbox(file.name, data.columns.tolist())
-        alignment_input_map.append((drop_down, data))
+    for sheet in st.session_state.imported_sheets:
+        data = sheet.get_df()
+        drop_down = alignment_form.selectbox(sheet.file_name, data.columns.tolist())
+        alignment_input_map.append((drop_down, sheet))
 
     drop_missing_checkbox = alignment_form.checkbox('Drop missing?')
 
@@ -109,12 +107,12 @@ def display_align_row():
     '''
     Align rows display routine
     '''
-    combine_columns = [pair[1][pair[0]] for pair in st.session_state.alignment_map]
+    combine_columns = [pair[1].get_df()[pair[0]] for pair in st.session_state.alignment_map]
     combined_column = merge.combine_columns(combine_columns, st.session_state.drop_missing)
 
     alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
-    alignment_dfs = [pair[1] for pair in st.session_state.alignment_map]
-    merge.find_duplicates(alignment_columns, combined_column.tolist()[0], alignment_dfs)
+    alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
+    merge.find_duplicates(alignment_columns, combined_column.tolist()[0], alignment_sheets)
 
 
 # PAGE RENDER LOGIC

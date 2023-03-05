@@ -15,22 +15,18 @@ class ImportedSheet:
         self._file = file
         self._data = None
 
-    def get_file_name(self):
-        '''
-        Getter for file path basename
-        '''
-        return self._file.name
+        self.file_name = file.name
 
     def get_df(self):
         '''
         Gets the pandas dataframe
         '''
         if self._data is None:
-            self._load_file_into_memory()
+            self.load_file_into_memory()
 
         return self._data
 
-    def _load_file_into_memory(self):
+    def load_file_into_memory(self):
         '''
         Takes the file path and loads it into memory
         Will handle whether file is csv or excel.
