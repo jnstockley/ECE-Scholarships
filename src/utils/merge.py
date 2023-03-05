@@ -28,7 +28,7 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
         for col in alignment_columns:
             if col in data.columns:
                 if data[col].tolist().count(alignment_row_data) == 1:
-                    matches.append((sheet.file_name ,data.loc[data[col] == alignment_row_data,:]))
+                    matches.append((sheet.file_name, data.loc[data[col] == alignment_row_data,:]))
                     #match found for given sheet, no need to check other alignment_columns.
                     break
 
@@ -56,6 +56,29 @@ def find_duplicates(alignment_columns: list[str], alignment_row_data, sheets: li
 
     return common_columns
 
+def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: list[str], new_alignment_col: pd.Series, sheets: list[ImportedSheet]):
+    '''
+    Combines alignment columns into a column labeled alignment_col_name and merges other row data
+    to be in order of alignment column values.
+    '''
+    output_columns = set.union(*[set(sheet.get_df()) for sheet in sheets])
+    output_columns = [alignment_col_name] + [col for col in output_columns if col not in alignment_columns]
+
+    rows = []
+    for align_row in new_alignment_col:
+        build_row = pd.DataFrame(columns=output_columns)
+
+        for sheet in sheets:
+            for col in alignment_columns:
+                if sheet.get_df()[col].tolist().count(align_row) == 1:
+                    # Found alignment_column name for this df.
+                    row_ref = sheet.get_df().loc[sheet.get_df()[col] == align_row,:].reindex(index=[0], copy=True)
+                    print(row_ref)
+                    build_row.loc[0, row_ref.columns] = row_ref.loc[0, row_ref.columns]
+                    break
+
+        rows.append(build_row)
+    print("done")
 
 def combine_columns(columns: list[pd.Series], drop_missing: bool) -> pd.Series:
     '''

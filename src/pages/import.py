@@ -125,27 +125,35 @@ def display_duplicate_column_form():
     if 'check_duplicate_column_index' not in st.session_state:
         st.session_state.check_duplicate_column_index = 0
 
-    if len(st.session_state.final_alignment_column.tolist()) == st.session_state.check_duplicate_column_index:
-        st.session_state.view = IMPORT_COMPLETE
-        st.experimental_rerun()
-
     alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
     alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
+    max_col_index = len(st.session_state.final_alignment_column.tolist())-1
+
+    if max_col_index < st.session_state.check_duplicate_column_index:
+        st.session_state.view = IMPORT_COMPLETE
+        print('import complete?')
+        merge.merge_with_alignment_columns(st.session_state.final_alignment_column, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
+        st.experimental_rerun()
+
     alignment_col_row_value = st.session_state.final_alignment_column.tolist()[st.session_state.check_duplicate_column_index]
 
-    column_data_comparison_tables = merge.find_duplicates(alignment_columns, alignment_col_row_value, alignment_sheets)
+    column_data_comparison_tables = {}
+
+    while len(column_data_comparison_tables.items()) == 0 and st.session_state.check_duplicate_column_index <= max_col_index:
+        column_data_comparison_tables = merge.find_duplicates(alignment_columns, alignment_col_row_value, alignment_sheets)
+        st.session_state.check_duplicate_column_index +=1
 
     if len(column_data_comparison_tables.items()) == 0:
-        print('none')
-        st.session_state.check_duplicate_column_index +=1
         st.experimental_rerun()
 
     st.header('Duplicate Column(s) Found')
-    duplicate_handler_form = st.form()
+    duplicate_handler_form = st.form(key='duplicate_column_form')
     st.write(f'For the alignment column value {alignment_col_row_value}, please select which data to keep:')
 
     for comparison_table in column_data_comparison_tables.items():
         st.dataframe(comparison_table)
+
+    # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
 
     next_button = duplicate_handler_form.form_submit_button()
     if next_button:
@@ -156,8 +164,11 @@ def display_done_view():
     '''
     Import completed view
     '''
-    st.write('import complete!')
-    st.button('import another')
+    st.write('import completed!')
+    import_another = st.button('import another')
+
+    if import_another:
+        st.view = IMPORT_PAGE
 
 # PAGE RENDER LOGIC
 VIEW = st.session_state.view
