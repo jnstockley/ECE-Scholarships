@@ -5,7 +5,7 @@ State
 -----
 view : str
     Current view to be rendered
-import_files : list[UploadFile]
+imported_sheets : list[ImportedSheet]
     Comes from file uploaded, list of ImportedSheet
 alignment_map : list[(str, pd.DataFrame)]
     Alignment columns to select from each dataframe. Created during alignment form step
@@ -16,7 +16,7 @@ import streamlit as st
 import pandas as pd
 from utils.html import centered_text
 from utils import merge
-#from models.imported_sheet import ImportedSheet
+from models.imported_sheet import ImportedSheet
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
@@ -40,8 +40,9 @@ def display_file_upload():
             if not isinstance(import_files, list):
                 import_files = [import_files]
 
-            st.session_state['import_files'] = import_files
-            st.session_state['view'] = ALIGNMENT_COLUMNS
+            print(import_files[0])
+            st.session_state.imported_sheets = [ImportedSheet(file.path) for file in import_files]
+            st.session_state.view = ALIGNMENT_COLUMNS
 
             st.experimental_rerun()
 
@@ -70,7 +71,7 @@ def display_alignment_column_form():
         Alignment columns are columns with unique data that is consistent between the import files. This may be something such as a student ID column. Please list all variations of this
         column name below within the datasets you selected. These values will be used to determine how rows are merged.
         ''')
-    if len(st.session_state.import_files) == 0:
+    if len(st.session_state.imported_sheets) == 0:
         # No alignment column needed when only one df imported
         st.session_state.view = IMPORT_PAGE
         st.experimental_rerun()
@@ -80,7 +81,7 @@ def display_alignment_column_form():
 
     alignment_input_map = [] # (col to align, dataframe)
 
-    for file in st.session_state.import_files:
+    for file in st.session_state.imported_sheets:
         data = pd.read_excel(file)
         drop_down = alignment_form.selectbox(file.name, data.columns.tolist())
         alignment_input_map.append((drop_down, data))

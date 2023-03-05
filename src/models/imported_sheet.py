@@ -1,26 +1,25 @@
 '''
 Imported data sheet representation
 '''
-import os
 import pandas as pd
+from streamlit.runtime.uploaded_file_manager import UploadedFile
 
 class ImportedSheet:
     '''
     Object represenation of 
     '''
-    def __init__(self, path):
+    def __init__(self, file: UploadedFile):
         '''
         Initialize an object given a path.
         '''
-        self._path = path
-        self._file_name = os.path.basename(path)
+        self._file = file
         self._data = None
 
     def get_file_name(self):
         '''
         Getter for file path basename
         '''
-        return self._file_name
+        return self._file.name
 
     def get_df(self):
         '''
@@ -31,15 +30,9 @@ class ImportedSheet:
 
         return self._data
 
-    def get_path(self):
-        '''
-        Getter for file path
-        '''
-        return self._path
-
     def _load_file_into_memory(self):
         '''
         Takes the file path and loads it into memory
         Will handle whether file is csv or excel.
         '''
-        self._data = pd.read_excel(self._path)
+        self._data = pd.read_excel(self._file)
