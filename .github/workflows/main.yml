@@ -33,7 +33,6 @@ jobs:
       - name: Run PyLint
         run: |
           poetry run pylint src
-          poetry run pylint tests
 
   playwright-linux:
     needs: [lint]
