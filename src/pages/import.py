@@ -97,7 +97,7 @@ def display_alignment_column_form():
 
     if alignment_form_submit:
         # sort in size order
-        st.session_state.alignment_map = [(pair[0], pair[1]) for pair in alignment_input_map]
+        st.session_state.alignment_map = alignment_input_map
         st.session_state.drop_missing = drop_missing_checkbox
 
         st.session_state.view = MERGE_ALIGNMENT_ROWS
@@ -108,7 +108,11 @@ def display_align_row():
     Align rows display routine
     '''
     combine_columns = [pair[1][pair[0]] for pair in st.session_state.alignment_map]
-    merge.combine_columns(combine_columns, st.session_state.drop_missing)
+    combined_column = merge.combine_columns(combine_columns, st.session_state.drop_missing)
+
+    alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
+    alignment_dfs = [pair[1] for pair in st.session_state.alignment_map]
+    merge.find_duplicates(alignment_columns, combined_column.tolist()[0], alignment_dfs)
 
 
 # PAGE RENDER LOGIC
