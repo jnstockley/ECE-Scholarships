@@ -61,24 +61,33 @@ def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: lis
     Combines alignment columns into a column labeled alignment_col_name and merges other row data
     to be in order of alignment column values.
     '''
-    output_columns = set.union(*[set(sheet.get_df()) for sheet in sheets])
-    output_columns = [alignment_col_name] + [col for col in output_columns if col not in alignment_columns]
-
-    rows = []
-    for align_row in new_alignment_col:
-        build_row = pd.DataFrame(columns=output_columns)
+    def build_row_dict():
+        col_map = {
+            f"{alignment_col_name}": align_row
+        }
 
         for sheet in sheets:
             for col in alignment_columns:
-                if sheet.get_df()[col].tolist().count(align_row) == 1:
+                if col in sheet.get_df().columns and sheet.get_df()[col].tolist().count(align_row) == 1:
                     # Found alignment_column name for this df.
-                    row_ref = sheet.get_df().loc[sheet.get_df()[col] == align_row,:].reindex(index=[0], copy=True)
-                    print(row_ref)
-                    build_row.loc[0, row_ref.columns] = row_ref.loc[0, row_ref.columns]
+                    row_ref = sheet.get_df().loc[sheet.get_df()[col] == align_row, :]
+                    for ref_col in row_ref.columns:
+                        if ref_col not in alignment_columns:
+                            col_map[ref_col] = row_ref[ref_col].tolist()[0]
                     break
+        return col_map
 
+    output_columns = set.union(*[set(sheet.get_df()) for sheet in sheets])
+    output_columns = [alignment_col_name] + [col for col in output_columns if col not in alignment_columns]
+    print(output_columns)
+
+    rows = []
+    for align_row in new_alignment_col:
+        col_map = build_row_dict()
+        build_row = pd.DataFrame(col_map, columns=output_columns, index=[0])
         rows.append(build_row)
-    print("done")
+
+    return pd.concat(rows, ignore_index=True)
 
 def combine_columns(columns: list[pd.Series], drop_missing: bool) -> pd.Series:
     '''

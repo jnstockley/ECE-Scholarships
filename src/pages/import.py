@@ -131,8 +131,9 @@ def display_duplicate_column_form():
 
     if max_col_index < st.session_state.check_duplicate_column_index:
         st.session_state.view = IMPORT_COMPLETE
-        print('import complete?')
-        merge.merge_with_alignment_columns(st.session_state.final_alignment_column, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
+        merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
+        merged_data.to_csv('~/test_output.csv')
+        print(merged_data)
         st.experimental_rerun()
 
     alignment_col_row_value = st.session_state.final_alignment_column.tolist()[st.session_state.check_duplicate_column_index]
@@ -168,7 +169,8 @@ def display_done_view():
     import_another = st.button('import another')
 
     if import_another:
-        st.view = IMPORT_PAGE
+        st.session_state.view = IMPORT_PAGE
+        st.experimental_rerun()
 
 # PAGE RENDER LOGIC
 VIEW = st.session_state.view
