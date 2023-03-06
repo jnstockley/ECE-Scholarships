@@ -157,7 +157,7 @@ def display_duplicate_column_form():
     if max_col_index < st.session_state.check_duplicate_column_index:
         st.session_state.view = IMPORT_COMPLETE
         merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
-        merged_data.to_csv('~/test_output.csv')
+        print(merged_data)
         st.experimental_rerun()
 
     if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
