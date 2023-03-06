@@ -25,7 +25,7 @@ radio_duplicate_column_selections : (str, any)
     (Column name, selected value to keep for that duplicate column)
 '''
 import streamlit as st
-from utils.html import centered_text
+from src.utils.html import centered_text
 from src.utils import merge
 from src.models.imported_sheet import ImportedSheet
 
