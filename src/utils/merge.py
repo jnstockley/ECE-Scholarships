@@ -2,7 +2,7 @@
 Several merging functions needed for combining dataframes.
 '''
 import pandas as pd
-from models.imported_sheet import ImportedSheet
+from src.models.imported_sheet import ImportedSheet
 
 def combine_data(_alignment_columns, _aligned_row, _dfs: list[pd.DataFrame]):
     '''

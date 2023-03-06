@@ -70,3 +70,38 @@ def test_import_files(page: Page):
     page.get_by_role("button", name="import another").click()
 
     expect(page.get_by_role("heading", name="Import Data")).to_have_text("Import Data")
+
+def test_import_files_with_no_files_selected(page: Page):
+    '''
+    As a user so that I can understand how to use the application, I would like to be notified
+    when no files have been selected for import.
+    '''
+    page.goto("http://localhost:9000/Import%20Data", wait_until='domcontentloaded')
+
+    page.get_by_role("button", name="Import").click()
+
+    expect(page.get_by_text("No files selected!")).to_be_visible()
+
+def test_import_files_with_no_final_alignment_name(page: Page):
+    '''
+    As a user so that I can understand how to use the application, I would like to be notified
+    when no files have been selected for import.
+    '''
+    page.goto("http://localhost:9000/Import%20Data", wait_until='domcontentloaded')
+
+    with page.expect_file_chooser() as fc_info:
+        page.get_by_role("button", name="Browse files").click()
+    file_chooser = fc_info.value
+    file_chooser.set_files(SAMPLE_FILE_PATHS)
+
+    page.get_by_role("button", name="Import").click()
+    expect(page.get_by_text("Select Alignment Columns")).to_have_text("Select Alignment Columns")
+
+    page.get_by_role("combobox", name="Selected Category. ece_scholarship_applicants.xlsx").click()
+    page.get_by_text("UID").click()
+    page.get_by_role("combobox", name="Selected Decision_Date. ece_school_applicants.xlsx").click()
+    page.get_by_text("UID.1").click()
+
+    page.get_by_role("button", name="submit").click()
+
+    expect(page.get_by_text("Error: please specify your final combined alignment column name")).to_be_visible()
