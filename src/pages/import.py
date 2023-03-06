@@ -26,8 +26,8 @@ radio_duplicate_column_selections : (str, any)
 '''
 import streamlit as st
 from utils.html import centered_text
-from utils import merge
-from models.imported_sheet import ImportedSheet
+from src.utils import merge
+from src.models.imported_sheet import ImportedSheet
 
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
