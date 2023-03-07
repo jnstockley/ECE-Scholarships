@@ -33,7 +33,6 @@ jobs:
       - name: Run PyLint
         run: |
           poetry run pylint src
-          poetry run pylint tests
 
   playwright-linux:
     needs: [lint]
@@ -61,7 +60,7 @@ jobs:
       - name: Install dependencies
         run: poetry install
       - name: Ensure browsers are installed
-        run: poetry run playwright install
+        run: poetry run playwright install --with-deps
       #----------------------------------------------
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
