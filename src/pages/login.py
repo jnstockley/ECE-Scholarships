@@ -1,40 +1,63 @@
+
+from office365.runtime.auth.token_response import TokenResponse
+from office365.runtime.auth.user_credential import UserCredential
+from office365.sharepoint.client_context import ClientContext
+
+from pages import app_config
+import tempfile
 import os
 
 import streamlit as st
-from onelogin.saml2.auth import OneLogin_Saml2_Auth
-from onelogin.saml2.utils import OneLogin_Saml2_Utils
-
-
-def init_saml_auth(req):
-    auth = OneLogin_Saml2_Auth(req, custom_base_path=os.path.join(os.path.dirname(os.path.abspath(__file__)), 'saml'))
-    return auth
-
-
-def prepare_flask_request():
-    # If server is behind proxys or balancers use the HTTP_X_FORWARDED fields
-    return {
-        'https': 'on',
-        'http_host': 'http://localhost:8501',
-        'script_name': '/',
-        'get_data': '',
-        # Uncomment if using ADFS as IdP, https://github.com/onelogin/python-saml/pull/144
-        'lowercase_urlencoding': True,
-        'post_data': ''
-    }
 
 
 def redirect(url):
     st.write(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
 
 
-params = st.experimental_get_query_params()
+if st.button("Login"):
+    authority_url = app_config.AUTHORITY
+    import msal
 
-if params == {}:
+    app = msal.ConfidentialClientApplication(
+        authority=authority_url,
+        client_id=app_config.CLIENT_ID,
+        client_credential=app_config.CLIENT_SECRET
+    )
+    token_json = app.acquire_token_for_client(scopes=["https://mediadev8.sharepoint.com/.default"])
+    temp = TokenResponse.from_json(token_json)
+    site = "https://iowa.sharepoint.com/sites/SEP2023-Team2/"
+    ctx = ClientContext(site).with_credentials(UserCredential(app_config.USERNAME, app_config.PASSWORD))
 
-    req = prepare_flask_request()
-    auth = init_saml_auth(req)
-    if st.button("Login"):
-        redirect(auth.login())
-elif "uip_ticket" in params and "SAMLRequest" in params:
-    print(params)
-    redirect("http://localhost:8501")
+
+    def enum_folder(parent_folder, fn):
+        """
+        :type parent_folder: Folder
+        :type fn: (File)-> None
+        """
+        parent_folder.expand(["Files", "Folders"]).get().execute_query()
+        for file in parent_folder.files:  # type: File
+            fn(file)
+        for folder in parent_folder.folders:  # type: Folder
+            enum_folder(folder, fn)
+
+
+    def print_file(f):
+        """
+        :type f: File
+        """
+        print(f.properties['ServerRelativeUrl'])
+
+
+    target_folder_url = "Shared Documents/Team 2"
+    root_folder = ctx.web.get_folder_by_server_relative_path(target_folder_url)
+    # enum_folder(root_folder, print_file)
+
+    files = root_folder.get_files(True).execute_query()
+    [print_file(f) for f in files]
+
+    file_url = "/sites/SEP2023-Team2/Shared Documents/Team 2/Test Plan.pptx"
+    download_path = os.path.join(tempfile.mkdtemp(), os.path.basename(file_url))
+    with open(download_path, "wb") as local_file:
+        file = ctx.web.get_file_by_server_relative_url(file_url).download(local_file).execute_query()
+        # file = ctx.web.get_file_by_server_relative_url(file_url).download(local_file).execute_query()
+    print("[Ok] file has been downloaded into: {0}".format(download_path))
