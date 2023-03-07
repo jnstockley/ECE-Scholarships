@@ -1,40 +1,61 @@
 '''
-Homepage view.
+Home: Primary page for viewing student data, leaving reviews, and exporting selections
 '''
+
+# Packages used in code
 import streamlit as st
 import pandas as pd
+from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
+from streamlit_extras.stateful_button import button
 
+# Default setting for Streamlit page
 st.set_page_config(layout="wide")
-st.title('Review Applicants')
 
+# Accessing test data (Will need to replace with Teams support)
+df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=100)
+df.insert(0, 'Selection', None)
+
+st.title("Home")
+st.header("Review Applicants")
+
+# Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which filter would you like to apply?",
-                              ("Evan's custom filter", "Scholarship 1", "Scholarship 2"))
-
+                              ("None", "Evan's custom filter", "Scholarship 1", "Scholarship 2"))
 st.write("Current filter:", current_filter)
 
-df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=15)
-st.write("***Example With Actions")
-colms = st.columns((1, 2, 1, 1, 1))
-fields = ["UID", "Name", "Program", "Sex", "Review"]
-for col, field_name in zip(colms, fields):
-    col.write(field_name)
+# Configuring options for table functionality
+gd = GridOptionsBuilder.from_dataframe(df)
+gd.configure_pagination(enabled=True) #Add pagination
+gd.configure_side_bar() #Add a sidebar
+gd.configure_default_column(editable=False, groupable=True)
+gd.configure_selection(selection_mode='multiple', use_checkbox=True) #Enable multi-row selection
+gridoptions = gd.build()
 
-for x, uid in enumerate(df["UID"]):
-    col1, col2, col3, col4, col5 = st.columns((1, 2, 1, 1, 1))
-    col1.write(uid)
-    col2.write(df["Name"][x])
-    col3.write(df["Programs"][x])
-    col4.write(df["Sex"][x])
-    REVIEWED = False
-    BUTTON_TYPE = "Review" if not REVIEWED else "Rereview"
-    button_phold = col5.empty()  # create a placeholder
-    do_action = button_phold.button(BUTTON_TYPE, key=x)
-    if do_action:
-        # do some action with a row's data
-        button_phold.empty()  # remove button
+# Option to add custom css if want to change styling, right now using default theme
+custom_css = {}
 
+# Building the table
+grid_table = AgGrid(
+    df,
+    gridOptions=gridoptions,
+    theme='balham',
+    custom_css=custom_css,
+    height = 700,
+    columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
+)
 
-st.write("***Example with Built In Table")
-st.dataframe(df)
+# How to access selected rows for use in methods like reviewing
+# sel_rows = grid_table["selected_rows"]
 
-st.button("Export current data")
+# Actions button that need to have functionality implemented
+with st.container():
+    col1, col2, col3= st.columns(3)
+    with col1:
+        if button('Review Selected Students', key='Create New Scholarship'):
+            st.write("Will add form for leaving a review/feedback")
+    with col2:
+        if button('See Distribution of Selected Students', key='Edit Existing Scholarship'):
+            st.write("Plug Ashelyn's Work in")
+    with col3:
+        if button('Export Selected Students', key='Delete Existing Scholarship'):
+            st.write('Will present options for how to export')
