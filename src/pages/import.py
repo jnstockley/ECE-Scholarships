@@ -23,6 +23,8 @@ duplicate_column_comparison_details : (str, dict[str, pd.DataFrame])
     an associated dataframe with the varying values displayed.
 radio_duplicate_column_selections : (str, any)
     (Column name, selected value to keep for that duplicate column)
+aligned_dataframe : pd.Dataframe
+    The combined dataframe along a single alignment column.
 '''
 import streamlit as st
 from src.utils.html import centered_text
@@ -32,6 +34,7 @@ from src.models.imported_sheet import ImportedSheet
 IMPORT_PAGE = 0
 ALIGNMENT_COLUMNS = 1
 DUPLICATE_COLUMN_HANDLER = 2
+MERGE_COLUMNS = 3
 IMPORT_COMPLETE = 4
 # HELPERS AND FLOW MANAGEMENT
 
@@ -82,9 +85,16 @@ def display_alignment_column_form():
         Alignment columns are columns with unique data that is consistent between the import files. This may be something such as a student ID column. Please list all variations of this
         column name below within the datasets you selected. These values will be used to determine how rows are merged.
         ''')
-    if len(st.session_state.imported_sheets) == 0:
+    if len(st.session_state.imported_sheets) <= 1:
         # No alignment column needed when only one df imported
-        st.session_state.view = IMPORT_PAGE
+        st.session_state.view = IMPORT_COMPLETE
+
+        if len(st.session_state.imported_sheets) == 1:
+            # one sheet, set as the combined "alignment" sheet
+            st.session_state.view = MERGE_COLUMNS
+            st.session_state.aligned_dataframe = st.session_state.imported_sheets[0].get_df()
+            update_merge_columns()
+
         st.experimental_rerun()
 
     alignment_form = st.form("alignment_input_form")
@@ -155,9 +165,12 @@ def display_duplicate_column_form():
     max_col_index = len(st.session_state.final_alignment_column.tolist())-1
 
     if max_col_index < st.session_state.check_duplicate_column_index:
-        st.session_state.view = IMPORT_COMPLETE
+        st.session_state.view = MERGE_COLUMNS
         merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
-        print(merged_data)
+        st.session_state.aligned_dataframe = merged_data
+        update_merge_columns()
+
+        st.session_state.imported_sheets = merged_data
         st.experimental_rerun()
 
     if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
@@ -197,6 +210,51 @@ def display_duplicate_column_form():
 
     find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
 
+def update_merge_columns():
+    '''
+    Refreshes merge columns based on state
+    '''
+    # import_df = merge.combine_data(
+    #    [pd.read_excel(file) for file in st.session_state.import_files])
+    # columns = import_df.columns
+    import_dfs = [st.session_state.aligned_dataframe]
+    columns = [column for data in import_dfs for column in data.columns]
+
+    merge_columns = merge.find_similar_columns(columns, 70)
+    st.session_state['merge_fields'] = merge_columns
+
+
+def display_merge_form(merge_details):
+    '''
+    Renders a single merge popup
+    '''
+    st.header("Duplicate Columns Have Been Detected")
+    st.write("Please select how you'd like these duplicates to be handled")
+    st.write(f"_{len(st.session_state['merge_fields'])} remaining..._")
+
+    merge_form = st.form(key="merge_data_form")
+
+    col1, col2, col3 = merge_form.columns(3)
+    with col1:
+        st.header("Merge:")
+        st.write([merge_details[0]] + merge_details[1])
+    with col2:
+        st.write("arrow ->")
+    with col3:
+        st.header("To:")
+        st.write(merge_details[0])
+
+    merge_button = merge_form.form_submit_button('merge')
+    skip_button = merge_form.form_submit_button('skip')
+
+    if skip_button:
+        # skip should have priority
+        pass
+    elif merge_button:
+        # Merge will need to handle updating the state if that column
+        # is similar to another. It should merge DB and then re-run duplicates.
+        pass
+
 def display_done_view():
     '''
     Import completed view
@@ -216,5 +274,10 @@ elif VIEW == ALIGNMENT_COLUMNS:
     display_alignment_column_form()
 elif VIEW == DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
+elif VIEW == MERGE_COLUMNS:
+    if len(st.session_state.merge_fields) > 0:
+        display_merge_form(st.session_state.merge_fields.pop(0))
+    else:
+        pass  # skip to next view
 elif VIEW == IMPORT_COMPLETE:
     display_done_view()
