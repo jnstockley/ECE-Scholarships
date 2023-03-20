@@ -9,7 +9,9 @@ st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
 if 'scholarships' not in st.session_state:
-    st.session_state['scholarships'] = []
+    st.session_state['scholarships'] = {}
+if 'scholarship_names' not in st.session_state:
+    st.session_state['scholarship_names'] = []
 
 with st.container():
     if button('Create New Scholarship', key='Create New Scholarship'):
@@ -24,10 +26,15 @@ with st.container():
         sat = st.select_slider('Select the minimum SAT requirement', options=(x*10 for x in range(0,161)))
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/5 for x in range (0,51)))
         if st.button('Create'):
-            #NOTE: change this to a dictionary for later use cases
-            st.session_state["scholarships"].append((name,total,value,major,act,sat,gpa))
+            st.session_state["scholarships"][name] = [total,value,major,act,sat,gpa]
+            st.session_state["scholarship_names"].append(name)
     if button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
         st.write('form for editing')
-        edit_sch = st.selectbox("Select the scholarship to edit", options=st.session_state['scholarships'])
+        edit_sch = st.selectbox("Select the scholarship to edit", options=st.session_state['scholarship_names'])
+        if button('Edit This Scholarship', key = 'Edit This Scholarship'):
+            if edit_sch is None:
+                st.write('There is no scholarship selected')
+            else:
+                print(st.session_state['scholarships'])
     if button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
         st.write('form for deleting')
