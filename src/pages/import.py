@@ -30,36 +30,15 @@ import streamlit as st
 from src.utils.html import centered_text
 from src.utils import merge
 from src.models.imported_sheet import ImportedSheet
+from src.sessions.import_session_manager import ImportSessionManager, View
 
-IMPORT_PAGE = 0
-ALIGNMENT_COLUMNS = 1
-DUPLICATE_COLUMN_HANDLER = 2
-MERGE_COLUMNS = 3
-IMPORT_COMPLETE = 4
 # HELPERS AND FLOW MANAGEMENT
-
-if 'view' not in st.session_state:
-    st.session_state['view'] = IMPORT_PAGE
+SESSION = ImportSessionManager(st.session_state)
 
 def display_file_upload():
     '''
     Renders the file uploader view
     '''
-    def import_data_flow(import_files):
-        '''
-        Handles render logic when import data submit has occured
-        '''
-        if len(import_files) == 0 or import_files is None:
-            st.write("No files selected!")
-        else:
-            if not isinstance(import_files, list):
-                import_files = [import_files]
-
-            st.session_state.imported_sheets = [ImportedSheet(file) for file in import_files]
-            st.session_state.view = ALIGNMENT_COLUMNS
-
-            st.experimental_rerun()
-
     st.title("Import Data")
     st.write("Add files to be imported. Multiple files can be selected and the application will attempt to merge them.")
     form = st.form(key="import_data_form")
@@ -72,7 +51,11 @@ def display_file_upload():
 
     if submit:
         # Handle imported files.
-        import_data_flow(files)
+        if not files:
+            SESSION.set_view(View.IMPORT_PAGE)
+        
+        SESSION.import_sheets(files)
+        SESSION.set_view(View.ALIGNMENT_COLUMNS)
 
 
 def display_alignment_column_form():
@@ -85,24 +68,22 @@ def display_alignment_column_form():
         Alignment columns are columns with unique data that is consistent between the import files. This may be something such as a student ID column. Please list all variations of this
         column name below within the datasets you selected. These values will be used to determine how rows are merged.
         ''')
-    if len(st.session_state.imported_sheets) <= 1:
-        # No alignment column needed when only one df imported
-        st.session_state.view = IMPORT_COMPLETE
-
-        if len(st.session_state.imported_sheets) == 1:
+    if len(SESSION.imported_sheets) <= 1:
+        if len(SESSION.imported_sheets) == 1:
             # one sheet, set as the combined "alignment" sheet
-            st.session_state.view = MERGE_COLUMNS
-            st.session_state.aligned_dataframe = st.session_state.imported_sheets[0].get_df()
+            st.session_state.aligned_dataframe = SESSION.imported_sheets[0].get_df()
             update_merge_columns()
-
-        st.experimental_rerun()
+            SESSION.set_view(View.MERGE_COLUMNS)
+        else:
+            # No alignment column needed when only one df imported
+            SESSION.set_view(View.IMPORT_COMPLETE)
 
     alignment_form = st.form("alignment_input_form")
     alignment_form.write('**Select 1 column from each file:**')
 
     alignment_input_map = [] # (col to align, dataframe)
 
-    for sheet in st.session_state.imported_sheets:
+    for sheet in SESSION.imported_sheets:
         data = sheet.get_df()
         drop_down = alignment_form.selectbox(sheet.file_name, data.columns.tolist())
         alignment_input_map.append((drop_down, sheet))
@@ -131,8 +112,7 @@ def display_alignment_column_form():
         combine_columns = [pair[1].get_df()[pair[0]] for pair in alignment_input_map]
         st.session_state.final_alignment_column = merge.combine_columns(combine_columns, drop_missing_checkbox)
 
-        st.session_state.view = DUPLICATE_COLUMN_HANDLER
-        st.experimental_rerun()
+        SESSION.set_view(View.DUPLICATE_COLUMN_HANDLER)
 
 def find_next_duplicate_column(alignment_columns: list[str], alignment_sheets: list[ImportedSheet], max_col_index: int):
     '''
@@ -165,13 +145,12 @@ def display_duplicate_column_form():
     max_col_index = len(st.session_state.final_alignment_column.tolist())-1
 
     if max_col_index < st.session_state.check_duplicate_column_index:
-        st.session_state.view = MERGE_COLUMNS
         merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
         st.session_state.aligned_dataframe = merged_data
         update_merge_columns()
 
-        st.session_state.imported_sheets = merged_data
-        st.experimental_rerun()
+        SESSION.imported_sheets = merged_data
+        SESSION.set_view(View.MERGE_COLUMNS)
 
     if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
         duplicate_details = st.session_state.duplicate_column_comparison_details
@@ -214,9 +193,6 @@ def update_merge_columns():
     '''
     Refreshes merge columns based on state
     '''
-    # import_df = merge.combine_data(
-    #    [pd.read_excel(file) for file in st.session_state.import_files])
-    # columns = import_df.columns
     import_dfs = [st.session_state.aligned_dataframe]
     columns = [column for data in import_dfs for column in data.columns]
 
@@ -233,11 +209,12 @@ def display_merge_form(merge_details):
     st.write(f"_{len(st.session_state['merge_fields'])} remaining..._")
 
     merge_form = st.form(key="merge_data_form")
+    merge_columns = [merge_details[0]] + merge_details[1]
 
     col1, col2, col3 = merge_form.columns(3)
     with col1:
         st.header("Merge:")
-        st.write([merge_details[0]] + merge_details[1])
+        st.write(merge_columns)
     with col2:
         st.write("arrow ->")
     with col3:
@@ -246,6 +223,8 @@ def display_merge_form(merge_details):
 
     merge_button = merge_form.form_submit_button('merge')
     skip_button = merge_form.form_submit_button('skip')
+
+    merge_form.dataframe(st.session_state.aligned_dataframe[merge_columns])
 
     if skip_button:
         # skip should have priority
@@ -263,21 +242,19 @@ def display_done_view():
     import_another = st.button('import another')
 
     if import_another:
-        st.session_state.view = IMPORT_PAGE
-        st.experimental_rerun()
+        SESSION.set_view(View.IMPORT_PAGE)
 
 # PAGE RENDER LOGIC
-VIEW = st.session_state.view
-if VIEW == IMPORT_PAGE:
+if SESSION.page == View.IMPORT_PAGE:
     display_file_upload()
-elif VIEW == ALIGNMENT_COLUMNS:
+elif SESSION.page == View.ALIGNMENT_COLUMNS:
     display_alignment_column_form()
-elif VIEW == DUPLICATE_COLUMN_HANDLER:
+elif SESSION.page == View.DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
-elif VIEW == MERGE_COLUMNS:
+elif SESSION.page == View.MERGE_COLUMNS:
     if len(st.session_state.merge_fields) > 0:
         display_merge_form(st.session_state.merge_fields.pop(0))
     else:
         pass  # skip to next view
-elif VIEW == IMPORT_COMPLETE:
+elif SESSION.page == View.IMPORT_COMPLETE:
     display_done_view()
