@@ -53,7 +53,7 @@ def display_file_upload():
         # Handle imported files.
         if not files:
             SESSION.set_view(View.IMPORT_PAGE)
-        
+
         SESSION.import_sheets(files)
         SESSION.set_view(View.ALIGNMENT_COLUMNS)
 
