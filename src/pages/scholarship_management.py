@@ -44,8 +44,12 @@ with st.container():
                 act = st.select_slider('New minimum ACT requirement', value=values['act'], options=range(1,37))
                 sat = st.select_slider('New minimum SAT requirement', value=values['sat'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['gpa'], options=(x/5 for x in range (0,51)))
+                if button('Finalize Changes', key = 'Finalize Changes'):
+                    newValues = {'total': total, 'value': value, 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
+                    st.session_state["scholarships"][name] = newValues
 
     if button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
         st.write('form for deleting')
 
 #Note: might need to define functions so that I can pull state information at a later point rather than preloaded data
+#Note: can edit the visibility using session state variables for a cleaner looking application, not exactly sure as to how I will do it yet
