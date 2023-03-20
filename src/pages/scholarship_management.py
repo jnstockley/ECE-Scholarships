@@ -49,7 +49,16 @@ with st.container():
                     st.session_state["scholarships"][name] = newValues
 
     if button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
-        st.write('form for deleting')
+        delete_sch = st.selectbox("Select the scholarship to delete", options=st.session_state['scholarship_names'])
+        if button ('Delete This Scholarship', key='Delete This Scholarship'):
+            if delete_sch is None:
+                st.write('There is no scholarship selected')
+            else:
+                st.write('Are you sure you want to delete this scholarship?')
+                if button ('Finalize Deletion', key='Finalize Deletion'):
+                    del st.session_state['scholarships'][delete_sch]
+                    st.session_state['scholarship_names'].remove(delete_sch)
+                    st.write(delete_sch + ' has been successfully deleted.')
 
 #Note: might need to define functions so that I can pull state information at a later point rather than preloaded data
 #Note: can edit the visibility using session state variables for a cleaner looking application, not exactly sure as to how I will do it yet
