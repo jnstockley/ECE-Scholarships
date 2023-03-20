@@ -3,10 +3,6 @@ Render view for import data page
 
 State
 -----
-view : str
-    Current view to be rendered
-imported_sheets : list[ImportedSheet]
-    Comes from file uploaded, list of ImportedSheet
 alignment_map : list[(str, pd.DataFrame)]
     Alignment columns to select from each dataframe. Created during alignment form step
 drop_missing : bool
@@ -31,6 +27,7 @@ from src.utils.html import centered_text
 from src.utils import merge
 from src.models.imported_sheet import ImportedSheet
 from src.sessions.import_session_manager import ImportSessionManager, View
+from src.managers.alignment_settings import SelectAlignment, AlignmentInfo
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
@@ -81,12 +78,12 @@ def display_alignment_column_form():
     alignment_form = st.form("alignment_input_form")
     alignment_form.write('**Select 1 column from each file:**')
 
-    alignment_input_map = [] # (col to align, dataframe)
+    alignment_inputs = [] # (col to align, dataframe)
 
     for sheet in SESSION.imported_sheets:
         data = sheet.get_df()
         drop_down = alignment_form.selectbox(sheet.file_name, data.columns.tolist())
-        alignment_input_map.append((drop_down, sheet))
+        alignment_inputs.append(SelectAlignment(drop_down, sheet))
 
     drop_missing_checkbox = alignment_form.checkbox('Drop missing?')
 
@@ -104,13 +101,9 @@ def display_alignment_column_form():
         if final_column_name_input.strip() == '':
             st.write('Error: please specify your final combined alignment column name')
             return
-        # sort in size order
-        st.session_state.alignment_map = alignment_input_map
-        st.session_state.drop_missing = drop_missing_checkbox
-        st.session_state.alignment_column_name = final_column_name_input
 
-        combine_columns = [pair[1].get_df()[pair[0]] for pair in alignment_input_map]
-        st.session_state.final_alignment_column = merge.combine_columns(combine_columns, drop_missing_checkbox)
+        alignment_info = AlignmentInfo(drop_missing_checkbox, final_column_name_input, alignment_inputs)
+        SESSION.begin_alignment(alignment_info)
 
         SESSION.set_view(View.DUPLICATE_COLUMN_HANDLER)
 
@@ -245,16 +238,16 @@ def display_done_view():
         SESSION.set_view(View.IMPORT_PAGE)
 
 # PAGE RENDER LOGIC
-if SESSION.page == View.IMPORT_PAGE:
+if SESSION.view == View.IMPORT_PAGE:
     display_file_upload()
-elif SESSION.page == View.ALIGNMENT_COLUMNS:
+elif SESSION.view == View.ALIGNMENT_COLUMNS:
     display_alignment_column_form()
-elif SESSION.page == View.DUPLICATE_COLUMN_HANDLER:
+elif SESSION.view == View.DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
-elif SESSION.page == View.MERGE_COLUMNS:
+elif SESSION.view == View.MERGE_COLUMNS:
     if len(st.session_state.merge_fields) > 0:
         display_merge_form(st.session_state.merge_fields.pop(0))
     else:
         pass  # skip to next view
-elif SESSION.page == View.IMPORT_COMPLETE:
+elif SESSION.view == View.IMPORT_COMPLETE:
     display_done_view()
