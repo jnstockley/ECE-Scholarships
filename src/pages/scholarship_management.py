@@ -11,7 +11,10 @@ with st.container():
     col1, col2, col3= st.columns(3)
     with col1:
         if button('Create New Scholarship', key='Create New Scholarship'):
-            st.write('form for creating')
+            st.write('Create a new scholarship')
+            st.write('How many scholarships are available?')
+            st.write('How much are the scholarships worth?')
+            st.write('What are the criteria of the scholarship?')
     with col2:
         if button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
             st.write('form for editing')
