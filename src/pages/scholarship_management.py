@@ -3,6 +3,7 @@ scholarship managment page render
 '''
 import streamlit as st
 from streamlit_extras.stateful_button import button
+import pandas as pd
 
 if 'scholarships' not in st.session_state:
     st.session_state['scholarships'] = {}
@@ -14,6 +15,14 @@ if 'edit_vis' not in st.session_state:
     st.session_state['edit_disabled'] = False
 if 'delete_vis' not in st.session_state:
     st.session_state['delete_disabled'] = False
+
+scholarships_excel = pd.read_excel('./scholarships/scholarships.xlsx')
+scholarships = scholarships_excel.head()
+#print(scholarships)
+#print(scholarships['Name'][0])
+
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['Both'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
+#df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
@@ -38,7 +47,7 @@ with st.container():
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
-                scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
+                scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': int(act), 'sat': int(sat), 'gpa': float(gpa)}
                 st.session_state["scholarships"][name] = scholarship_values
                 st.session_state["scholarship_names"].append(name)
 
