@@ -76,5 +76,6 @@ with st.container():
                     st.session_state['scholarship_names'].remove(delete_sch)
                     st.write(delete_sch + ' has been successfully deleted.')
 
-#Note: might need to define functions so that I can pull state information at a later point rather than preloaded data
-#Note: can edit the visibility using session state variables for a cleaner looking application, not exactly sure as to how I will do it yet
+#Note: might need to define functions so that state information can be used differently? Not sure, but as of now I can only disable buttons that come
+#ahead of the buttons being disabled which isnt a big deal so save this for last
+#Note: can edit the visibility using session state variables for a cleaner looking application. See above
