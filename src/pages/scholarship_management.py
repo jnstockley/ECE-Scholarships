@@ -38,7 +38,7 @@ with st.container():
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
-                scholarship_values = {'total': total, 'value': value, 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
+                scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
                 st.session_state["scholarships"][name] = scholarship_values
                 st.session_state["scholarship_names"].append(name)
 
