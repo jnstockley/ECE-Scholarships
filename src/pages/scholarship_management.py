@@ -3,7 +3,6 @@ scholarship managment page render
 '''
 import streamlit as st
 from streamlit_extras.stateful_button import button
-import numpy as np
 
 if 'scholarships' not in st.session_state:
     st.session_state['scholarships'] = {}
