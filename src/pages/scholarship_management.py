@@ -18,9 +18,12 @@ if 'delete_vis' not in st.session_state:
 
 scholarships_excel = pd.read_excel('./scholarships/scholarships.xlsx')
 scholarships = scholarships_excel.head()
-print(scholarships)
+#NOTE: Here for viewing purposes
+#print(scholarships)
 #print(scholarships.shape[0])
 
+#NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
+#after you run it once or it will continuously reset it.
 #df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['Both'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
@@ -48,13 +51,6 @@ with st.container():
                 st.write("Please make sure all the fields are filled out.")
             else:
                 scholarship = pd.Series(data=[name, total, value, major, act, sat, gpa], index=scholarships.columns, name = scholarships.shape[0])
-                # scholarships['Name'].append(name)
-                # scholarships['Total Amount'].append(total)
-                # scholarships['Value'].append(value)
-                # scholarships['Major'].append(major)
-                # scholarships['ACT'].append(act)
-                # scholarships['SAT'].append(sat)
-                # scholarships['GPA'].append(gpa)
                 new_scholarships = scholarships.append(scholarship)
                 new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                 scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': int(act), 'sat': int(sat), 'gpa': float(gpa)}
