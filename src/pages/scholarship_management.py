@@ -24,7 +24,7 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['Both'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['N/A'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
@@ -46,7 +46,6 @@ with st.container():
         sat = st.select_slider('Select the minimum SAT requirement', options=(x*10 for x in range(0,161)))
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/5 for x in range (0,26)))
         if st.button('Create'):
-            print(name)
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
@@ -56,6 +55,7 @@ with st.container():
                 scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': int(act), 'sat': int(sat), 'gpa': float(gpa)}
                 st.session_state["scholarships"][name] = scholarship_values
                 st.session_state["scholarship_names"].append(name)
+                st.write(name + " has been successfully created.")
 
     if button('Edit Existing Scholarship', disabled=st.session_state["edit_disabled"], key='Edit Existing Scholarship'):
         edit_sch = st.selectbox("Select the scholarship to edit", options=st.session_state['scholarship_names'])
