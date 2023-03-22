@@ -56,24 +56,35 @@ with st.container():
                 st.write(name + " has been successfully created.")
 
     if button('Edit Existing Scholarship', disabled=st.session_state["edit_disabled"], key='Edit Existing Scholarship'):
-        edit_sch = st.selectbox("Select the scholarship to edit", options=st.session_state['scholarship_names'])
+        edit_sch = st.selectbox("Select the scholarship to edit", options=scholarships['Name'])
         st.session_state['create_disabled'] = True
         st.session_state['delete_disabled'] = True
         if button('Edit This Scholarship', key = 'Edit This Scholarship'):
             if edit_sch is None:
                 st.write('There is no scholarship selected')
             else:
-                name = edit_sch
-                values = st.session_state["scholarships"][name]
-                total = st.text_input("New total amount of Scholarships", value = values['total'], max_chars=8, placeholder="Enter Numerical Amount")
-                value = st.text_input('New value of each individual Scholarship', value = values['value'], max_chars=8, placeholder="Enter Numerical Amount")
-                major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['major']), options=["Computer Science and Engineering", "Electrical Engineering", "N/A"])
-                act = st.select_slider('New minimum ACT requirement', value=values['act'], options=range(1,37))
-                sat = st.select_slider('New minimum SAT requirement', value=values['sat'], options=(x*10 for x in range(0,161)))
-                gpa = st.select_slider('New minimum GPA requirement', value=values['gpa'], options=(x/5 for x in range (0,51)))
+                values = None
+                index = None
+                for n in range(0, scholarships.shape[0]):
+                    values = scholarships.iloc[n]
+                    if values['Name'] == edit_sch:
+                        index = n
+                        break    
+                total = st.text_input("New total amount of Scholarships", value = values['Total Amount'], max_chars=8, placeholder="Enter Numerical Amount")
+                value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
+                major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=["Computer Science and Engineering", "Electrical Engineering", "N/A"])
+                act = st.select_slider('New minimum ACT requirement', value=values['ACT'], options=range(1,37))
+                sat = st.select_slider('New minimum SAT requirement', value=values['SAT'], options=(x*10 for x in range(0,161)))
+                gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/5 for x in range (0,51)))
                 if button('Finalize Changes', key = 'Finalize Changes'):
-                    newValues = {'total': total, 'value': value, 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
-                    st.session_state["scholarships"][name] = newValues
+                    scholarships.iloc[index, 'Total Amount'] = total
+                    scholarships.iloc[index, 'Value'] = value
+                    scholarships.iloc[index, 'Major'] = major
+                    scholarships.iloc[index, 'ACT'] = act
+                    scholarships.iloc[index, 'SAT'] = sat
+                    scholarships.iloc[index, 'GPA'] = gpa
+                    #newValues = {'total': total, 'value': value, 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
+                    #st.session_state["scholarships"][name] = newValues
 
     if button('Delete Existing Scholarship', disabled=st.session_state["delete_disabled"], key='Delete Existing Scholarship'):
         delete_sch = st.selectbox("Select the scholarship to delete", options=st.session_state['scholarship_names'])
