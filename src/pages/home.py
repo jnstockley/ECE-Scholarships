@@ -71,8 +71,8 @@ with st.container():
                     new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
                 #new_recommendation = {"UID": , "Scholarship": , "Additional Feedback": }
                 #Probably want to make a function that verifies the inputted students and whether or not they meet minimum criteria 
-                st.write(new_recommendations)
-                
+                user_recommendations = user_recommendations.append(new_recommendations)
+                user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
                 #Check for if they already recommended that student for that scholarship
                 #Check if that scholarship has already been created
                 #append_df_to_excel
