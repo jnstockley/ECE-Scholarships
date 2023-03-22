@@ -26,7 +26,6 @@ class SelectAlignment:
         '''
         return self.column
 
-@dataclasses.dataclass
 class DuplicateColumnData:
     '''
     Stores information about a duplicate value that differs between duplicate columns found between
@@ -41,9 +40,34 @@ class DuplicateColumnData:
     affected_alignment_data : list[SelectedAlignment]
         The referenced selected alignment dataset objects for reference.
     '''
-    alignment_row_value: str
-    duplicate_column_name: str
-    affected_alignment_data: list[SelectAlignment]
+    def __init__(self, alignment_row_value: str, duplicate_column_name: str, affected_alignment_data: list[SelectAlignment]):
+        self.alignment_row_value = alignment_row_value
+        self.duplicate_column_name = duplicate_column_name
+        self.affected_alignment_data = affected_alignment_data
+
+    def get_values(self) -> set[any]:
+        '''
+        Returns all the unique values in this duplicate column row from each of the imported dataframes.
+        '''
+        values = []
+
+        for alignment_data in self.affected_alignment_data:
+            data = alignment_data.sheet.get_df()
+            values.append(data.loc[data[alignment_data.column] == self.alignment_row_value, self.duplicate_column_name].tolist()[0])
+
+        return set(values)
+
+    def get_comparison_df(self) -> pd.DataFrame:
+        '''
+        Returns a dataframe with column name being the name of the import file and value being
+        the value the duplicate column name is inside that associated dataset.
+        '''
+        return pd.DataFrame()
+
+    def override_value(self, value):
+        '''
+        Sets the value of all of the duplicate columns in each dataframe to this value
+        '''
 
 @dataclasses.dataclass
 class AlignmentInfo:
@@ -92,22 +116,22 @@ class AlignmentManager:
         self.combine_columns = [setting.get_alignment_col() for setting in selected_alignment_columns]
         self.final_alignment_column = merge.combine_columns(self.combine_columns, self.info.drop_missing)
 
-        self.max_align_index = self.final_alignment_column
-        self.current_align_index = 0
-        self.duplicate_df_columns = self._find_duplicate_columns()
-        self.mismatched_duplicate_column_row = self._find_duplicate_columns_with_differing_data()
+        self._duplicate_df_columns = self._find_duplicate_columns()
+        self._mismatched_duplicate_column_row = self._find_duplicate_columns_with_differing_data()
+        print(f"Total mismatches = {len(self._mismatched_duplicate_column_row)}")
 
         # find mismatched columns
     def pop_next_duplicate_to_handle(self):
         '''
         Returns next duplicate to handle from the 
         '''
+        return self._mismatched_duplicate_column_row.pop()
 
     def alignment_complete(self) -> bool:
         '''
         Returns whether user has went through all duplicate columns that differ in values.
         '''
-        return self.current_align_index >= self.max_align_index
+        return len(self._mismatched_duplicate_column_row) == 0
 
     def _find_duplicate_columns(self) -> set[str]:
         '''
@@ -132,7 +156,7 @@ class AlignmentManager:
 
         for _index, value in self.final_alignment_column.items():
             affected_alignment_data: list[SelectAlignment] = []
-            for duplicate_column in self.duplicate_df_columns:
+            for duplicate_column in self._duplicate_df_columns:
                 affected_alignment_data: list[SelectAlignment] = []
 
                 # step 1: aquire relevant dataframes (all dataframes with duplicate column and index value)
@@ -145,7 +169,6 @@ class AlignmentManager:
                 prev_val = None
                 for data in affected_alignment_data:
                     cur_val = data.sheet.get_df().loc[data.sheet.get_df()[data.column] == value, duplicate_column].tolist()[0]
-                    print(f"prev - {prev_val}, cur - {cur_val}")
 
                     if prev_val is None:
                         prev_val = cur_val

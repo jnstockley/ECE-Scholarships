@@ -108,43 +108,35 @@ def display_duplicate_column_form():
     '''
     Align rows display routine
     '''
-    print(len(SESSION.alignment_info.mismatched_duplicate_column_row))
-    print([val.duplicate_column_name for val in SESSION.alignment_info.mismatched_duplicate_column_row])
+    alignment_info: AlignmentManager = SESSION.alignment_info
+    #print(f"Remaining mismatches = {len(alignment_info._mismatched_duplicate_column_row)}")
 
-    if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
-        #duplicate_details = st.session_state.duplicate_column_comparison_details
-        st.header('Duplicate Column(s) Found')
-        duplicate_handler_form = st.form(key='duplicate_column_form')
-        #duplicate_handler_form.write(f'For the alignment column value {duplicate_details[0]}, please select which data to keep:')
-        duplicate_handler_form.write('### Columns')
+    if alignment_info.alignment_complete():
+        return
 
-        # (duplicate column name, value)
-        # mapped_data_inputs = []
+    duplicate_details = alignment_info.pop_next_duplicate_to_handle()
+    st.header('Duplicate Column(s) Found')
+    duplicate_handler_form = st.form(key='duplicate_column_form')
+    duplicate_handler_form.write(f'For the unique alignment column value {duplicate_details.alignment_row_value}, please select which data to keep:')
+    duplicate_handler_form.write('### Columns')
 
-        # for i, column_name in enumerate(duplicate_details[1]):
-        #     duplicate_handler_form.write(f'_{column_name}:_')
-        #     col1, col2 = duplicate_handler_form.columns(2)
-        #     with col1:
-        #         st.dataframe(duplicate_details[1][column_name])
-        #     with col2:
-        #         radio_select = st.radio(f"Select the final value for column '{column_name}'",
-        #             duplicate_details[1][column_name].loc['Values', :].tolist())
+    duplicate_handler_form.write(f'_{duplicate_details.duplicate_column_name}:_')
+    col1, col2 = duplicate_handler_form.columns(2)
+    with col1:
+        st.dataframe(duplicate_details.get_comparison_df())
+    with col2:
+        st.radio(f"Select the final value for column '{duplicate_details.duplicate_column_name}'",
+            duplicate_details.get_values())
 
-        #         mapped_data_inputs.append((column_name, radio_select))
-
-
-        #     if i < len(duplicate_details[1])-1:
-        #         duplicate_handler_form.write('---')
-
-        # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
-        next_button = duplicate_handler_form.form_submit_button('Next')
-        if next_button:
-            st.session_state.duplicate_column_comparison_details = None
-            #for duplicate_col_input in mapped_data_inputs:
-                #merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
-            st.experimental_rerun()
-        else:
-            return
+    # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
+    next_button = duplicate_handler_form.form_submit_button('Next')
+    if next_button:
+        # st.session_state.duplicate_column_comparison_details = None
+        # for duplicate_col_input in mapped_data_inputs:
+        #     merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
+        st.experimental_rerun()
+    else:
+        return
 
     # find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
 
