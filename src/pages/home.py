@@ -5,7 +5,7 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 # Packages used in code
 import streamlit as st
 import pandas as pd
-from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
+from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 from streamlit_extras.stateful_button import button
 
 # Default setting for Streamlit page
@@ -18,6 +18,9 @@ df.insert(0, 'Selection', None)
 st.title("Home")
 st.header("Review Applicants")
 
+# Small function used to expand the paragrpah answers
+clicked_name_cell_func = "function(params) { alert(params.node.data['Describe any relevant life experience related to engineering. ']); };"
+
 # Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which filter would you like to apply?",
                               ("None", "Evan's custom filter", "Scholarship 1", "Scholarship 2"))
@@ -29,6 +32,7 @@ gd.configure_pagination(enabled=True) #Add pagination
 gd.configure_side_bar() #Add a sidebar
 gd.configure_default_column(editable=False, groupable=True)
 gd.configure_selection(selection_mode='multiple', use_checkbox=True) #Enable multi-row selection
+gd.configure_column("Describe any relevant life experience related to engineering. ", headerTooltip='Click to see cell data', onCellClicked=JsCode(clicked_name_cell_func))
 gridoptions = gd.build()
 
 # Option to add custom css if want to change styling, right now using default theme
@@ -42,6 +46,7 @@ grid_table = AgGrid(
     custom_css=custom_css,
     height = 700,
     columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
+    allow_unsafe_jscode=True
 )
 
 # How to access selected rows for use in methods like reviewing
