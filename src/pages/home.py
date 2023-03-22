@@ -56,11 +56,12 @@ grid_table = AgGrid(
 with st.container():
     col1, col2, col3= st.columns(3)
     with col1:
-        if button('Review Selected Students', key='Create New Scholarship'):
-            st.write("Will add form for leaving a review/feedback")
+        with st.expander("Review Selected Students"):
+            st.write("Test")
+        #if button('Review Selected Students', key='Create New Scholarship'):
+         #   st.write("Will add form for leaving a review/feedback")
     with col2:
-        if button('See Distribution of Selected Students', key='Edit Existing Scholarship'):
-            st.write("Plug Ashelyn's Work in")
+        with st.expander("See Distribution of Selected Students"):
+            st.write("Add Ashelyn's Data Analysis")
     with col3:
-        if button('Export Selected Students', key='Delete Existing Scholarship'):
-            st.write('Will present options for how to export')
+        button("Export Selected Students", key="Export Data")
