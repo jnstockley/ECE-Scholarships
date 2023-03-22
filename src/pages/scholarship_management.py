@@ -24,14 +24,14 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['N/A'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['All'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
 with st.container():
-    majors = ["Computer Science and Engineering", "Electrical Engineering", "N/A"]
+    majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
     if button('Create New Scholarship', disabled=st.session_state["create_disabled"], key='Create New Scholarship'):
         st.title('Create a new scholarship')
         st.session_state["edit_disabled"] = True
@@ -72,7 +72,7 @@ with st.container():
                         break    
                 total = st.text_input("New total amount of Scholarships", value = values['Total Amount'], max_chars=8, placeholder="Enter Numerical Amount")
                 value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
-                major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=["Computer Science and Engineering", "Electrical Engineering", "N/A"])
+                major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
                 act = st.select_slider('New minimum ACT requirement', value=values['ACT'], options=range(1,37))
                 sat = st.select_slider('New minimum SAT requirement', value=values['SAT'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/5 for x in range (0,51)))
