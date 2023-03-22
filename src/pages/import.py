@@ -114,7 +114,11 @@ def display_duplicate_column_form():
     if alignment_info.alignment_complete():
         return
 
-    duplicate_details = alignment_info.pop_next_duplicate_to_handle()
+    if not alignment_info.session_has_duplicate():
+        alignment_info.pop_next_duplicate_to_handle()
+
+    duplicate_details = alignment_info.current_duplicate_details
+
     st.header('Duplicate Column(s) Found')
     duplicate_handler_form = st.form(key='duplicate_column_form')
     duplicate_handler_form.write(f'For the unique alignment column value {duplicate_details.alignment_row_value}, please select which data to keep:')

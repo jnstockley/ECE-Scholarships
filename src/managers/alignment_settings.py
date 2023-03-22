@@ -109,6 +109,7 @@ class AlignmentManager:
         Final aligned column in its current alignment state.
     duplicate_df_columns : set[str]
         Set of the duplicate columns found between the alignment dataframes
+    current_duplicate_details : 
     '''
     def __init__(self, drop_missing: bool, final_column_name: str, selected_alignment_columns: list[SelectAlignment]):
         self.info = AlignmentInfo(drop_missing, final_column_name, selected_alignment_columns)
@@ -117,21 +118,30 @@ class AlignmentManager:
         self.final_alignment_column = merge.combine_columns(self.combine_columns, self.info.drop_missing)
 
         self._duplicate_df_columns = self._find_duplicate_columns()
-        self._mismatched_duplicate_column_row = self._find_duplicate_columns_with_differing_data()
-        print(f"Total mismatches = {len(self._mismatched_duplicate_column_row)}")
+        self._mismatched_duplicate_column_rows: list[DuplicateColumnData] = self._find_duplicate_columns_with_differing_data()
+
+        self.current_duplicate_details = None
 
         # find mismatched columns
     def pop_next_duplicate_to_handle(self):
         '''
-        Returns next duplicate to handle from the 
+        Returns next duplicate to handle from the list. Stores it in state. 
         '''
-        return self._mismatched_duplicate_column_row.pop()
+        details = self._mismatched_duplicate_column_rows.pop()
+        self.current_duplicate_details = details
+        return details
+
+    def session_has_duplicate(self):
+        '''
+        Returns whether the session already has a duplicate to merge
+        '''
+        return not self.current_duplicate_details is None
 
     def alignment_complete(self) -> bool:
         '''
         Returns whether user has went through all duplicate columns that differ in values.
         '''
-        return len(self._mismatched_duplicate_column_row) == 0
+        return len(self._mismatched_duplicate_column_rows) == 0
 
     def _find_duplicate_columns(self) -> set[str]:
         '''
