@@ -62,7 +62,14 @@ class DuplicateColumnData:
         Returns a dataframe with column name being the name of the import file and value being
         the value the duplicate column name is inside that associated dataset.
         '''
-        return pd.DataFrame()
+        data = pd.DataFrame()
+        for selected_alignment in self.affected_alignment_data:
+            ref_df = selected_alignment.sheet.get_df()
+            cell_value = ref_df.loc[ref_df[selected_alignment.column] == self.alignment_row_value, self.duplicate_column_name].tolist()[0]
+
+            data.loc[self.duplicate_column_name, selected_alignment.sheet.file_name] = cell_value
+
+        return data
 
     def override_value(self, value):
         '''
