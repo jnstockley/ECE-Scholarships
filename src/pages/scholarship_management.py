@@ -24,7 +24,7 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':[1000], 'Value':[8000], 'Major':['All'], 'ACT':[26], 'SAT':[1000], 'GPA':[3.25]})
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT':['1000'], 'GPA':['3.25']})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
@@ -44,7 +44,7 @@ with st.container():
         major = st.selectbox("Select which majors the scholarship applies to", options=majors)
         act = st.select_slider('Select the minimum ACT requirement', options=range(0,37))
         sat = st.select_slider('Select the minimum SAT requirement', options=(x*10 for x in range(0,161)))
-        gpa = st.select_slider('Select the minimum GPA requirement', options=(x/5 for x in range (0,26)))
+        gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         if st.button('Create'):
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
@@ -75,7 +75,7 @@ with st.container():
                 major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
                 act = st.select_slider('New minimum ACT requirement', value=values['ACT'], options=range(1,37))
                 sat = st.select_slider('New minimum SAT requirement', value=values['SAT'], options=(x*10 for x in range(0,161)))
-                gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/5 for x in range (0,51)))
+                gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 if button('Finalize Changes', key = 'Finalize Changes'):
                     scholarships.iloc[index, 'Total Amount'] = total
                     scholarships.iloc[index, 'Value'] = value
