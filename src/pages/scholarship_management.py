@@ -18,7 +18,7 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT':['1000'], 'GPA':['4.0']})
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0']})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
@@ -37,13 +37,15 @@ with st.container():
         value = st.text_input('The value of each individual Scholarship', max_chars=8, placeholder="Enter Numerical Amount")
         major = st.selectbox("Select which majors the scholarship applies to", options=majors)
         act = st.select_slider('Select the minimum ACT requirement', options=range(0,37))
-        sat = st.select_slider('Select the minimum SAT requirement', options=(x*10 for x in range(0,161)))
+        sat_math = st.select_slider('New minimum SAT Math requirement', options=(x*10 for x in range(0,81)))
+        sat_reading = st.select_slider('New minimum SAT Reading requirement', options=(x*10 for x in range(0,81)))
+        sat_comb = st.select_slider('Select the minimum SAT Combined requirement', options=(x*10 for x in range(0,161)))
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         if st.button('Create'):
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
-                scholarship = pd.Series(data=[name, total, value, major, act, sat, gpa], index=scholarships.columns, name = scholarships.shape[0])
+                scholarship = pd.Series(data=[name, total, value, major, act, sat_math, sat_reading, sat_comb, gpa], index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
@@ -77,7 +79,7 @@ with st.container():
                     scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
-    elif button('Delete Existing Scholarship', disabled=st.session_state["delete_disabled"], key='Delete Existing Scholarship'):
+    elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
         delete_sch = st.selectbox("Select the scholarship to delete", options=scholarships['Name'])
         if button ('Delete This Scholarship', key='Delete This Scholarship'):
             if delete_sch is None:
