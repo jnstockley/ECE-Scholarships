@@ -6,7 +6,6 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 import streamlit as st
 import pandas as pd
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
-from streamlit_extras.stateful_button import button
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -14,6 +13,10 @@ st.set_page_config(layout="wide")
 # Accessing test data (Will need to replace with Teams support)
 df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=100)
 df.insert(0, 'Selection', None)
+
+scholarships = pd.read_excel("./tests/data/scholarships.xlsx")
+user_recommendations = pd.read_excel("./tests/data/Test_User_Reviews.xlsx")
+st.write(scholarships)
 
 st.title("Home")
 st.header("Review Applicants")
@@ -57,11 +60,27 @@ with st.container():
     col1, col2, col3= st.columns(3)
     with col1:
         with st.expander("Review Selected Students"):
-            st.write("Test")
-        #if button('Review Selected Students', key='Create New Scholarship'):
-         #   st.write("Will add form for leaving a review/feedback")
+            recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", scholarships.Name)
+            additional_feedback = st.text_area("Enter any additional feedback on students")
+            submit_recommendation = st.button("Submit Recommendation")
+            if submit_recommendation:
+                sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
+                new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
+                for uid in sel_uids:
+                    new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Additional Feedback": additional_feedback}
+                    new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
+                #new_recommendation = {"UID": , "Scholarship": , "Additional Feedback": }
+                #Probably want to make a function that verifies the inputted students and whether or not they meet minimum criteria 
+                st.write(new_recommendations)
+                
+                #Check for if they already recommended that student for that scholarship
+                #Check if that scholarship has already been created
+                #append_df_to_excel
+                #Want it to refresh as well, clear the inputs, get rid of the collapse, and let them know it was a success
+                #Also need to now who submitted it so we know where to save it to
+
     with col2:
         with st.expander("See Distribution of Selected Students"):
             st.write("Add Ashelyn's Data Analysis")
     with col3:
-        button("Export Selected Students", key="Export Data")
+        st.button("Export Selected Students")
