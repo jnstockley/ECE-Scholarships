@@ -5,19 +5,10 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 
-if 'scholarships' not in st.session_state:
-    st.session_state['scholarships'] = {}
-if 'scholarship_names' not in st.session_state:
-    st.session_state['scholarship_names'] = []
-if 'create_disabled' not in st.session_state:
-    st.session_state['create_disabled'] = False
-if 'edit_disabled' not in st.session_state:
-    st.session_state['edit_disabled'] = False
-if 'delete_disabled' not in st.session_state:
-    st.session_state['delete_disabled'] = False
-if 'finalize_disabled' not in st.session_state:
-    st.session_state['finalize_disabled'] = False
-
+# if 'scholarships' not in st.session_state:
+#     st.session_state['scholarships'] = {}
+# if 'scholarship_names' not in st.session_state:
+#     st.session_state['scholarship_names'] = []
 
 scholarships_excel = pd.read_excel('./scholarships/scholarships.xlsx')
 scholarships = scholarships_excel.head()
@@ -33,23 +24,9 @@ scholarships = scholarships_excel.head()
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
-def delete_scholarship(sch_name):
-    index = None
-    for n in range(0, scholarships.shape[0]):
-        values = scholarships.iloc[n]
-        if values['Name'] == delete_sch:
-            index = n
-            break 
-    print(scholarships)
-    print(index)
-    new_scholarships = scholarships.drop(index=index)
-    print(new_scholarships)
-    new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
-    st.write(delete_sch + ' has been successfully deleted.')
-
 with st.container():
     majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
-    if button('Create New Scholarship', disabled=st.session_state["create_disabled"], key='Create New Scholarship'):
+    if button('Create New Scholarship', key='Create New Scholarship'):
         st.title('Create a new scholarship')
         st.session_state["edit_disabled"] = True
         st.session_state['delete_disabled'] = True
@@ -71,10 +48,8 @@ with st.container():
                 new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
 
-    if button('Edit Existing Scholarship', disabled=st.session_state["edit_disabled"], key='Edit Existing Scholarship'):
+    elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
         edit_sch = st.selectbox("Select the scholarship to edit", options=scholarships['Name'])
-        st.session_state['create_disabled'] = True
-        st.session_state['delete_disabled'] = True
         if button('Edit This Scholarship', key = 'Edit This Scholarship'):
             if edit_sch is None:
                 st.write('There is no scholarship selected')
@@ -102,11 +77,8 @@ with st.container():
                     scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
-    if button('Delete Existing Scholarship', disabled=st.session_state["delete_disabled"], key='Delete Existing Scholarship'):
+    elif button('Delete Existing Scholarship', disabled=st.session_state["delete_disabled"], key='Delete Existing Scholarship'):
         delete_sch = st.selectbox("Select the scholarship to delete", options=scholarships['Name'])
-        st.session_state['create_disabled'] = True
-        st.session_state['edit_disabled'] = True
-        st.session_state['finalize_disabled'] = False
         if button ('Delete This Scholarship', key='Delete This Scholarship'):
             if delete_sch is None:
                 st.write('There is no scholarship selected')
@@ -123,7 +95,6 @@ with st.container():
                     new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
                     st.session_state['finalize_disabled'] = True
-
 
 
 #Note: might need to define functions so that state information can be used differently? Not sure, but as of now I can only disable buttons that come
