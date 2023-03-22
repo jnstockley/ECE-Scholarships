@@ -67,14 +67,18 @@ with st.container():
                 value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
                 major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
                 act = st.select_slider('New minimum ACT requirement', value=values['ACT'], options=range(1,37))
-                sat = st.select_slider('New minimum SAT requirement', value=values['SAT'], options=(x*10 for x in range(0,161)))
+                sat_math = st.select_slider('New minimum SAT Math requirement', value=values['SAT Math'], options=(x*10 for x in range(0,81)))
+                sat_reading = st.select_slider('New minimum SAT Reading requirement', value=values['SAT Reading'], options=(x*10 for x in range(0,81)))
+                sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 if st.button('Finalize Changes'):
                     scholarships.loc[index, 'Total Amount'] = total
                     scholarships.loc[index, 'Value'] = value
                     scholarships.loc[index, 'Major'] = major
                     scholarships.loc[index, 'ACT'] = act
-                    scholarships.loc[index, 'SAT'] = sat
+                    scholarships.loc[index, 'SAT Math'] = sat_math
+                    scholarships.loc[index, 'SAT Reading'] = sat_reading
+                    scholarships.loc[index, 'SAT Combined'] = sat_comb
                     scholarships.loc[index, 'GPA'] = gpa
                     scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
