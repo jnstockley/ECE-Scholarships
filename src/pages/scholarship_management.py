@@ -52,7 +52,6 @@ with st.container():
                 scholarship = pd.Series(data=[name, total, value, major, act, sat, gpa], index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': int(act), 'sat': int(sat), 'gpa': float(gpa)}
                 st.write(name + " has been successfully created.")
 
     if button('Edit Existing Scholarship', disabled=st.session_state["edit_disabled"], key='Edit Existing Scholarship'):
