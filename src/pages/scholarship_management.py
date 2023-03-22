@@ -76,14 +76,14 @@ with st.container():
                 sat = st.select_slider('New minimum SAT requirement', value=values['SAT'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 if button('Finalize Changes', key = 'Finalize Changes'):
-                    scholarships.iloc[index, 'Total Amount'] = total
-                    scholarships.iloc[index, 'Value'] = value
-                    scholarships.iloc[index, 'Major'] = major
-                    scholarships.iloc[index, 'ACT'] = act
-                    scholarships.iloc[index, 'SAT'] = sat
-                    scholarships.iloc[index, 'GPA'] = gpa
-                    #newValues = {'total': total, 'value': value, 'major': major, 'act': act, 'sat': sat, 'gpa': gpa}
-                    #st.session_state["scholarships"][name] = newValues
+                    scholarships.loc[index, 'Total Amount'] = total
+                    scholarships.loc[index, 'Value'] = value
+                    scholarships.loc[index, 'Major'] = major
+                    scholarships.loc[index, 'ACT'] = act
+                    scholarships.loc[index, 'SAT'] = sat
+                    scholarships.loc[index, 'GPA'] = gpa
+                    scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    st.write(edit_sch + " has been successfully edited.")
 
     if button('Delete Existing Scholarship', disabled=st.session_state["delete_disabled"], key='Delete Existing Scholarship'):
         delete_sch = st.selectbox("Select the scholarship to delete", options=st.session_state['scholarship_names'])
