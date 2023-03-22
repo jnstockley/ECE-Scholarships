@@ -25,9 +25,8 @@ aligned_dataframe : pd.Dataframe
 import streamlit as st
 from src.utils.html import centered_text
 from src.utils import merge
-from src.models.imported_sheet import ImportedSheet
 from src.sessions.import_session_manager import ImportSessionManager, View
-from src.managers.alignment_settings import SelectAlignment, AlignmentInfo
+from src.managers.alignment_settings import SelectAlignment, AlignmentManager
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
@@ -102,85 +101,49 @@ def display_alignment_column_form():
             st.write('Error: please specify your final combined alignment column name')
             return
 
-        alignment_info = AlignmentInfo(drop_missing_checkbox, final_column_name_input, alignment_inputs)
+        alignment_info = AlignmentManager(drop_missing_checkbox, final_column_name_input, alignment_inputs)
         SESSION.begin_alignment(alignment_info)
-
-        SESSION.set_view(View.DUPLICATE_COLUMN_HANDLER)
-
-def find_next_duplicate_column(alignment_columns: list[str], alignment_sheets: list[ImportedSheet], max_col_index: int):
-    '''
-    Checks each alignment value row to find any columns with duplicate data that is different between datasets. Will flag this
-    to be rendered in the duplicate column UI by assigned a value to st.session_state.duplicate_column_comparison_details.
-    Will stop once max_col_index reached.
-    '''
-    column_data_comparison_tables = {}
-    alignment_col_row_value = None
-
-    while len(column_data_comparison_tables.items()) == 0 and st.session_state.check_duplicate_column_index <= max_col_index:
-        alignment_col_row_value = st.session_state.final_alignment_column.tolist()[st.session_state.check_duplicate_column_index]
-        column_data_comparison_tables = merge.find_duplicates(alignment_columns, alignment_col_row_value, alignment_sheets)
-        st.session_state.check_duplicate_column_index +=1
-
-    if len(column_data_comparison_tables.items()) > 0:
-        st.session_state.duplicate_column_comparison_details = (alignment_col_row_value, column_data_comparison_tables)
-
-    st.experimental_rerun()
 
 def display_duplicate_column_form():
     '''
     Align rows display routine
     '''
-    if 'check_duplicate_column_index' not in st.session_state:
-        st.session_state.check_duplicate_column_index = 0
-
-    alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
-    alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
-    max_col_index = len(st.session_state.final_alignment_column.tolist())-1
-
-    if max_col_index < st.session_state.check_duplicate_column_index:
-        merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
-        st.session_state.aligned_dataframe = merged_data
-        update_merge_columns()
-
-        SESSION.imported_sheets = merged_data
-        SESSION.set_view(View.MERGE_COLUMNS)
-
     if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
-        duplicate_details = st.session_state.duplicate_column_comparison_details
+        #duplicate_details = st.session_state.duplicate_column_comparison_details
         st.header('Duplicate Column(s) Found')
         duplicate_handler_form = st.form(key='duplicate_column_form')
-        duplicate_handler_form.write(f'For the alignment column value {duplicate_details[0]}, please select which data to keep:')
+        #duplicate_handler_form.write(f'For the alignment column value {duplicate_details[0]}, please select which data to keep:')
         duplicate_handler_form.write('### Columns')
 
         # (duplicate column name, value)
-        mapped_data_inputs = []
+        # mapped_data_inputs = []
 
-        for i, column_name in enumerate(duplicate_details[1]):
-            duplicate_handler_form.write(f'_{column_name}:_')
-            col1, col2 = duplicate_handler_form.columns(2)
-            with col1:
-                st.dataframe(duplicate_details[1][column_name])
-            with col2:
-                radio_select = st.radio(f"Select the final value for column '{column_name}'",
-                    duplicate_details[1][column_name].loc['Values', :].tolist())
+        # for i, column_name in enumerate(duplicate_details[1]):
+        #     duplicate_handler_form.write(f'_{column_name}:_')
+        #     col1, col2 = duplicate_handler_form.columns(2)
+        #     with col1:
+        #         st.dataframe(duplicate_details[1][column_name])
+        #     with col2:
+        #         radio_select = st.radio(f"Select the final value for column '{column_name}'",
+        #             duplicate_details[1][column_name].loc['Values', :].tolist())
 
-                mapped_data_inputs.append((column_name, radio_select))
+        #         mapped_data_inputs.append((column_name, radio_select))
 
 
-            if i < len(duplicate_details[1])-1:
-                duplicate_handler_form.write('---')
+        #     if i < len(duplicate_details[1])-1:
+        #         duplicate_handler_form.write('---')
 
         # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
         next_button = duplicate_handler_form.form_submit_button('Next')
         if next_button:
             st.session_state.duplicate_column_comparison_details = None
-            for duplicate_col_input in mapped_data_inputs:
-                merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
+            #for duplicate_col_input in mapped_data_inputs:
+                #merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
             st.experimental_rerun()
         else:
             return
 
-    find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
+    # find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
 
 def update_merge_columns():
     '''

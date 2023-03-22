@@ -107,7 +107,7 @@ def combine_columns(columns: list[pd.Series], drop_missing: bool) -> pd.Series:
     Combine several column series into 1. If drop_missing is flagged then only the values
     present in each column will be kept in output.
     '''
-    sets = [set(col) for col in columns]
+    sets = [set(col_data) for col_data in columns]
     if drop_missing:
         common_rows = set.intersection(*sets)
         return pd.Series(list(common_rows))
