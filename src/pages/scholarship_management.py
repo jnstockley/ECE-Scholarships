@@ -53,8 +53,6 @@ with st.container():
                 new_scholarships = scholarships.append(scholarship)
                 new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
                 scholarship_values = {'total': int(total), 'value': int(value), 'major': major, 'act': int(act), 'sat': int(sat), 'gpa': float(gpa)}
-                st.session_state["scholarships"][name] = scholarship_values
-                st.session_state["scholarship_names"].append(name)
                 st.write(name + " has been successfully created.")
 
     if button('Edit Existing Scholarship', disabled=st.session_state["edit_disabled"], key='Edit Existing Scholarship'):
