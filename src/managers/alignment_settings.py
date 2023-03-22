@@ -66,7 +66,7 @@ class AlignmentManager:
 
     Attributes
     ----------
-    alignment_info : AlignmentInfo
+    info : AlignmentInfo
         Info the user selected regarding the alignment data
     drop_missing : bool
         Whether index data not present in all dataframes should be kept or dropped from final output
@@ -87,10 +87,10 @@ class AlignmentManager:
         Set of the duplicate columns found between the alignment dataframes
     '''
     def __init__(self, drop_missing: bool, final_column_name: str, selected_alignment_columns: list[SelectAlignment]):
-        self.alignment_info = AlignmentInfo(drop_missing, final_column_name, selected_alignment_columns)
+        self.info = AlignmentInfo(drop_missing, final_column_name, selected_alignment_columns)
 
         self.combine_columns = [setting.get_alignment_col() for setting in selected_alignment_columns]
-        self.final_alignment_column = merge.combine_columns(self.combine_columns, self.alignment_info.drop_missing)
+        self.final_alignment_column = merge.combine_columns(self.combine_columns, self.info.drop_missing)
 
         self.max_align_index = self.final_alignment_column
         self.current_align_index = 0
@@ -116,7 +116,7 @@ class AlignmentManager:
         alignment_columns: list[str] = []
         columns: list[set[str]] = []
 
-        for selected_alignment in self.alignment_info.selected_alignment_columns:
+        for selected_alignment in self.info.selected_alignment_columns:
             alignment_columns.append(selected_alignment.column)
             data = selected_alignment.sheet.get_df()
             columns.append(set(data.columns.tolist()))
@@ -128,4 +128,30 @@ class AlignmentManager:
         From the list of duplicate columns, will find any rows based on unique alignment column value with duplicate column
         that differs between the set of input dataframes.
         '''
-        return []
+        mismatches = []
+
+        for _index, value in self.final_alignment_column.items():
+            affected_alignment_data: list[SelectAlignment] = []
+            for duplicate_column in self.duplicate_df_columns:
+                affected_alignment_data: list[SelectAlignment] = []
+
+                # step 1: aquire relevant dataframes (all dataframes with duplicate column and index value)
+                for selected_alignment in self.info.selected_alignment_columns:
+                    data = selected_alignment.sheet.get_df()
+                    if duplicate_column in data.columns.tolist() and value in data[selected_alignment.column].tolist():
+                        affected_alignment_data.append(selected_alignment)
+
+
+                prev_val = None
+                for data in affected_alignment_data:
+                    cur_val = data.sheet.get_df().loc[data.sheet.get_df()[data.column] == value, duplicate_column].tolist()[0]
+                    print(f"prev - {prev_val}, cur - {cur_val}")
+
+                    if prev_val is None:
+                        prev_val = cur_val
+                    elif not prev_val == cur_val:
+                        #mismatch detected. Needs to be handled:
+                        mismatches.append(DuplicateColumnData(value, duplicate_column, affected_alignment_data))
+                        break
+
+        return mismatches

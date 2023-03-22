@@ -108,6 +108,9 @@ def display_duplicate_column_form():
     '''
     Align rows display routine
     '''
+    print(len(SESSION.alignment_info.mismatched_duplicate_column_row))
+    print([val.duplicate_column_name for val in SESSION.alignment_info.mismatched_duplicate_column_row])
+
     if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
         #duplicate_details = st.session_state.duplicate_column_comparison_details
         st.header('Duplicate Column(s) Found')
