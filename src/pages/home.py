@@ -17,16 +17,10 @@ students = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=1
 scholarships = pd.read_excel("./tests/data/scholarships.xlsx")
 user_recommendations = pd.read_excel("./tests/data/Test_User_Reviews.xlsx")
 
-# Creating dataframe for home page
+# Creating main dataframe
 students.insert(0, 'Select All', None)
 
-
-st.title("Home")
-st.header("Review Applicants")
-
-# Filter selection (Will want to implement this once we have example filters)
-current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], scholarships["Name"].values))
-
+# Helper functions for JavaScript
 js = JsCode("""
  function(event) {
     const api = event.api; 
@@ -43,6 +37,14 @@ clearJs = '''<script>
      })()
     </script>
     '''
+
+# Start of display
+st.title("Home")
+st.header("Review Applicants")
+
+# Filter selection (Will want to implement this once we have example filters)
+current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], scholarships["Name"].values))
+
 # Configuring options for table functionality
 gd = GridOptionsBuilder.from_dataframe(students)
 gd.configure_pagination(enabled=True) #Add pagination
@@ -68,11 +70,15 @@ grid_table = AgGrid(
     allow_unsafe_jscode=True,
     update_mode=GridUpdateMode.MODEL_CHANGED
 )
-st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
-success = JsCode("function() { alert('Successfully submitted recommendations!'); };")
 
+# Displaying statistics about main data frame
+st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
+
+# Actions for user to take on main data frame
 with st.container():
     col1, col2, col3= st.columns(3)
+
+    # Submitting recommendations for scholarhsips
     with col1:
         with st.expander("Review Selected Students", expanded = False):
             with st.form("recommendation_form", clear_on_submit=True):
@@ -93,8 +99,12 @@ with st.container():
                     user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
                     components.html(clearJs)
                     st.session_state["success"] = True
+    
+    # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Selected Students"):
             st.write("Add Ashelyn's Data Analysis")
+    
+    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
