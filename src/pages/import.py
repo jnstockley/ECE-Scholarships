@@ -26,7 +26,8 @@ import streamlit as st
 from src.utils.html import centered_text
 from src.utils import merge
 from src.sessions.import_session_manager import ImportSessionManager, View
-from src.managers.alignment_settings import SelectAlignment, AlignmentManager
+from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
+from src.managers.import_data.similar_columns import MergeSimilarDetails
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
@@ -153,35 +154,34 @@ def update_merge_columns():
     st.session_state['merge_fields'] = merge_columns
 
 
-def display_merge_form(merge_details):
+def display_merge_form(similar_details: MergeSimilarDetails):
     '''
     Renders a single merge popup
     '''
     st.header("Duplicate Columns Have Been Detected")
-    st.write("Please select how you'd like these duplicates to be handled")
-    st.write(f"_{len(st.session_state['merge_fields'])} remaining..._")
+    st.write("We have detected the following columns to be similar in name. Would you like to merge them?")
+    st.write(f"_{SESSION.similar.remaining_count()} remaining..._")
 
     merge_form = st.form(key="merge_data_form")
-    merge_columns = [merge_details[0]] + merge_details[1]
 
     col1, col2, col3 = merge_form.columns(3)
     with col1:
         st.header("Merge:")
-        st.write(merge_columns)
+        st.write(similar_details.similar_columns)
     with col2:
         st.write("arrow ->")
     with col3:
         st.header("To:")
-        st.write(merge_details[0])
+        st.write(similar_details.final_column_name)
 
     merge_button = merge_form.form_submit_button('merge')
     skip_button = merge_form.form_submit_button('skip')
 
-    merge_form.dataframe(st.session_state.aligned_dataframe[merge_columns])
+    st.write('## Reference Data:')
+    st.dataframe(similar_details.get_similar_column_df())
 
     if skip_button:
-        # skip should have priority
-        pass
+        SESSION.similar.dont_merge_columns()
     elif merge_button:
         # Merge will need to handle updating the state if that column
         # is similar to another. It should merge DB and then re-run duplicates.
@@ -205,11 +205,9 @@ elif SESSION.view == View.ALIGNMENT_COLUMNS:
 elif SESSION.view == View.DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
 elif SESSION.view == View.MERGE_COLUMNS:
-    print(SESSION.aligned_df)
-    SESSION.aligned_df.to_csv('~/test.csv')
-    if len(st.session_state.merge_fields) > 0:
-        display_merge_form(st.session_state.merge_fields.pop(0))
+    if not SESSION.similar is None and SESSION.similar.has_group_to_handle():
+        display_merge_form(SESSION.similar.get_column_group())
     else:
-        pass  # skip to next view
+        SESSION.complete_import()
 elif SESSION.view == View.IMPORT_COMPLETE:
     display_done_view()

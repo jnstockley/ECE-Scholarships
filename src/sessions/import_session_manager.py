@@ -4,11 +4,11 @@ easier.
 '''
 from enum import Enum
 import streamlit as st
-import pandas as pd
 from streamlit.runtime.state import SessionStateProxy
 from src.sessions.session_manager import SessionManager
 from src.models.imported_sheet import ImportedSheet
-from src.managers.alignment_settings import AlignmentInfo
+from src.managers.import_data.alignment_settings import AlignmentInfo
+from src.managers.import_data.similar_columns import MergeSimilarManager
 
 class Session(Enum):
     '''
@@ -19,6 +19,8 @@ class Session(Enum):
     ALIGNED_DF = "aligned_dataframe"
     IMPORTED_SHEETS = "imported_sheets"
     ALIGNMENT_INFO = "alignment_info"
+    SIMILAR_MANAGER = "similar_manager"
+    FINAL_DATA = "final_data"
 
 class View(Enum):
     '''
@@ -44,6 +46,8 @@ class ImportSessionManager(SessionManager):
         The combined dataframe along a single alignment column
     alignment_info : AlignmentInfo
         The alignment information relevant when the user is selecting how data is aligned for the alignment column.
+    similar : MergeSimilarManager
+        Reference to the similar column merge manager.
     '''
     def __init__(self, session: SessionStateProxy):
         super().__init__(session)
@@ -61,6 +65,9 @@ class ImportSessionManager(SessionManager):
 
         if self._has(Session.ALIGNMENT_INFO):
             self.alignment_info = self._retrieve(Session.ALIGNMENT_INFO)
+
+        if self._has(Session.SIMILAR_MANAGER):
+            self.similar = self._retrieve(Session.SIMILAR_MANAGER)
 
     def import_sheets(self, files: list[ImportedSheet]):
         '''
@@ -92,7 +99,9 @@ class ImportSessionManager(SessionManager):
         if self.alignment_info is None:
             raise NameError('alignment_info missing from session')
 
-        self._set(Session.ALIGNED_DF, self.alignment_info.get_aligned_df())
+        aligned_df = self.alignment_info.get_aligned_df()
+        self._set(Session.ALIGNED_DF, aligned_df)
+        self._set(Session.SIMILAR_MANAGER, MergeSimilarManager(self.alignment_info.info.final_column_name, aligned_df))
         self.set_view(View.MERGE_COLUMNS)
 
     def begin_alignment(self, alignment_info: AlignmentInfo):
@@ -101,3 +110,9 @@ class ImportSessionManager(SessionManager):
         '''
         self._set(Session.ALIGNMENT_INFO, alignment_info)
         self.set_view(View.DUPLICATE_COLUMN_HANDLER)
+
+    def complete_import(self):
+        '''
+        Completes the import flow and sets final data.
+        '''
+        self._set(Session.FINAL_DATA, self.aligned_df)
