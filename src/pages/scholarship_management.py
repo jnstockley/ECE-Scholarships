@@ -15,8 +15,8 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
-df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'], 'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
+#df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
@@ -32,8 +32,14 @@ with st.container():
         name = st.text_input("Scholarship Name", max_chars=500, placeholder="Enter Scholarship Name")
         total = st.text_input("Total amount of Scholarships", max_chars=8, placeholder="Enter Numerical Amount")
         value = st.text_input('The value of each individual Scholarship', max_chars=8, placeholder="Enter Numerical Amount")
+        #NOTE: I chose up to 400 for the RAI, but the highest value in the sample data is 363, I am not sure if RAI has a hard max score.
+        rai = st.select_slider('Select the minimum RAI requirement', options=(x*5 for x in range(0,81)))
+        #NOTE: I chose up to 36 for this as that is the max in the sample data.
+        admit_score = st.select_slider('Select the minimum Admit Score requirement', options=range(0,37))
         major = st.selectbox("Select which majors the scholarship applies to", options=majors)
-        act = st.select_slider('Select the minimum ACT requirement', options=range(0,37))
+        act_math = st.select_slider('Select the minimum ACT Math requirement', options=range(0,37))
+        act_english = st.select_slider('Select the minimum ACT English requirement', options=range(0,37)) 
+        act_comp = st.select_slider('Select the minimum ACT Composite requirement', options=range(0,37))
         sat_math = st.select_slider('New minimum SAT Math requirement', options=(x*10 for x in range(0,81)))
         sat_reading = st.select_slider('New minimum SAT Reading requirement', options=(x*10 for x in range(0,81)))
         sat_comb = st.select_slider('Select the minimum SAT Combined requirement', options=(x*10 for x in range(0,161)))
@@ -45,7 +51,7 @@ with st.container():
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, major, act, sat_math, sat_reading, sat_comb, gpa, hs_percentile], index=scholarships.columns, name = scholarships.shape[0])
+                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, sat_comb, gpa, hs_percentile], index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
@@ -71,8 +77,12 @@ with st.container():
                 #Display the information; value is set so that it loads the current values into the fields.    
                 total = st.text_input("New total amount of Scholarships", value = values['Total Amount'], max_chars=8, placeholder="Enter Numerical Amount")
                 value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
+                rai = st.select_slider('Select the minimum RAI requirement', value=values['RAI'], options=(x*5 for x in range(0,81)))
+                admit_score = st.select_slider('Select the minimum Admit Score requirement', value=values['Admit Score'], options=range(0,37))
                 major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
-                act = st.select_slider('New minimum ACT requirement', value=values['ACT'], options=range(1,37))
+                act_math = st.select_slider('Select the minimum ACT Math requirement', value=values['ACT Math'], options=range(0,37))
+                act_english = st.select_slider('Select the minimum ACT English requirement', value=values['ACT English'], options=range(0,37)) 
+                act_comp = st.select_slider('New minimum ACT Composite requirement', value=values['ACT Composite'], options=range(1,37))
                 sat_math = st.select_slider('New minimum SAT Math requirement', value=values['SAT Math'], options=(x*10 for x in range(0,81)))
                 sat_reading = st.select_slider('New minimum SAT Reading requirement', value=values['SAT Reading'], options=(x*10 for x in range(0,81)))
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
@@ -82,8 +92,12 @@ with st.container():
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
                     scholarships.loc[index, 'Value'] = value
+                    scholarships.loc[index, 'RAI'] = rai
+                    scholarships.loc[index, 'Admit Score'] = admit_score
                     scholarships.loc[index, 'Major'] = major
-                    scholarships.loc[index, 'ACT'] = act
+                    scholarships.loc[index, 'ACT Math'] = act_math
+                    scholarships.loc[index, 'ACT English'] = act_english
+                    scholarships.loc[index, 'ACT Composite'] = act_comp
                     scholarships.loc[index, 'SAT Math'] = sat_math
                     scholarships.loc[index, 'SAT Reading'] = sat_reading
                     scholarships.loc[index, 'SAT Combined'] = sat_comb
