@@ -6,6 +6,7 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
+import numpy as np
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
 
 # Default settings for Streamlit page
@@ -24,9 +25,7 @@ st.title("Home")
 st.header("Review Applicants")
 
 # Filter selection (Will want to implement this once we have example filters)
-current_filter = st.selectbox("Which filter would you like to apply?",
-                              ("None", "Scholarship 1", "Scholarship 2"))
-st.write("Current filter:", current_filter)
+current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], scholarships["Name"].values))
 
 js = JsCode("""
  function(event) {
@@ -94,7 +93,6 @@ with st.container():
                     user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
                     components.html(clearJs)
                     st.session_state["success"] = True
-
     with col2:
         with st.expander("See Distribution of Selected Students"):
             st.write("Add Ashelyn's Data Analysis")
