@@ -73,13 +73,15 @@ grid_table = AgGrid(
     allow_unsafe_jscode=True,
     update_mode=GridUpdateMode.MODEL_CHANGED
 )
-st.write(len(grid_table["selected_rows"]))
+
 # Displaying statistics about main data frame
 st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
 if st.button("Clear Selection"): 
     components.html(CLEARJS)
 
-def submit_recommendations(recommended_scholarship, additional_feedback): 
+# Helper function used for processing the scholarship recommendations
+def submit_recommendations(recommended_scholarship, additional_feedback):
+    """Solving pylint error"""
     global USER_RECOMMENDATIONS
     if len(grid_table["selected_rows"]) == 0:
         return False, "Must select students to recommend"
@@ -96,6 +98,7 @@ def submit_recommendations(recommended_scholarship, additional_feedback):
     USER_RECOMMENDATIONS.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
     return True, None
 
+
 # Actions for user to take on main data frame
 with st.container():
     col1, col2, col3= st.columns(3)
@@ -105,27 +108,14 @@ with st.container():
         with st.expander("Review Selected Students"):
             with st.form("recommendation_form"):
                 recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", SCHOLARSHIPS.Name)
-                additional_feedback = st.text_area("Enter any additional feedback on students")
-                submit_recommendation = st.form_submit_button("Submit Recommendation")            
-                if "success" not in st.session_state:
-                    st.session_state['success'] = False
-                if "failure" not in st.session_state:
-                    st.session_state['failure'] = False
-                if "error" not in st.session_state:
-                    st.session_state['error'] = False
-                if st.session_state['success'] is True:
-                    st.success("Successfuly submitted recommendations!")
-                if st.session_state['failure'] is True:
-                    st.error(st.session_state['error'])
+                additional_feedback = st.text_area("Enter any additional feedback on students")   
+                submit_recommendation = st.form_submit_button("Submit Recommendation")    
                 if submit_recommendation:
                     result, errorMessage = submit_recommendations(recommended_scholarship, additional_feedback)
                     if result is True:
-                        st.session_state['success'] = True
-                        st.session_state['failure'] = False
+                        st.success("Successfuly submitted recommendations!")
                     else:
-                        st.session_state['success'] = False
-                        st.session_state['failure'] = True
-                        st.session_state['error'] = errorMessage
+                        st.error(errorMessage)
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Selected Students"):
