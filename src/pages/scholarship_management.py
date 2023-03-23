@@ -25,7 +25,8 @@ with st.container():
     #This controls the options diplayed for majors
     majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
     if button('Create New Scholarship', key='Create New Scholarship'):
-        st.title('Create a new scholarship')
+        st.title('Create a New Scholarship')
+        st.write('If certain requirements are N/A, leave them at 0.')
         #NOTE: text_input is used instead of number_input because I feel like the stepping functionality is unnecessary and could
         #throw them off when they see it or they could accidentally hit it. This can be changed later if it is found useful.
         name = st.text_input("Scholarship Name", max_chars=500, placeholder="Enter Scholarship Name")
