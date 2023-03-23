@@ -43,6 +43,8 @@ with st.container():
         sat_math = st.select_slider('New minimum SAT Math requirement', options=(x*10 for x in range(0,81)))
         sat_reading = st.select_slider('New minimum SAT Reading requirement', options=(x*10 for x in range(0,81)))
         sat_comb = st.select_slider('Select the minimum SAT Combined requirement', options=(x*10 for x in range(0,161)))
+        #NOTE: 5.0 was chosen as the max for the GPA requirement, but there exists a couple students above 5.0. This could be increased if necessarily,
+        #but I doubt any scholarships require above 5.0, or even above 4.0, as that would greatly limit students unfairly.
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
         if st.button('Create'):
