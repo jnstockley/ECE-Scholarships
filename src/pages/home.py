@@ -70,6 +70,7 @@ grid_table = AgGrid(
     update_mode=GridUpdateMode.MODEL_CHANGED
 )
 st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
+success = JsCode("function() { alert('Successfully submitted recommendations!'); };")
 
 with st.container():
     col1, col2, col3= st.columns(3)
@@ -79,6 +80,10 @@ with st.container():
                 recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", scholarships.Name)
                 additional_feedback = st.text_area("Enter any additional feedback on students")
                 submit_recommendation = st.form_submit_button("Submit Recommendation")
+                if "success" not in st.session_state:
+                    st.session_state['success'] = False
+                if st.session_state['success'] is True:
+                    st.success("Success")
                 if submit_recommendation:
                     sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
                     new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
@@ -88,8 +93,7 @@ with st.container():
                     user_recommendations = user_recommendations.append(new_recommendations)
                     user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
                     components.html(clearJs)
-
-
+                    st.session_state["success"] = True
 
     with col2:
         with st.expander("See Distribution of Selected Students"):
