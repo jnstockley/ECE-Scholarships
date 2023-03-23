@@ -21,7 +21,7 @@ class MergeSimilarDetails:
     alignment_col : str
         Name of the alignment column
     '''
-    def __init__(self, final_column_name: str, similar_columns: list[str], alignment_col: str, aligned_df: pd.DataFrame()):
+    def __init__(self, final_column_name: str, similar_columns: list[str], alignment_col: str, aligned_df: pd.DataFrame):
         self.final_column_name: str = final_column_name
         self.similar_columns: list[str] = similar_columns
         self.alignment_col = alignment_col
@@ -32,6 +32,61 @@ class MergeSimilarDetails:
         Returns a df of just the similar columns so they can be compared easily
         '''
         return self.aligned_df.loc[:, [self.alignment_col] + self.similar_columns]
+
+    def get_merge_preview_df(self):
+        '''
+        Returns a preview of what the merged dataframe will look like if all similar columns are combined.
+        '''
+        final_column_data = []
+
+        for column in self.similar_columns:
+            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
+            data.rename({"{column}": self.final_column_name}, inplace=True)
+            final_column_data.append(data)
+
+        merged_df: pd.DataFrame = final_column_data.pop()
+        for remaining_data in final_column_data:
+            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+
+        return merged_df.loc[:, self.final_column_name]
+
+    def get_comparison_table(self):
+        '''
+        Returns a table with only the rows that have differing values
+        '''
+        final_column_data = []
+
+        for column in self.similar_columns:
+            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
+            data.rename({"{column}": self.final_column_name}, inplace=True)
+            final_column_data.append(data)
+
+        merged_df: pd.DataFrame = final_column_data.pop()
+        for remaining_data in final_column_data:
+            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+
+        different_rows_mask = self._get_different_rows_mask()
+        table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.similar_columns].copy(deep=True)
+        table['FINAL COLUMN'] = merged_df.loc[different_rows_mask, self.final_column_name]
+
+        return table
+
+    def get_different_row_count(self) -> int:
+        '''
+        Returns count of the number of rows where similar column values vary
+        '''
+        return self._get_different_rows_mask().sum()
+
+    def _get_different_rows_mask(self) -> pd.Series:
+        '''
+        Returns the pandas row mask for the alignment_df of which rows have values which deviate
+        between the similar columns.
+        '''
+        def check_if_row_values_equal(row: pd.Series):
+            unique_vals = row[self.similar_columns].unique()
+            return len(unique_vals) > 1
+
+        return self.aligned_df.apply(check_if_row_values_equal, axis=1)
 
 class MergeSimilarManager:
     '''

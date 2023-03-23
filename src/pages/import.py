@@ -112,7 +112,6 @@ def display_duplicate_column_form():
     alignment_info: AlignmentManager = SESSION.alignment_info
 
     if alignment_info.alignment_complete():
-        print('complete')
         SESSION.complete_aligned_df()
 
     if not alignment_info.session_has_duplicate():
@@ -162,23 +161,18 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     st.write("We have detected the following columns to be similar in name. Would you like to merge them?")
     st.write(f"_{SESSION.similar.remaining_count()} remaining..._")
 
+    percent_different = (similar_details.get_different_row_count()/len(SESSION.aligned_df.index))*100
     merge_form = st.form(key="merge_data_form")
+    merge_form.header('Useful Metrics:')
+    merge_form.write(f"Of the {len(SESSION.aligned_df.index)} total rows, {similar_details.get_different_row_count()} have different"+
+                     f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
 
-    col1, col2, col3 = merge_form.columns(3)
-    with col1:
-        st.header("Merge:")
-        st.write(similar_details.similar_columns)
-    with col2:
-        st.write("arrow ->")
-    with col3:
-        st.header("To:")
-        st.write(similar_details.final_column_name)
-
+    merge_form.experimental_data_editor(similar_details.get_comparison_table())
+    merge_form.text_input('Final column name:', value={similar_details.final_column_name})
+    merge_form.write('*Note:* You can make changes to the FINAL COLUMN column by double clicking on a cell and entering the new preferred value! '
+                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
     merge_button = merge_form.form_submit_button('merge')
     skip_button = merge_form.form_submit_button('skip')
-
-    st.write('## Reference Data:')
-    st.dataframe(similar_details.get_similar_column_df())
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
