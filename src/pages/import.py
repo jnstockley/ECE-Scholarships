@@ -109,10 +109,10 @@ def display_duplicate_column_form():
     Align rows display routine
     '''
     alignment_info: AlignmentManager = SESSION.alignment_info
-    #print(f"Remaining mismatches = {len(alignment_info._mismatched_duplicate_column_row)}")
 
     if alignment_info.alignment_complete():
-        return
+        print('complete')
+        SESSION.complete_aligned_df()
 
     if not alignment_info.session_has_duplicate():
         alignment_info.pop_next_duplicate_to_handle()
@@ -126,23 +126,21 @@ def display_duplicate_column_form():
 
     duplicate_handler_form.write(f'_{duplicate_details.duplicate_column_name}:_')
     col1, col2 = duplicate_handler_form.columns(2)
+
+    value_selection = None
     with col1:
         st.dataframe(duplicate_details.get_comparison_df())
     with col2:
-        st.radio(f"Select the final value for column '{duplicate_details.duplicate_column_name}'",
+        value_selection = st.radio(f"Select the final value for column '{duplicate_details.duplicate_column_name}'",
             duplicate_details.get_values())
 
     # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
     next_button = duplicate_handler_form.form_submit_button('Next')
     if next_button:
-        # st.session_state.duplicate_column_comparison_details = None
-        # for duplicate_col_input in mapped_data_inputs:
-        #     merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
+        alignment_info.select_duplicate_value(duplicate_details, value_selection)
         st.experimental_rerun()
     else:
         return
-
-    # find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
 
 def update_merge_columns():
     '''
@@ -207,6 +205,8 @@ elif SESSION.view == View.ALIGNMENT_COLUMNS:
 elif SESSION.view == View.DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
 elif SESSION.view == View.MERGE_COLUMNS:
+    print(SESSION.aligned_df)
+    SESSION.aligned_df.to_csv('~/test.csv')
     if len(st.session_state.merge_fields) > 0:
         display_merge_form(st.session_state.merge_fields.pop(0))
     else:

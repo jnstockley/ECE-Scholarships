@@ -144,6 +144,32 @@ class AlignmentManager:
         '''
         return not self.current_duplicate_details is None
 
+    def select_duplicate_value(self, duplicate_info: DuplicateColumnData, selected_value: any):
+        '''
+        Sets all dataframes with duplicate column to the select_value input so merging will use this value.
+        
+        Parameters
+        ----------
+        duplicate_info : DuplicateColumnData
+            information about the duplicate column data
+        selected_value : any
+            The final selected value the user wants for that duplicate column
+        '''
+        for alignment_data in duplicate_info.affected_alignment_data:
+            data = alignment_data.sheet.get_df()
+            data.loc[data[alignment_data.column] == duplicate_info.alignment_row_value, duplicate_info.duplicate_column_name] = selected_value
+
+        if duplicate_info == self.current_duplicate_details:
+            self.current_duplicate_details = None
+
+    def get_aligned_df(self) -> pd.DataFrame:
+        '''
+        Returns the merged dataframe aligned across the alignment column.
+        '''
+        alignment_columns = [selected_alignment.column for selected_alignment in self.info.selected_alignment_columns]
+        sheets = [selected_alignment.sheet for selected_alignment in self.info.selected_alignment_columns]
+        return merge.merge_with_alignment_columns(self.info.final_column_name, alignment_columns, self.final_alignment_column, sheets)
+
     def alignment_complete(self) -> bool:
         '''
         Returns whether user has went through all duplicate columns that differ in values.

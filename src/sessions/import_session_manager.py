@@ -4,6 +4,7 @@ easier.
 '''
 from enum import Enum
 import streamlit as st
+import pandas as pd
 from streamlit.runtime.state import SessionStateProxy
 from src.sessions.session_manager import SessionManager
 from src.models.imported_sheet import ImportedSheet
@@ -83,6 +84,16 @@ class ImportSessionManager(SessionManager):
         Checks whether the alignment column df has been added
         '''
         return self._has(Session.ALIGNED_DF)
+
+    def complete_aligned_df(self):
+        '''
+        Sets aligned dataframe to session. Moves to merge columns view.
+        '''
+        if self.alignment_info is None:
+            raise NameError('alignment_info missing from session')
+
+        self._set(Session.ALIGNED_DF, self.alignment_info.get_aligned_df())
+        self.set_view(View.MERGE_COLUMNS)
 
     def begin_alignment(self, alignment_info: AlignmentInfo):
         '''

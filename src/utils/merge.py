@@ -70,7 +70,7 @@ def replace_alignment_row_duplicate_column_value(alignment_value, duplicate_col_
             if ali_column in dataset.columns:
                 dataset.loc[dataset[ali_column] == alignment_value, duplicate_column_name] = duplicate_col_value
 
-def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: list[str], new_alignment_col: pd.Series, sheets: list[ImportedSheet]):
+def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: list[str], new_alignment_col: pd.Series, sheets: list[ImportedSheet]) -> pd.DataFrame:
     '''
     Combines alignment columns into a column labeled alignment_col_name and merges other row data
     to be in order of alignment column values.
