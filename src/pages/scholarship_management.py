@@ -15,8 +15,8 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0']})
-#df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'Major':['All'], 'ACT':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
+df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
@@ -37,13 +37,14 @@ with st.container():
         sat_reading = st.select_slider('New minimum SAT Reading requirement', options=(x*10 for x in range(0,81)))
         sat_comb = st.select_slider('Select the minimum SAT Combined requirement', options=(x*10 for x in range(0,161)))
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
+        hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
         if st.button('Create'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, major, act, sat_math, sat_reading, sat_comb, gpa], index=scholarships.columns, name = scholarships.shape[0])
+                scholarship = pd.Series(data=[name, total, value, major, act, sat_math, sat_reading, sat_comb, gpa, hs_percentile], index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
@@ -75,6 +76,7 @@ with st.container():
                 sat_reading = st.select_slider('New minimum SAT Reading requirement', value=values['SAT Reading'], options=(x*10 for x in range(0,81)))
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
+                hs_percentile = st.select_slider('Select the minimum highschool percentile', value=values['HS Percentile'], options=(x for x in range(0,101)))
                 if st.button('Finalize Changes'):
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
