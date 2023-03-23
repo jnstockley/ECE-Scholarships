@@ -69,11 +69,7 @@ grid_table = AgGrid(
     allow_unsafe_jscode=True,
     update_mode=GridUpdateMode.MODEL_CHANGED
 )
-
-
-#st.write(grid_table["selected_rows"])
-# Actions button that need to have functionality implemented
-   
+st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
 
 with st.container():
     col1, col2, col3= st.columns(3)
@@ -92,7 +88,7 @@ with st.container():
                     user_recommendations = user_recommendations.append(new_recommendations)
                     user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
                     components.html(clearJs)
-                    
+
 
 
     with col2:
