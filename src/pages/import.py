@@ -168,7 +168,7 @@ def display_merge_form(similar_details: MergeSimilarDetails):
                      f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
 
     merge_form.experimental_data_editor(similar_details.get_comparison_table())
-    merge_form.text_input('Final column name:', value={similar_details.final_column_name})
+    merge_form.text_input('Final column name:', value=similar_details.final_column_name)
     merge_form.write('*Note:* You can make changes to the FINAL COLUMN column by double clicking on a cell and entering the new preferred value! '
                      + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
     merge_button = merge_form.form_submit_button('merge')
