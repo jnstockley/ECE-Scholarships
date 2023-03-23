@@ -157,7 +157,7 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     '''
     Renders a single merge popup
     '''
-    st.header("Duplicate Columns Have Been Detected")
+    st.header("Similar Columns Have Been Detected")
     st.write("We have detected the following columns to be similar in name. Would you like to merge them?")
     st.write(f"_{SESSION.similar.remaining_count()} remaining..._")
 
@@ -166,20 +166,20 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     merge_form.header('Useful Metrics:')
     merge_form.write(f"Of the {len(SESSION.aligned_df.index)} total rows, {similar_details.get_different_row_count()} have different"+
                      f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
-
+    
+    merge_form.write('---')
+    merge_form.write('*Note:* You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
+                    + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
     merge_form.experimental_data_editor(similar_details.get_comparison_table())
     merge_form.text_input('Final column name:', value=similar_details.final_column_name)
-    merge_form.write('*Note:* You can make changes to the FINAL COLUMN column by double clicking on a cell and entering the new preferred value! '
-                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
+
     merge_button = merge_form.form_submit_button('merge')
     skip_button = merge_form.form_submit_button('skip')
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
     elif merge_button:
-        # Merge will need to handle updating the state if that column
-        # is similar to another. It should merge DB and then re-run duplicates.
-        pass
+        SESSION.similar.merge_columns()
 
 def display_done_view():
     '''
