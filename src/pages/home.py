@@ -56,7 +56,8 @@ gd.configure_default_column(editable=False, groupable=True)
 gd.configure_selection(selection_mode='multiple', use_checkbox=True) #Enable multi-row selection
 gd.configure_column("Select All", headerCheckboxSelection = True)
 gd.configure_grid_options(onFirstDataRendered=js)
-gd.configure_column("Describe any relevant life experience related to engineering. ", onCellClicked=JsCode("function(params) { alert(params.node.data['Describe any relevant life experience related to engineering. ']); };"))
+gd.configure_column("Describe any relevant life experience related to engineering. ",
+                    onCellClicked=JsCode("function(params) { alert(params.node.data['Describe any relevant life experience related to engineering. ']); };"))
 gridoptions = gd.build()
 
 # Option to add custom css if want to change styling, right now using default theme
@@ -76,7 +77,7 @@ grid_table = AgGrid(
 
 # Displaying statistics about main data frame
 st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
-if st.button("Clear Selection"): 
+if st.button("Clear Selection"):
     components.html(CLEARJS)
 
 # Helper function used for processing the scholarship recommendations
@@ -89,7 +90,7 @@ def submit_recommendations(recommended_scholarship, additional_feedback):
     new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
     for uid in sel_uids:
         new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Additional Feedback": additional_feedback}
-        if len(USER_RECOMMENDATIONS.loc[(USER_RECOMMENDATIONS['UID'] == uid) & (USER_RECOMMENDATIONS['Scholarship'] == recommended_scholarship)]) > 0: 
+        if len(USER_RECOMMENDATIONS.loc[(USER_RECOMMENDATIONS['UID'] == uid) & (USER_RECOMMENDATIONS['Scholarship'] == recommended_scholarship)]) > 0:
             return False, str("Already recommended student " + str(uid) + " for this scholarship")
         # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
@@ -108,8 +109,8 @@ with st.container():
         with st.expander("Review Selected Students"):
             with st.form("recommendation_form"):
                 recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", SCHOLARSHIPS.Name)
-                additional_feedback = st.text_area("Enter any additional feedback on students")   
-                submit_recommendation = st.form_submit_button("Submit Recommendation")    
+                additional_feedback = st.text_area("Enter any additional feedback on students")
+                submit_recommendation = st.form_submit_button("Submit Recommendation")
                 if submit_recommendation:
                     result, errorMessage = submit_recommendations(recommended_scholarship, additional_feedback)
                     if result is True:
