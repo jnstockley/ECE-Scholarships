@@ -102,6 +102,7 @@ with st.container():
                     scholarships.loc[index, 'SAT Reading'] = sat_reading
                     scholarships.loc[index, 'SAT Combined'] = sat_comb
                     scholarships.loc[index, 'GPA'] = gpa
+                    scholarships.loc[index, 'HS Percentile'] = hs_percentile
                     #We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
                     scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
