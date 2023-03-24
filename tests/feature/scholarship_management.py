@@ -1,8 +1,6 @@
 import os
 from playwright.sync_api import Page, expect
-
-ABSOLUTE_PATH = os.path.dirname(__file__)
-SAMPLE_FILE_PATHS = [os.path.join(ABSOLUTE_PATH, '../data/ece_scholarship_applicants.xlsx'), os.path.join(ABSOLUTE_PATH, '../data/ece_school_applicants.xlsx')]
+import pandas as pd
 
 # TESTS:
 def test_scholarship_page(page: Page):
@@ -25,27 +23,45 @@ def test_create_button(page: Page):
     As a user I should be able to create a new scholarship.
     '''
     page.goto("http://localhost:9000/Scholarship%20Management")
-    add_files_btn = page.get_by_role("button", name="Create New Scholarship")
+    create_btn = page.get_by_role("button", name="Create New Scholarship")
     
-    expect(add_files_btn).to_have_text('Create New Scholarship')
+    expect(create_btn).to_have_text('Create New Scholarship')
 
 def test_edit_button(page: Page):
     '''
     As a user I should be able to edit a preexisting scholarship.
     '''
     page.goto("http://localhost:9000/Scholarship%20Management")
-    add_files_btn = page.get_by_role("button", name="Edit Existing Scholarship")
+    edit_btn = page.get_by_role("button", name="Edit Existing Scholarship")
     
-    expect(add_files_btn).to_have_text('Edit Existing Scholarship')
+    expect(edit_btn).to_have_text('Edit Existing Scholarship')
 
 def test_delete_button(page: Page):
     '''
     As a user I should be able to delete a preexisting scholarship.
     '''
     page.goto("http://localhost:9000/Scholarship%20Management")
-    add_files_btn = page.get_by_role("button", name="Delete Existing Scholarship")
+    delete_btn = page.get_by_role("button", name="Delete Existing Scholarship")
     
-    expect(add_files_btn).to_have_text('Delete Existing Scholarship')
+    expect(delete_btn).to_have_text('Delete Existing Scholarship')
+
+def test_create_scholarship(page: Page):
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+    
+    page.get_by_role("button", name="Create New Scholarship").click()
+
+    page.get_by_role("textbox", name="Scholarship Name").click()
+    page.get_by_role("textbox", name="Scholarship Name").fill("Test")
+
+    page.get_by_role("textbox", name="Total amount of Scholarships").click()
+    page.get_by_role("textbox", name="Total amount of Scholarships").fill("500")
+
+    page.get_by_role("textbox", name="The value of each individual Scholarship").click()
+    page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
+
+    page.get_by_role("button", name="Create").click()
+    
+    expect(page.get_by_text("has been successfully created.")).to_be_visible()
 
 def test_edit_scholarship(page: Page):
     '''
