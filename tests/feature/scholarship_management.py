@@ -19,3 +19,43 @@ def test_scholarship_page(page: Page):
     scholarship_heading = page.get_by_role("heading", name="Scholarship Management").get_by_text("Scholarship Management")
 
     expect(scholarship_heading).to_have_text('Scholarship Management')
+
+def test_create_button(page: Page):
+    '''
+    As a user I should be able to create a new scholarship.
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management")
+    add_files_btn = page.get_by_role("button", name="Create New Scholarship")
+    
+    expect(add_files_btn).to_have_text('Create New Scholarship')
+
+def test_edit_button(page: Page):
+    '''
+    As a user I should be able to edit a preexisting scholarship.
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management")
+    add_files_btn = page.get_by_role("button", name="Edit Existing Scholarship")
+    
+    expect(add_files_btn).to_have_text('Edit Existing Scholarship')
+
+def test_delete_button(page: Page):
+    '''
+    As a user I should be able to delete a preexisting scholarship.
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management")
+    add_files_btn = page.get_by_role("button", name="Delete Existing Scholarship")
+    
+    expect(add_files_btn).to_have_text('Delete Existing Scholarship')
+
+def test_edit_scholarship(page: Page):
+    '''
+    As a user so that edit preexisting scholarships, 
+    I would like to be able to go through a series of steps to edit a scholarship
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+
+    page.get_by_role("button", name="Edit Existing Scholarship").click()
+    page.get_by_role("button", name="Edit This Scholarship").click()
+    page.get_by_role("button", name="Finalize Changes").click()
+
+    expect(page.get_by_text("has been successfully edited.")).to_be_visible()
