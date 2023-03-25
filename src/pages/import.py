@@ -71,9 +71,9 @@ def display_file_upload():
         # Handle imported files.
         import_data_flow(files)
 
-def display_scholarship_import():
-    st.title("Import Scholarships")
-    st.write("Add files to be imported. This should be of the form ECE_SCHOLARSHIPS_SPRING_2023")
+# def display_scholarship_import():
+#     st.title("Import Scholarships")
+#     st.write("Add files to be imported. This should be of the form ECE_SCHOLARSHIPS_SPRING_2023")
 
 def display_alignment_column_form():
     '''
@@ -215,7 +215,7 @@ def display_done_view():
 VIEW = st.session_state.view
 if VIEW == IMPORT_PAGE:
     display_file_upload()
-    display_scholarship_import()
+    #display_scholarship_import()
 elif VIEW == ALIGNMENT_COLUMNS:
     display_alignment_column_form()
 elif VIEW == DUPLICATE_COLUMN_HANDLER:
