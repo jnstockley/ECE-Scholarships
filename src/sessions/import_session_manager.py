@@ -3,7 +3,6 @@ Contains objects which make managing the import data session information
 easier.
 '''
 from enum import Enum
-import streamlit as st
 from streamlit.runtime.state import SessionStateProxy
 from src.sessions.session_manager import SessionManager
 from src.models.imported_sheet import ImportedSheet
@@ -50,24 +49,22 @@ class ImportSessionManager(SessionManager):
         Reference to the similar column merge manager.
     '''
     def __init__(self, session: SessionStateProxy):
-        super().__init__(session)
+        super().__init__(session, View.IMPORT_PAGE)
 
-        if not self._has(Session.VIEW):
-            self._set(Session.VIEW, View.IMPORT_PAGE)
-
-        self.view = self._retrieve(Session.VIEW)
-
-        if self._has(Session.IMPORTED_SHEETS):
+        if self.has(Session.IMPORTED_SHEETS):
             self.imported_sheets = self._retrieve(Session.IMPORTED_SHEETS)
 
-        if self._has(Session.ALIGNED_DF):
+        if self.has(Session.ALIGNED_DF):
             self.aligned_df = self._retrieve(Session.ALIGNED_DF)
 
-        if self._has(Session.ALIGNMENT_INFO):
+        if self.has(Session.ALIGNMENT_INFO):
             self.alignment_info = self._retrieve(Session.ALIGNMENT_INFO)
 
-        if self._has(Session.SIMILAR_MANAGER):
+        if self.has(Session.SIMILAR_MANAGER):
             self.similar = self._retrieve(Session.SIMILAR_MANAGER)
+
+        if self.has(Session.FINAL_DATA):
+            self.final_data = self._retrieve(Session.FINAL_DATA)
 
     def import_sheets(self, files: list[ImportedSheet]):
         '''
@@ -79,18 +76,11 @@ class ImportSessionManager(SessionManager):
         self._set(Session.IMPORTED_SHEETS, [ImportedSheet(file) for file in files])
         self.imported_sheets = self._retrieve(Session.IMPORTED_SHEETS)
 
-    def set_view(self, view: View):
-        '''
-        Sets current page view
-        '''
-        self._set(Session.VIEW, view)
-        st.experimental_rerun()
-
     def has_aligned_df(self) -> bool:
         '''
         Checks whether the alignment column df has been added
         '''
-        return self._has(Session.ALIGNED_DF)
+        return self.has(Session.ALIGNED_DF)
 
     def complete_aligned_df(self):
         '''
@@ -115,4 +105,6 @@ class ImportSessionManager(SessionManager):
         '''
         Completes the import flow and sets final data.
         '''
+        self.aligned_df.drop(columns=self.similar.columns_to_remove, inplace=True)
         self._set(Session.FINAL_DATA, self.aligned_df)
+        self.set_view(View.IMPORT_COMPLETE)

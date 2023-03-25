@@ -12,6 +12,8 @@ class MergeSimilarDetails:
     '''
     Details about similar columns to merge.
 
+    Attributes
+    ----------
     final_column_name : str
         The final column name to use if similar columns are merged
     similar_columns : list[str]
@@ -33,20 +35,17 @@ class MergeSimilarDetails:
         '''
         return self.aligned_df.loc[:, [self.alignment_col] + self.similar_columns]
 
+    def set_final_column_name(self, name: str):
+        '''
+        Set final column name
+        '''
+        self.final_column_name = name
+
     def get_merge_preview_df(self):
         '''
         Returns a preview of what the merged dataframe will look like if all similar columns are combined.
         '''
-        final_column_data = []
-
-        for column in self.similar_columns:
-            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
-            data.rename({"{column}": self.final_column_name}, inplace=True)
-            final_column_data.append(data)
-
-        merged_df: pd.DataFrame = final_column_data.pop()
-        for remaining_data in final_column_data:
-            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+        merged_df = self._get_merged_df()
 
         return merged_df.loc[:, self.final_column_name]
 
@@ -54,22 +53,33 @@ class MergeSimilarDetails:
         '''
         Returns a table with only the rows that have differing values
         '''
-        final_column_data = []
-
-        for column in self.similar_columns:
-            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
-            data.rename({"{column}": self.final_column_name}, inplace=True)
-            final_column_data.append(data)
-
-        merged_df: pd.DataFrame = final_column_data.pop()
-        for remaining_data in final_column_data:
-            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+        merged_df = self._get_merged_df()
 
         different_rows_mask = self._get_different_rows_mask()
         table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.similar_columns].copy(deep=True)
         table['FINAL COLUMN'] = merged_df.loc[different_rows_mask, self.final_column_name]
 
         return table
+
+    def perform_merge(self, final_col: pd.Series) -> set[str]:
+        '''
+        Removes the associated similar columns, adds new column to db
+        with name being final_column_name
+
+        Returns
+        -------
+        Set of all the columns that need to be dropped from df when all similar columns
+        have been addressed.
+        '''
+        merged_df = self._get_merged_df()
+        merged_df.loc[final_col.index, self.final_column_name] = final_col
+
+        drop_cols = set(self.similar_columns)
+        if self.final_column_name in drop_cols:
+            drop_cols.remove(self.final_column_name)
+
+        self.aligned_df.loc[:, self.final_column_name] = merged_df[self.final_column_name]
+        return drop_cols
 
     def get_different_row_count(self) -> int:
         '''
@@ -88,17 +98,38 @@ class MergeSimilarDetails:
 
         return self.aligned_df.apply(check_if_row_values_equal, axis=1)
 
+    def _get_merged_df(self) -> pd.DataFrame:
+        '''
+        Returns the merged alignment dataframe if the similar column names were
+        combined together.
+        '''
+        final_column_data = []
+
+        for column in self.similar_columns:
+            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
+            data.rename({"{column}": self.final_column_name}, inplace=True)
+            final_column_data.append(data)
+
+        merged_df: pd.DataFrame = final_column_data.pop()
+        for remaining_data in final_column_data:
+            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+
+        return merged_df
+
 class MergeSimilarManager:
     '''
     Manages the similar column merge flow for import UI.
 
     current_similar_columns : MergeSimilarDetails
         Current group of comparison columns to look at
+    columns_to_remove : set[str]
+        columns to be dropped from alignment df at end of all similar column groups being merged.
     '''
     def __init__(self, alignment_col: str, aligned_df: pd.DataFrame):
         similar_columns = merge.find_similar_columns(aligned_df.columns.tolist(), SIMILARITY_SCORE)
 
         self._similarity_matches = []
+        self.columns_to_remove: set[str] = set()
         self.current_similar_columns = None
 
         for match in similar_columns:
@@ -129,10 +160,20 @@ class MergeSimilarManager:
         '''
         return len(self._similarity_matches)
 
-    def merge_columns(self):
+    def merge_columns(self, final_col: pd.Series):
         '''
         Select to merge the columns found in self.current_similar_columns
+
+        Parameters
+        ----------
+        final_col : pd.Series
+            The final column series from the user editable dataframe
         '''
+        columns_to_remove = self.current_similar_columns.perform_merge(final_col)
+        self.columns_to_remove = self.columns_to_remove.union(columns_to_remove)
+
+        self.current_similar_columns = None
+        st.experimental_rerun()
 
     def dont_merge_columns(self):
         '''
