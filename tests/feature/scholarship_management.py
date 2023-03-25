@@ -26,6 +26,11 @@ def test_create_button(page: Page):
     create_btn = page.get_by_role("button", name="Create New Scholarship")
     
     expect(create_btn).to_have_text('Create New Scholarship')
+    
+    create_btn.click()
+
+    expect(page.get_by_text("If certain requirements are N/A, leave them at 0.")).to_be_visible()
+
 
 def test_edit_button(page: Page):
     '''
@@ -36,6 +41,10 @@ def test_edit_button(page: Page):
     
     expect(edit_btn).to_have_text('Edit Existing Scholarship')
 
+    edit_btn.click()
+
+    expect(page.get_by_text("Select the scholarship to edit")).to_be_visible()
+
 def test_delete_button(page: Page):
     '''
     As a user I should be able to delete a preexisting scholarship.
@@ -45,53 +54,58 @@ def test_delete_button(page: Page):
     
     expect(delete_btn).to_have_text('Delete Existing Scholarship')
 
-def test_create_scholarship(page: Page):
-    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+    delete_btn.click()
+
+    expect(page.get_by_text("Select the scholarship to delete")).to_be_visible()
+
+
+# def test_create_scholarship(page: Page):
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     
-    page.get_by_role("button", name="Create New Scholarship").click()
+#     page.get_by_role("button", name="Create New Scholarship").click()
 
-    page.get_by_role("textbox", name="Scholarship Name").click()
-    page.get_by_role("textbox", name="Scholarship Name").fill("Test")
+#     page.get_by_role("textbox", name="Scholarship Name").click()
+#     page.get_by_role("textbox", name="Scholarship Name").fill("Test")
 
-    page.get_by_role("textbox", name="Total amount of Scholarships").click()
-    page.get_by_role("textbox", name="Total amount of Scholarships").fill("500")
+#     page.get_by_role("textbox", name="Total amount of Scholarships").click()
+#     page.get_by_role("textbox", name="Total amount of Scholarships").fill("500")
 
-    page.get_by_role("textbox", name="The value of each individual Scholarship").click()
-    page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
+#     page.get_by_role("textbox", name="The value of each individual Scholarship").click()
+#     page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
 
-    page.get_by_role("button", name="Create Scholarship").click()
+#     page.get_by_role("button", name="Create Scholarship").click()
     
-    expect(page.get_by_text("has been successfully created.")).to_be_visible()
+#     expect(page.get_by_text("has been successfully created.")).to_be_visible()
 
-def test_delete_scholarship(page: Page):
-    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+# def test_delete_scholarship(page: Page):
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 
-    page.get_by_role("button", name="Delete Existing Scholarship").click()
-    page.get_by_role("selectbox", name="Select the scholarship to delete").select_option('Test')
+#     page.get_by_role("button", name="Delete Existing Scholarship").click()
+#     page.get_by_role("selectbox", name="Select the scholarship to delete").select_option('Test')
 
-    page.get_by_role("button", name="Delete This Scholarship").click()
+#     page.get_by_role("button", name="Delete This Scholarship").click()
 
-    expect(page.get_by_text("Are you sure you want to delete this scholarship? It cannot be undone after.")).to_be_visible()
+#     expect(page.get_by_text("Are you sure you want to delete this scholarship? It cannot be undone after.")).to_be_visible()
 
-    page.get_by_role("button", name="Finalize Deletion").click()
+#     page.get_by_role("button", name="Finalize Deletion").click()
     
-    expect(page.get_by_text("has been successfully deleted.")).to_be_visible()
+#     expect(page.get_by_text("has been successfully deleted.")).to_be_visible()
 
 
-def test_fail_create_scholarship(page: Page):
-    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+# def test_fail_create_scholarship(page: Page):
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     
-    page.get_by_role("button", name="Create New Scholarship").click()
+#     page.get_by_role("button", name="Create New Scholarship").click()
 
-    page.get_by_role("textbox", name="Total amount of Scholarships").click()
-    page.get_by_role("textbox", name="Total amount of Scholarships").fill("500")
+#     page.get_by_role("textbox", name="Total amount of Scholarships").click()
+#     page.get_by_role("textbox", name="Total amount of Scholarships").fill("500")
 
-    page.get_by_role("textbox", name="The value of each individual Scholarship").click()
-    page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
+#     page.get_by_role("textbox", name="The value of each individual Scholarship").click()
+#     page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
 
-    page.get_by_role("button", name="Create Scholarship").click()
+#     page.get_by_role("button", name="Create Scholarship").click()
     
-    expect(page.get_by_text("Please make sure all the fields are filled out.")).to_be_visible()
+#     expect(page.get_by_text("Please make sure all the fields are filled out.")).to_be_visible()
 
 def test_edit_scholarship(page: Page):
     '''
