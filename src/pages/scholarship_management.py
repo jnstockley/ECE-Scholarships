@@ -48,7 +48,7 @@ with st.container():
         #but I doubt any scholarships require above 5.0, or even above 4.0, as that would greatly limit students unfairly.
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
-        if st.button('Create Scholarship'):
+        if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
@@ -91,7 +91,7 @@ with st.container():
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 hs_percentile = st.select_slider('Select the minimum highschool percentile', value=values['HS Percentile'], options=(x for x in range(0,101)))
-                if st.button('Finalize Changes'):
+                if st.button('Finalize Changes', key='Finalize Changes'):
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
                     scholarships.loc[index, 'Value'] = value
@@ -120,7 +120,7 @@ with st.container():
             else:
                 st.write('Are you sure you want to delete this scholarship? It cannot be undone after.')
                 #Extra layers of decisions to make sure they want to do this.
-                if st.button('Finalize Deletion'):
+                if st.button('Finalize Deletion', key='Finalize Deletion'):
                     #index is the row index of the scholarship we are deleting.
                     index = None
                     for n in range(0, scholarships.shape[0]):
