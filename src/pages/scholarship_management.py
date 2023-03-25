@@ -15,7 +15,8 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'], 'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
+#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
+#'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
 #df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
@@ -24,7 +25,6 @@ st.write("Select an Action from Below")
 with st.container():
     #This controls the options diplayed for majors
     majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
-    sat_comb = 0
     if button('Create New Scholarship', key='Create New Scholarship'):
         st.title('Create a New Scholarship')
         st.write('If certain requirements are N/A, leave them at 0.')
@@ -39,7 +39,7 @@ with st.container():
         admit_score = st.select_slider('Select the minimum Admit Score requirement', options=range(0,37))
         major = st.selectbox("Select which majors the scholarship applies to", options=majors)
         act_math = st.select_slider('Select the minimum ACT Math requirement', options=range(0,37))
-        act_english = st.select_slider('Select the minimum ACT English requirement', options=range(0,37)) 
+        act_english = st.select_slider('Select the minimum ACT English requirement', options=range(0,37))
         act_comp = st.select_slider('Select the minimum ACT Composite requirement', options=range(0,37))
         sat_math = st.select_slider('New minimum SAT Math requirement', options=(x*10 for x in range(0,81)))
         sat_reading = st.select_slider('New minimum SAT Reading requirement', options=(x*10 for x in range(0,81)))
@@ -54,7 +54,8 @@ with st.container():
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, sat_comb, gpa, hs_percentile], index=scholarships.columns, name = scholarships.shape[0])
+                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, sat_comb, gpa, hs_percentile],
+                                         index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
@@ -69,22 +70,20 @@ with st.container():
                 st.write('There is no scholarship selected')
             else:
                 #values is the current values of the scholarship, index is the row of that scholarship
-                values = None
-                index = None
                 #Find both the index and the values that match the scholarship we are trying to edit.
                 for n in range(0, scholarships.shape[0]):
                     values = scholarships.iloc[n]
                     if values['Name'] == edit_sch:
                         index = n
                         break
-                #Display the information; value is set so that it loads the current values into the fields.    
+                #Display the information; value is set so that it loads the current values into the fields.
                 total = st.text_input("New total amount of Scholarships", value = values['Total Amount'], max_chars=8, placeholder="Enter Numerical Amount")
                 value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
                 rai = st.select_slider('Select the minimum RAI requirement', value=values['RAI'], options=(x*5 for x in range(0,81)))
                 admit_score = st.select_slider('Select the minimum Admit Score requirement', value=values['Admit Score'], options=range(0,37))
                 major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
                 act_math = st.select_slider('Select the minimum ACT Math requirement', value=values['ACT Math'], options=range(0,37))
-                act_english = st.select_slider('Select the minimum ACT English requirement', value=values['ACT English'], options=range(0,37)) 
+                act_english = st.select_slider('Select the minimum ACT English requirement', value=values['ACT English'], options=range(0,37))
                 act_comp = st.select_slider('New minimum ACT Composite requirement', value=values['ACT Composite'], options=range(1,37))
                 sat_math = st.select_slider('New minimum SAT Math requirement', value=values['SAT Math'], options=(x*10 for x in range(0,81)))
                 sat_reading = st.select_slider('New minimum SAT Reading requirement', value=values['SAT Reading'], options=(x*10 for x in range(0,81)))
@@ -122,13 +121,12 @@ with st.container():
                 #Extra layers of decisions to make sure they want to do this.
                 if st.button('Finalize Deletion', key='Finalize Deletion'):
                     #index is the row index of the scholarship we are deleting.
-                    index = None
                     for n in range(0, scholarships.shape[0]):
                         values = scholarships.iloc[n]
                         if values['Name'] == delete_sch:
                             index = n
                             break
-                    #In this case, drop takes the row index and drops the associated row, returning a new dataframe without it. 
+                    #In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
                     new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
