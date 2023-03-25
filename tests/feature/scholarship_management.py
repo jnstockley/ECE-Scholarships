@@ -1,6 +1,5 @@
 import os
 from playwright.sync_api import Page, expect
-import pandas as pd
 
 # TESTS:
 def test_scholarship_page(page: Page):
@@ -58,8 +57,23 @@ def test_delete_button(page: Page):
 
     expect(page.get_by_text("Select the scholarship to delete")).to_be_visible()
 
+def test_edit_scholarship(page: Page):
+    '''
+    As a user so that edit preexisting scholarships, 
+    I would like to be able to go through a series of steps to edit a scholarship
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+
+    page.get_by_role("button", name="Edit Existing Scholarship").click()
+    page.get_by_role("button", name="Edit This Scholarship").click()
+    page.get_by_role("button", name="Finalize Changes").click()
+
+    expect(page.get_by_text("has been successfully edited.")).to_be_visible()
 
 # def test_create_scholarship(page: Page):
+#     '''
+#     As a user, I would like to be able to create a scholarship
+#     '''
 #     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     
 #     page.get_by_role("button", name="Create New Scholarship").click()
@@ -78,6 +92,9 @@ def test_delete_button(page: Page):
 #     expect(page.get_by_text("has been successfully created.")).to_be_visible()
 
 # def test_delete_scholarship(page: Page):
+#     '''
+#     As a user, I would like to be able to delete a scholarship
+#     '''
 #     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 
 #     page.get_by_role("button", name="Delete Existing Scholarship").click()
@@ -91,10 +108,13 @@ def test_delete_button(page: Page):
     
 #     expect(page.get_by_text("has been successfully deleted.")).to_be_visible()
 
-
 # def test_fail_create_scholarship(page: Page):
-#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
-    
+#     '''
+#     As a user so that I cannot try to create an incorrect scholarship,
+#     I want it to warn me when I have not filled out the fields
+#     '''
+#     page.goto("http://localhost:9000/Scholarship%20Management")
+
 #     page.get_by_role("button", name="Create New Scholarship").click()
 
 #     page.get_by_role("textbox", name="Total amount of Scholarships").click()
@@ -103,19 +123,12 @@ def test_delete_button(page: Page):
 #     page.get_by_role("textbox", name="The value of each individual Scholarship").click()
 #     page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
 
-#     page.get_by_role("button", name="Create Scholarship").click()
+#     create_sch_btn = page.get_by_role("button", name="Create Scholarship")
+
+#     expect(create_sch_btn).to_have_text('Create Scholarship')
+
+#     create_sch_btn.click()
     
 #     expect(page.get_by_text("Please make sure all the fields are filled out.")).to_be_visible()
 
-def test_edit_scholarship(page: Page):
-    '''
-    As a user so that edit preexisting scholarships, 
-    I would like to be able to go through a series of steps to edit a scholarship
-    '''
-    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 
-    page.get_by_role("button", name="Edit Existing Scholarship").click()
-    page.get_by_role("button", name="Edit This Scholarship").click()
-    page.get_by_role("button", name="Finalize Changes").click()
-
-    expect(page.get_by_text("has been successfully edited.")).to_be_visible()
