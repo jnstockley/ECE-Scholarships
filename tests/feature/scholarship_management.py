@@ -59,7 +59,7 @@ def test_create_scholarship(page: Page):
     page.get_by_role("textbox", name="The value of each individual Scholarship").click()
     page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
 
-    page.get_by_role("button", name="Create").click()
+    page.get_by_role("button", name="Create Scholarship").click()
     
     expect(page.get_by_text("has been successfully created.")).to_be_visible()
 
@@ -67,8 +67,7 @@ def test_delete_scholarship(page: Page):
     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 
     page.get_by_role("button", name="Delete Existing Scholarship").click()
-    #page.get_by_label("Select the scholarship to delete").selectOption('Test')
-    page.get_by_role("selectbox", name="Select the scholarship to delete").selectOption('Test')
+    page.get_by_role("selectbox", name="Select the scholarship to delete").select_option('Test')
 
     page.get_by_role("button", name="Delete This Scholarship").click()
 
@@ -90,7 +89,7 @@ def test_fail_create_scholarship(page: Page):
     page.get_by_role("textbox", name="The value of each individual Scholarship").click()
     page.get_by_role("textbox", name="The value of each individual Scholarship").fill("2000")
 
-    page.get_by_role("button", name="Create").click()
+    page.get_by_role("button", name="Create Scholarship").click()
     
     expect(page.get_by_text("Please make sure all the fields are filled out.")).to_be_visible()
 

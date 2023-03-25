@@ -48,7 +48,7 @@ with st.container():
         #but I doubt any scholarships require above 5.0, or even above 4.0, as that would greatly limit students unfairly.
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
-        if st.button('Create'):
+        if st.button('Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
