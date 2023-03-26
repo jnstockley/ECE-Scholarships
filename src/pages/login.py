@@ -1,4 +1,5 @@
 import re
+import time
 from re import Pattern
 
 import streamlit as st
@@ -61,6 +62,8 @@ def login_form_func():
 
 cookie_manager = get_manager()
 
-st.write(cookie_manager.get_all())
+
+time.sleep(.2)
+
 
 login_form_func()
