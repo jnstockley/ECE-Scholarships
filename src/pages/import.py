@@ -49,7 +49,8 @@ def display_file_upload():
     if submit:
         # Handle imported files.
         if not files:
-            SESSION.set_view(View.IMPORT_PAGE)
+            st.write('No files selected!')
+            return
 
         SESSION.import_sheets(files)
         SESSION.set_view(View.ALIGNMENT_COLUMNS)
