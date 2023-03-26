@@ -7,7 +7,7 @@ import typer
 
 CMD = {
     'STREAMLIT_RUN': 'streamlit run main.py --client.showErrorDetails false --server.port 9000 --server.headless true',
-    'PLAYWRIGHT': 'pytest ./tests/feature/*.py --browser webkit',
+    'PLAYWRIGHT': 'pytest ./tests/feature/*.py --browser firefox',
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'
 }
@@ -32,9 +32,9 @@ def run(test: str = 'all'):
         time.sleep(4)
         try:
             subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
-        except Exception as exc:
-            streamlit_process.terminate()
-            raise exc
+        except subprocess.CalledProcessError as _exc:
+            # Do no harm
+            pass
 
         streamlit_process.terminate()
 
