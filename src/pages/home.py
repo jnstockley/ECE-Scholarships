@@ -4,6 +4,9 @@ Homepage view.
 import streamlit as st
 import pandas as pd
 
+from streamlit_cookies_manager import EncryptedCookieManager
+
+
 st.set_page_config(layout="wide")
 st.title('Review Applicants')
 
@@ -38,3 +41,5 @@ st.write("***Example with Built In Table")
 st.dataframe(df)
 
 st.button("Export current data")
+
+st.write(st.session_state)

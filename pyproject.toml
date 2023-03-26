@@ -20,6 +20,7 @@ openpyxl = "^3.1.1"
 st-pages = "^0.3.2"
 asyncio = "^3.4.3"
 office365-rest-python-client = "^2.4.0"
+extra-streamlit-components = "^0.1.56"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
