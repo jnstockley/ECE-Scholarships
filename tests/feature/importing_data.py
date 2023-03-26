@@ -2,6 +2,7 @@
 Test functionality of the import document tools.
 '''
 import os
+import re
 from playwright.sync_api import Page, expect
 
 ABSOLUTE_PATH = os.path.dirname(__file__)
@@ -39,6 +40,8 @@ def test_import_files(page: Page):
     As a user so that I can upload scholarship applications details from multiple sources,
     I would like to be able to upload several excel files and combine them across a single
     common column with unique values.
+
+    This test verifies the entire import data flow is functioning
     '''
     page.goto("http://localhost:9000/Import%20Data", wait_until='domcontentloaded')
 
@@ -64,6 +67,17 @@ def test_import_files(page: Page):
 
     page.get_by_role("button", name="Next").click()
     page.get_by_role("button", name="Next").click()
+
+    expect(page.get_by_text('Similar Columns Have Been Detected')).to_be_visible()
+
+    remaining_label = page.get_by_role('paragraph').filter(has_text=re.compile(".+ remaining..."))
+    remaining_count = int(remaining_label.inner_text().replace(" remaining...", ""))
+    # Keep clicking skip until we have reached the end
+    for i in range(remaining_count + 1, -1, -1):
+        page.get_by_role("button", name="skip").click()
+        if not i == 0:
+            # Click it to await its presence on page
+            page.get_by_text(f"{i-1} remaining...").click()
 
     expect(page.get_by_text("import completed!")).to_have_text("import completed!")
 
