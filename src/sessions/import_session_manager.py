@@ -19,7 +19,6 @@ class Session(Enum):
     IMPORTED_SHEETS = "imported_sheets"
     ALIGNMENT_INFO = "alignment_info"
     SIMILAR_MANAGER = "similar_manager"
-    FINAL_DATA = "final_data"
 
 class View(Enum):
     '''
@@ -63,9 +62,6 @@ class ImportSessionManager(SessionManager):
         if self.has(Session.SIMILAR_MANAGER):
             self.similar = self._retrieve(Session.SIMILAR_MANAGER)
 
-        if self.has(Session.FINAL_DATA):
-            self.final_data = self._retrieve(Session.FINAL_DATA)
-
     def import_sheets(self, files: list[ImportedSheet]):
         '''
         Import sheets to use for further steps.
@@ -106,5 +102,5 @@ class ImportSessionManager(SessionManager):
         Completes the import flow and sets final data.
         '''
         self.aligned_df.drop(columns=self.similar.columns_to_remove, inplace=True)
-        self._set(Session.FINAL_DATA, self.aligned_df)
+        self.set_main_data_source(self.aligned_df)
         self.set_view(View.IMPORT_COMPLETE)

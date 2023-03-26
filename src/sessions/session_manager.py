@@ -3,6 +3,7 @@ SessionManager
 '''
 from enum import Enum
 import streamlit as st
+import pandas as pd
 from streamlit.runtime.state import SessionStateProxy
 
 class GlobalSession(Enum):
@@ -10,16 +11,27 @@ class GlobalSession(Enum):
     Global shared sessions
     '''
     VIEW = "view"
+    DATA_MAIN = "data_main"
 
 class SessionManager:
     '''
     Main session manager object for simplifying streamlit session logic in views.
+    
+    Attributes
+    ----------
+    data : pd.DataFrame
+        The main student dataframe set by import logic
+    view : any
+        Current view for pages session
     '''
     def __init__(self, session: SessionStateProxy, default_view):
         self._session = session
 
         if not self.has(GlobalSession.VIEW):
             self._set(GlobalSession.VIEW, default_view)
+
+        if self.has(GlobalSession.DATA_MAIN):
+            self.data = self._retrieve(GlobalSession.DATA_MAIN)
 
         self.view = self._retrieve(GlobalSession.VIEW)
 
@@ -35,6 +47,12 @@ class SessionManager:
         Verifies key is present in current session.
         '''
         return key in self._session
+
+    def set_main_data_source(self, data: pd.DataFrame):
+        '''
+        Sets the main scholarship dataframe for the user session
+        '''
+        self._set(GlobalSession.DATA_MAIN, data)
 
     def _retrieve(self, key: str):
         '''

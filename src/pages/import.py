@@ -189,8 +189,6 @@ def display_done_view():
     st.write('import completed!')
     import_another = st.button('import another')
 
-    SESSION.final_data.to_csv('~/final_data.csv')
-
     if import_another:
         SESSION.set_view(View.IMPORT_PAGE)
 
