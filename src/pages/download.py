@@ -1,3 +1,6 @@
+"""
+Download file from sharepoint once signed in
+"""
 import os
 import time
 
@@ -5,17 +8,31 @@ from office365.runtime.auth.user_credential import UserCredential
 from office365.runtime.client_request_exception import ClientRequestException
 from office365.sharepoint.client_context import ClientContext
 
-from utils.cookies import get_manager
 import streamlit as st
 
+from utils.cookies import get_manager
+
+
+# List of valid files to download from sharepoint
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 
 def redirect(url: str):
+    """
+    Helper function to redirect if not signed in
+    :param url: URL to redirect to
+    """
     st.write(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
 
 
 def connect_to_sharepoint(hawkid: str, password: str, site_url: str):
+    """
+    Connects and signs into the SharePoint site
+    :param hawkid: Username
+    :param password: Password
+    :param site_url: Sharepoint Site URL
+    :return: CTX which managers the login and connection to sharepoint
+    """
     creds = ClientContext(site_url).with_credentials(UserCredential(hawkid, password))
     try:
         web = creds.web.get().execute_query()
@@ -25,11 +42,15 @@ def connect_to_sharepoint(hawkid: str, password: str, site_url: str):
         return None
     if f"{web.url}/" == site_url:
         return creds
-    else:
-        return None
+    return None
 
 
 def get_sharepoint_files(ctx):
+    """
+    Gets a list of files from the sharepoint site
+    :param ctx: Session manager to manager connection with SharePoint
+    :return: List of valid files that can be downloaded
+    """
     target_folder_url = "Shared Documents"
     root_folder = ctx.web.get_folder_by_server_relative_path(target_folder_url)
 
@@ -42,6 +63,12 @@ def get_sharepoint_files(ctx):
 
 
 def download_file(site_url: str, file_path: str, ctx):
+    """
+    Downlaods the specific file from the sharepoint site
+    :param site_url: Full URL to Sharepoint site
+    :param file_path: Path to File in SharePoint
+    :param ctx: Session manager to manager connection with SharePoint
+    """
     full_url = f"{site_url.replace('https://iowa.sharepoint.com', '')}Shared Documents{file_path}"
 
     cwd = os.getcwd()
@@ -51,6 +78,9 @@ def download_file(site_url: str, file_path: str, ctx):
 
 
 def files_dropdown():
+    """
+    Sets up the file dropdown, makes sure user is signed in
+    """
     if cookie_manager.get('cred') is None:
         redirect("/Log%20In")
 
