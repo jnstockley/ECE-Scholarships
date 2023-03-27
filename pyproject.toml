@@ -24,6 +24,9 @@ matplotlib = "^3.7.1"
 office365-rest-python-client = "^2.4.0"
 extra-streamlit-components = "^0.1.56"
 poetry-dotenv = "^0.3.0"
+fuzzywuzzy = "^0.18.0"
+python-dotenv = "^1.0.0"
+python-levenshtein = "^0.20.9"
 
 [tool.poetry.group.dev.dependencies]
 autopep8 = "^2.0.1"
