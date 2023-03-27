@@ -21,9 +21,6 @@ df.insert(0, 'Selection', None)
 st.title("Home")
 st.header("Review Applicants")
 
-# How to access selected rows for use in methods like reviewing
-# sel_rows = grid_table["selected_rows"]
-
 def dynamic_fig(df, x_axis, y_axis, highlights=None):
     '''
     Function to generate dynamic graph of student data
@@ -72,6 +69,9 @@ grid_table = AgGrid(
     height = 700,
     columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
 )
+
+# How to access selected rows for use in methods like reviewing
+# sel_rows = grid_table["selected_rows"]
 
 # Actions button that need to have functionality implemented
 with st.container():
