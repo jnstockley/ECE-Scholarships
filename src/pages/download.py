@@ -10,19 +10,12 @@ from office365.sharepoint.client_context import ClientContext
 
 import streamlit as st
 
-from utils.cookies import get_manager
+from src.pages.login import redirect
+from src.utils.cookies import get_manager
 
 
 # List of valid files to download from sharepoint
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
-
-
-def redirect(url: str):
-    """
-    Helper function to redirect if not signed in
-    :param url: URL to redirect to
-    """
-    st.write(f'<meta http-equiv="refresh" content="0; url={url}">', unsafe_allow_html=True)
 
 
 def connect_to_sharepoint(hawkid: str, password: str, site_url: str):
@@ -81,8 +74,12 @@ def files_dropdown():
     """
     Sets up the file dropdown, makes sure user is signed in
     """
+
+    st.header("Download A File")
+
     if cookie_manager.get('cred') is None:
         redirect("/Log%20In")
+        return
 
     cookie_creds = cookie_manager.get('cred')
 
