@@ -8,9 +8,12 @@ import matplotlib.pyplot as plt
 import numpy as np
 
 
-#Function to create pyplot figure based on input data,
-#will highlight a bin if that data is inputted
+
 def create_fig(data, data_title, highlight=None):
+    '''
+    Function to create pyplot figure based on input data,
+    will highlight a bin if that data is inputted
+    '''
     highlight = highlight.values[0]
     fig, axis = plt.subplots()
     _, bins, patches = axis.hist(data, bins=20)
@@ -24,8 +27,10 @@ def create_fig(data, data_title, highlight=None):
     st.pyplot(fig)
     return fig, axis
 
-#Function to build the metrics page from a given dataset
 def build_metrics_page(data):
+    '''
+    Function to build the metrics page from a given dataset
+    '''
     st.title('Student Metrics')
     student_select = st.selectbox("Select Student",data['Name'])
     highlight_id = data[data['Name']==student_select].index.values
