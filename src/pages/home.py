@@ -36,6 +36,7 @@ with st.container():
     numeric_cols = df.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
     numeric_cols = numeric_cols.loc[numeric_cols == True]
     numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+    numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
     col1, _, _ = st.columns(3)
     with col1:
         fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
