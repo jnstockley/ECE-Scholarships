@@ -1,6 +1,8 @@
 '''
 This script simplifies running the playwright and pyunit tests.
 '''
+import os
+import signal
 import time
 import subprocess
 import typer
@@ -31,17 +33,17 @@ def run(test: str = 'all'):
 
         print('Launching Streamlit server')
         streamlit_cmd =f"poetry run coverage run --append --source src -m {CMD['STREAMLIT_RUN']}"
-        # pylint: disable-next=consider-using-with
-        streamlit_process = subprocess.Popen(streamlit_cmd, stderr=subprocess.STDOUT, shell=True)
+        # pylint: disable-next=subprocess-popen-preexec-fn
+        streamlit_process = subprocess.Popen(streamlit_cmd, stderr=subprocess.STDOUT, shell=True, preexec_fn=os.setsid)
 
         time.sleep(4)
         try:
             subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
-        except Exception as exc:
-            streamlit_process.terminate()
-            raise exc
+        except subprocess.CalledProcessError as _exc:
+            # Do no harm
+            pass
 
-        streamlit_process.terminate()
+        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
         print('COVERAGE REPORT:')
         subprocess.run(CMD['REPORT'], check= False, shell=True)
@@ -52,7 +54,11 @@ def run(test: str = 'all'):
         streamlit_process = subprocess.Popen(streamlit_cmd, stderr=subprocess.STDOUT, shell=True)
 
         time.sleep(4)
-        subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
+        try:
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", stderr=subprocess.STDOUT, check=True, shell=True)
+        except subprocess.CalledProcessError as _exec:
+            # Do no harm
+            pass
 
         streamlit_process.terminate()
     elif test == 'pyunit':
