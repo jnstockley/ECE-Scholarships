@@ -3,6 +3,8 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 '''
 
 # Packages used in code
+import numbers
+import decimal
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -20,14 +22,23 @@ st.title("Home")
 st.header("Review Applicants")
 
 def dynamic_fig(df, x_axis, y_axis, select_points=None):
-    print(df[x_axis].dtypes)
+    '''
+    Function to generate dynamic graph of student data
+    '''
+    #if not isinstance(df[x_axis].dtypes)
     fig, axis = plt.subplots()
     plt.scatter(df[x_axis],df[y_axis])
     st.pyplot(fig)
     return fig, axis
 
-fig_select1 = st.selectbox("Select X axis",df.columns.values)
-fig_select2 = st.selectbox("Select Y axis",df.columns.values)
+numeric_cols = df.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+numeric_cols.drop('UID',axis=1)
+numeric_cols.drop('Duplicate',axis=1)
+numeric_cols.drop('Categorized At',axis=1)
+numeric_cols = numeric_cols.loc[numeric_cols == True]
+fig_select1 = st.selectbox("Select X axis",numeric_cols.index.values)
+fig_select2 = st.selectbox("Select Y axis",numeric_cols.index.values)
+
 if fig_select1 != 'Selection' and fig_select2 != 'Selection':
     dynamic_fig(df, fig_select1, fig_select2)
 
