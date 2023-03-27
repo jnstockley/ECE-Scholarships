@@ -3,10 +3,6 @@ Render view for import data page
 
 State
 -----
-view : str
-    Current view to be rendered
-imported_sheets : list[ImportedSheet]
-    Comes from file uploaded, list of ImportedSheet
 alignment_map : list[(str, pd.DataFrame)]
     Alignment columns to select from each dataframe. Created during alignment form step
 drop_missing : bool
@@ -23,40 +19,23 @@ duplicate_column_comparison_details : (str, dict[str, pd.DataFrame])
     an associated dataframe with the varying values displayed.
 radio_duplicate_column_selections : (str, any)
     (Column name, selected value to keep for that duplicate column)
+aligned_dataframe : pd.Dataframe
+    The combined dataframe along a single alignment column.
 '''
 import streamlit as st
 from src.utils.html import centered_text
 from src.utils import merge
-from src.models.imported_sheet import ImportedSheet
+from src.sessions.import_session_manager import ImportSessionManager, View
+from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
+from src.managers.import_data.similar_columns import MergeSimilarDetails
 
-IMPORT_PAGE = 0
-ALIGNMENT_COLUMNS = 1
-DUPLICATE_COLUMN_HANDLER = 2
-IMPORT_COMPLETE = 4
 # HELPERS AND FLOW MANAGEMENT
-
-if 'view' not in st.session_state:
-    st.session_state['view'] = IMPORT_PAGE
+SESSION = ImportSessionManager(st.session_state)
 
 def display_file_upload():
     '''
     Renders the file uploader view
     '''
-    def import_data_flow(import_files):
-        '''
-        Handles render logic when import data submit has occured
-        '''
-        if len(import_files) == 0 or import_files is None:
-            st.write("No files selected!")
-        else:
-            if not isinstance(import_files, list):
-                import_files = [import_files]
-
-            st.session_state.imported_sheets = [ImportedSheet(file) for file in import_files]
-            st.session_state.view = ALIGNMENT_COLUMNS
-
-            st.experimental_rerun()
-
     st.title("Import Data")
     st.write("Add files to be imported. Multiple files can be selected and the application will attempt to merge them.")
     form = st.form(key="import_data_form")
@@ -69,7 +48,12 @@ def display_file_upload():
 
     if submit:
         # Handle imported files.
-        import_data_flow(files)
+        if not files:
+            st.write('No files selected!')
+            return
+
+        SESSION.import_sheets(files)
+        SESSION.set_view(View.ALIGNMENT_COLUMNS)
 
 # def display_scholarship_import():
 #     st.title("Import Scholarships")
@@ -85,20 +69,25 @@ def display_alignment_column_form():
         Alignment columns are columns with unique data that is consistent between the import files. This may be something such as a student ID column. Please list all variations of this
         column name below within the datasets you selected. These values will be used to determine how rows are merged.
         ''')
-    if len(st.session_state.imported_sheets) == 0:
-        # No alignment column needed when only one df imported
-        st.session_state.view = IMPORT_PAGE
-        st.experimental_rerun()
+    if len(SESSION.imported_sheets) <= 1:
+        if len(SESSION.imported_sheets) == 1:
+            # one sheet, set as the combined "alignment" sheet
+            st.session_state.aligned_dataframe = SESSION.imported_sheets[0].get_df()
+            update_merge_columns()
+            SESSION.set_view(View.MERGE_COLUMNS)
+        else:
+            # No alignment column needed when only one df imported
+            SESSION.set_view(View.IMPORT_COMPLETE)
 
     alignment_form = st.form("alignment_input_form")
     alignment_form.write('**Select 1 column from each file:**')
 
-    alignment_input_map = [] # (col to align, dataframe)
+    alignment_inputs = [] # (col to align, dataframe)
 
-    for sheet in st.session_state.imported_sheets:
+    for sheet in SESSION.imported_sheets:
         data = sheet.get_df()
         drop_down = alignment_form.selectbox(sheet.file_name, data.columns.tolist())
-        alignment_input_map.append((drop_down, sheet))
+        alignment_inputs.append(SelectAlignment(drop_down, sheet))
 
     drop_missing_checkbox = alignment_form.checkbox('Drop missing?')
 
@@ -116,89 +105,86 @@ def display_alignment_column_form():
         if final_column_name_input.strip() == '':
             st.write('Error: please specify your final combined alignment column name')
             return
-        # sort in size order
-        st.session_state.alignment_map = alignment_input_map
-        st.session_state.drop_missing = drop_missing_checkbox
-        st.session_state.alignment_column_name = final_column_name_input
 
-        combine_columns = [pair[1].get_df()[pair[0]] for pair in alignment_input_map]
-        st.session_state.final_alignment_column = merge.combine_columns(combine_columns, drop_missing_checkbox)
-
-        st.session_state.view = DUPLICATE_COLUMN_HANDLER
-        st.experimental_rerun()
-
-def find_next_duplicate_column(alignment_columns: list[str], alignment_sheets: list[ImportedSheet], max_col_index: int):
-    '''
-    Checks each alignment value row to find any columns with duplicate data that is different between datasets. Will flag this
-    to be rendered in the duplicate column UI by assigned a value to st.session_state.duplicate_column_comparison_details.
-    Will stop once max_col_index reached.
-    '''
-    column_data_comparison_tables = {}
-    alignment_col_row_value = None
-
-    while len(column_data_comparison_tables.items()) == 0 and st.session_state.check_duplicate_column_index <= max_col_index:
-        alignment_col_row_value = st.session_state.final_alignment_column.tolist()[st.session_state.check_duplicate_column_index]
-        column_data_comparison_tables = merge.find_duplicates(alignment_columns, alignment_col_row_value, alignment_sheets)
-        st.session_state.check_duplicate_column_index +=1
-
-    if len(column_data_comparison_tables.items()) > 0:
-        st.session_state.duplicate_column_comparison_details = (alignment_col_row_value, column_data_comparison_tables)
-
-    st.experimental_rerun()
+        alignment_info = AlignmentManager(drop_missing_checkbox, final_column_name_input, alignment_inputs)
+        SESSION.begin_alignment(alignment_info)
 
 def display_duplicate_column_form():
     '''
     Align rows display routine
     '''
-    if 'check_duplicate_column_index' not in st.session_state:
-        st.session_state.check_duplicate_column_index = 0
+    alignment_info: AlignmentManager = SESSION.alignment_info
 
-    alignment_columns = [pair[0] for pair in st.session_state.alignment_map]
-    alignment_sheets = [pair[1] for pair in st.session_state.alignment_map]
-    max_col_index = len(st.session_state.final_alignment_column.tolist())-1
+    if alignment_info.alignment_complete():
+        SESSION.complete_aligned_df()
 
-    if max_col_index < st.session_state.check_duplicate_column_index:
-        st.session_state.view = IMPORT_COMPLETE
-        merged_data = merge.merge_with_alignment_columns(st.session_state.alignment_column_name, alignment_columns, st.session_state.final_alignment_column, alignment_sheets)
-        print(merged_data)
+    if not alignment_info.session_has_duplicate():
+        alignment_info.pop_next_duplicate_to_handle()
+
+    duplicate_details = alignment_info.current_duplicate_details
+
+    st.header('Duplicate Column(s) Found')
+    duplicate_handler_form = st.form(key='duplicate_column_form')
+    duplicate_handler_form.write(f'For the unique alignment column value {duplicate_details.alignment_row_value}, please select which data to keep:')
+    duplicate_handler_form.write('### Columns')
+
+    duplicate_handler_form.write(f'_{duplicate_details.duplicate_column_name}:_')
+    col1, col2 = duplicate_handler_form.columns(2)
+
+    value_selection = None
+    with col1:
+        st.dataframe(duplicate_details.get_comparison_df())
+    with col2:
+        value_selection = st.radio(f"Select the final value for column '{duplicate_details.duplicate_column_name}'",
+            duplicate_details.get_values())
+
+    # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
+    next_button = duplicate_handler_form.form_submit_button('Next')
+    if next_button:
+        alignment_info.select_duplicate_value(duplicate_details, value_selection)
         st.experimental_rerun()
+    else:
+        return
 
-    if 'duplicate_column_comparison_details' in st.session_state and st.session_state.duplicate_column_comparison_details is not None:
-        duplicate_details = st.session_state.duplicate_column_comparison_details
-        st.header('Duplicate Column(s) Found')
-        duplicate_handler_form = st.form(key='duplicate_column_form')
-        duplicate_handler_form.write(f'For the alignment column value {duplicate_details[0]}, please select which data to keep:')
-        duplicate_handler_form.write('### Columns')
+def update_merge_columns():
+    '''
+    Refreshes merge columns based on state
+    '''
+    import_dfs = [st.session_state.aligned_dataframe]
+    columns = [column for data in import_dfs for column in data.columns]
 
-        # (duplicate column name, value)
-        mapped_data_inputs = []
-
-        for i, column_name in enumerate(duplicate_details[1]):
-            duplicate_handler_form.write(f'_{column_name}:_')
-            col1, col2 = duplicate_handler_form.columns(2)
-            with col1:
-                st.dataframe(duplicate_details[1][column_name])
-            with col2:
-                radio_select = st.radio(f"Select the final value for column '{column_name}'",
-                    duplicate_details[1][column_name].loc['Values', :].tolist())
-
-                mapped_data_inputs.append((column_name, radio_select))
+    merge_columns = merge.find_similar_columns(columns, 70)
+    st.session_state['merge_fields'] = merge_columns
 
 
-            if i < len(duplicate_details[1])-1:
-                duplicate_handler_form.write('---')
+def display_merge_form(similar_details: MergeSimilarDetails):
+    '''
+    Renders a single merge popup
+    '''
+    st.header("Similar Columns Have Been Detected")
+    st.write("We have detected the following columns to be similar in name. Would you like to merge them?")
+    st.write(f"_{SESSION.similar.remaining_count()} remaining..._")
 
-        # Once the value is selected, go through each df and find the column if it has it and set the value to the selected value
-        next_button = duplicate_handler_form.form_submit_button('Next')
-        if next_button:
-            st.session_state.duplicate_column_comparison_details = None
-            for duplicate_col_input in mapped_data_inputs:
-                merge.replace_alignment_row_duplicate_column_value(duplicate_details[0], duplicate_col_input[1], duplicate_col_input[0], alignment_columns, alignment_sheets)
-            st.experimental_rerun()
-        else:
-            return
+    percent_different = (similar_details.get_different_row_count()/len(SESSION.aligned_df.index))*100
+    merge_form = st.form(key="merge_data_form")
+    merge_form.header('Useful Metrics:')
+    merge_form.write(f"Of the {len(SESSION.aligned_df.index)} total rows, {similar_details.get_different_row_count()} have different"+
+                     f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
 
-    find_next_duplicate_column(alignment_columns, alignment_sheets, max_col_index)
+    merge_form.write('---')
+    merge_form.write('*Note:* You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
+                    + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
+    edited_df = merge_form.experimental_data_editor(similar_details.get_comparison_table())
+    final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
+
+    merge_button = merge_form.form_submit_button('merge')
+    skip_button = merge_form.form_submit_button('skip')
+
+    if skip_button:
+        SESSION.similar.dont_merge_columns()
+    elif merge_button:
+        SESSION.similar.get_column_group().set_final_column_name(final_column_name)
+        SESSION.similar.merge_columns(edited_df['FINAL COLUMN'])
 
 def display_done_view():
     '''
@@ -208,17 +194,20 @@ def display_done_view():
     import_another = st.button('import another')
 
     if import_another:
-        st.session_state.view = IMPORT_PAGE
-        st.experimental_rerun()
+        SESSION.set_view(View.IMPORT_PAGE)
 
 # PAGE RENDER LOGIC
-VIEW = st.session_state.view
-if VIEW == IMPORT_PAGE:
+if SESSION.view == View.IMPORT_PAGE:
     display_file_upload()
     #display_scholarship_import()
-elif VIEW == ALIGNMENT_COLUMNS:
+elif SESSION.view == View.ALIGNMENT_COLUMNS:
     display_alignment_column_form()
-elif VIEW == DUPLICATE_COLUMN_HANDLER:
+elif SESSION.view == View.DUPLICATE_COLUMN_HANDLER:
     display_duplicate_column_form()
-elif VIEW == IMPORT_COMPLETE:
+elif SESSION.view == View.MERGE_COLUMNS:
+    if not SESSION.similar is None and SESSION.similar.has_group_to_handle():
+        display_merge_form(SESSION.similar.get_column_group())
+    else:
+        SESSION.complete_import()
+elif SESSION.view == View.IMPORT_COMPLETE:
     display_done_view()
