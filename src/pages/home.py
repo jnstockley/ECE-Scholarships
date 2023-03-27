@@ -81,7 +81,7 @@ if st.button("Clear Selection"):
     components.html(CLEARJS)
 
 # Helper function used for processing the scholarship recommendations
-def submit_recommendations(recommended_scholarship, additional_feedback):
+def submit_recommendations(recommended_scholarship_input, additional_feedback_input):
     """Solving pylint error"""
     global USER_RECOMMENDATIONS
     if len(grid_table["selected_rows"]) == 0:
@@ -89,7 +89,7 @@ def submit_recommendations(recommended_scholarship, additional_feedback):
     sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
     new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
     for uid in sel_uids:
-        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Additional Feedback": additional_feedback}
+        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship_input, "Additional Feedback": additional_feedback_input}
         if len(USER_RECOMMENDATIONS.loc[(USER_RECOMMENDATIONS['UID'] == uid) & (USER_RECOMMENDATIONS['Scholarship'] == recommended_scholarship)]) > 0:
             return False, str("Already recommended student " + str(uid) + " for this scholarship")
         # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
