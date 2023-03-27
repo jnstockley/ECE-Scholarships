@@ -12,5 +12,6 @@ show_pages(
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
         Page("src/pages/login.py", "Log In"),
         Page("src/pages/download.py", "Download File"),
+        Page("src/pages/student_metrics.py", "Student Metrics")
     ]
 )
