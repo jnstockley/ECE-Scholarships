@@ -25,9 +25,10 @@ def dynamic_fig(df, x_axis, y_axis, select_points=None):
     '''
     Function to generate dynamic graph of student data
     '''
-    #if not isinstance(df[x_axis].dtypes)
     fig, axis = plt.subplots()
-    plt.scatter(df[x_axis],df[y_axis])
+    xs = df[x_axis][df[x_axis] != 0][df[y_axis] != 0]
+    ys = df[y_axis][df[x_axis] != 0][df[y_axis] != 0]
+    plt.scatter(xs, ys)
     st.pyplot(fig)
     return fig, axis
 
