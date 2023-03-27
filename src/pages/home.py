@@ -34,22 +34,20 @@ def dynamic_fig(df, x_axis, y_axis, select_points=None):
 with st.container():
     numeric_cols = df.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
     numeric_cols = numeric_cols.loc[numeric_cols == True]
-    print(numeric_cols)
-    numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
-    print(numeric_cols)
+    numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
     col1, col2, col3 = st.columns(3)
     with col1:
         fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
         fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
         dynamic_fig(df, fig_select1a, fig_select1b)
-    with col2:
-        fig_select2a = st.selectbox("Select X axis for graph 2",numeric_cols.index.values)
-        fig_select2b = st.selectbox("Select Y axis for graph 2",numeric_cols.index.values)
-        dynamic_fig(df, fig_select2a, fig_select2b)
-    with col3:
-        fig_select3a = st.selectbox("Select X axis for graph 3",numeric_cols.index.values)
-        fig_select3b = st.selectbox("Select Y axis for graph 3",numeric_cols.index.values)
-        dynamic_fig(df, fig_select3a, fig_select3b)
+    #with col2:
+    #    fig_select2a = st.selectbox("Select X axis for graph 2",numeric_cols.index.values)
+    #    fig_select2b = st.selectbox("Select Y axis for graph 2",numeric_cols.index.values)
+    #    dynamic_fig(df, fig_select2a, fig_select2b)
+    #with col3:
+    #    fig_select3a = st.selectbox("Select X axis for graph 3",numeric_cols.index.values)
+    #    fig_select3b = st.selectbox("Select Y axis for graph 3",numeric_cols.index.values)
+    #    dynamic_fig(df, fig_select3a, fig_select3b)
 
 # Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which filter would you like to apply?",
