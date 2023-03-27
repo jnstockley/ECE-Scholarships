@@ -1,3 +1,6 @@
+# Application outputs
+.app_data
+
 # Created by https://www.toptal.com/developers/gitignore/api/python,macos,windows,linux
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,macos,windows,linux
 .python-version
