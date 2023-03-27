@@ -5,8 +5,6 @@ import os
 import time
 
 from playwright.sync_api import Page, expect
-from poetry_dotenv import dotenv
-
 
 def test_login_page(page: Page):
     """
@@ -30,13 +28,13 @@ def test_invalid_login_creds(page: Page):
     page.goto("http://localhost:9000/Log%20In", wait_until='domcontentloaded')
 
     # Invalid Hawk ID
-    INVALID_HAWK_ID = "test"
+    invalid_hawk_id = "test"
 
     # Invalid Password
-    INVALID_PASSWORD = "1234"
+    invalid_password = "1234"
 
     # Invalid Sharepoint URL
-    INVALID_SHAREPOINT_URL = "https://iowa.sharepoint.com/sites"
+    invalid_sharepoint_url = "https://iowa.sharepoint.com/sites"
 
     hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
 
@@ -47,7 +45,7 @@ def test_invalid_login_creds(page: Page):
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
 
     hawk_id_textbox.click()
-    hawk_id_textbox.fill(INVALID_HAWK_ID)
+    hawk_id_textbox.fill(invalid_hawk_id)
 
     submit_button_textbox.click()
 
@@ -55,22 +53,22 @@ def test_invalid_login_creds(page: Page):
         .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
 
     hawk_id_textbox.click()
-    hawk_id_textbox.fill(INVALID_HAWK_ID)
+    hawk_id_textbox.fill(invalid_hawk_id)
 
     password_textbox.click()
-    password_textbox.fill(INVALID_PASSWORD)
+    password_textbox.fill(invalid_password)
 
     expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL"))\
         .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
 
     hawk_id_textbox.click()
-    hawk_id_textbox.fill(INVALID_HAWK_ID)
+    hawk_id_textbox.fill(invalid_hawk_id)
 
     password_textbox.click()
-    password_textbox.fill(INVALID_PASSWORD)
+    password_textbox.fill(invalid_password)
 
     sharepoint_url_textbox.click()
-    sharepoint_url_textbox.fill(INVALID_SHAREPOINT_URL)
+    sharepoint_url_textbox.fill(invalid_sharepoint_url)
 
     expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL"))\
         .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
@@ -88,13 +86,13 @@ def test_valid_login_creds(page: Page):
     """
 
     # Valid Hawk ID
-    HAWK_ID = os.getenv("HAWK_ID")
+    hawk_id = os.getenv("HAWK_ID")
 
     # Valid Password
-    HAWK_ID_PASSWORD = os.getenv("HAWK_ID_PASSWORD")
+    hawk_id_password = os.getenv("HAWK_ID_PASSWORD")
 
     # Valid Sharepoint URL
-    SHAREPOINT_URL = os.getenv("SHAREPOINT_URL")
+    sharepoint_url = os.getenv("SHAREPOINT_URL")
 
     page.goto("http://localhost:9000/Log%20In", wait_until='domcontentloaded')
 
@@ -107,13 +105,13 @@ def test_valid_login_creds(page: Page):
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
 
     hawk_id_textbox.click()
-    hawk_id_textbox.fill(HAWK_ID)
+    hawk_id_textbox.fill(hawk_id)
 
     password_textbox.click()
-    password_textbox.fill(HAWK_ID_PASSWORD)
+    password_textbox.fill(hawk_id_password)
 
     sharepoint_url_textbox.click()
-    sharepoint_url_textbox.fill(SHAREPOINT_URL)
+    sharepoint_url_textbox.fill(sharepoint_url)
 
     submit_button_textbox.click()
 
