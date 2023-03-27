@@ -5,6 +5,7 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 # Packages used in code
 import streamlit as st
 import pandas as pd
+import matplotlib.pyplot as plt
 from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 from streamlit_extras.stateful_button import button
 
@@ -17,6 +18,18 @@ df.insert(0, 'Selection', None)
 
 st.title("Home")
 st.header("Review Applicants")
+
+def dynamic_fig(df, x_axis, y_axis, select_points=None):
+    print(df[x_axis].dtypes)
+    fig, axis = plt.subplots()
+    plt.scatter(df[x_axis],df[y_axis])
+    st.pyplot(fig)
+    return fig, axis
+
+fig_select1 = st.selectbox("Select X axis",df.columns.values)
+fig_select2 = st.selectbox("Select Y axis",df.columns.values)
+if fig_select1 != 'Selection' and fig_select2 != 'Selection':
+    dynamic_fig(df, fig_select1, fig_select2)
 
 # Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which filter would you like to apply?",
