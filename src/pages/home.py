@@ -29,6 +29,8 @@ def dynamic_fig(df, x_axis, y_axis, highlights=None):
     xs = df[x_axis][df[x_axis] != 0][df[y_axis] != 0]
     ys = df[y_axis][df[x_axis] != 0][df[y_axis] != 0]
     plt.scatter(xs, ys)
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
     st.pyplot(fig)
     return fig, axis
 
