@@ -55,6 +55,9 @@ def display_file_upload():
         SESSION.import_sheets(files)
         SESSION.set_view(View.ALIGNMENT_COLUMNS)
 
+# def display_scholarship_import():
+#     st.title("Import Scholarships")
+#     st.write("Add files to be imported. This should be of the form ECE_SCHOLARSHIPS_SPRING_2023")
 
 def display_alignment_column_form():
     '''
@@ -196,6 +199,7 @@ def display_done_view():
 # PAGE RENDER LOGIC
 if SESSION.view == View.IMPORT_PAGE:
     display_file_upload()
+    #display_scholarship_import()
 elif SESSION.view == View.ALIGNMENT_COLUMNS:
     display_alignment_column_form()
 elif SESSION.view == View.DUPLICATE_COLUMN_HANDLER:
