@@ -129,7 +129,7 @@ def test_not_logged_in(page: Page):
     :param page:
     :return:
     """
-    page.goto("http://localhost:9000/Download%20File")
+    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
 
     login_page_heading = page.get_by_role("heading", name="Log In").get_by_text("Log In")
     expect(login_page_heading).to_have_text("Log In")
