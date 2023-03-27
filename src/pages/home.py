@@ -21,7 +21,10 @@ df.insert(0, 'Selection', None)
 st.title("Home")
 st.header("Review Applicants")
 
-def dynamic_fig(df, x_axis, y_axis, select_points=None):
+# How to access selected rows for use in methods like reviewing
+# sel_rows = grid_table["selected_rows"]
+
+def dynamic_fig(df, x_axis, y_axis, highlights=None):
     '''
     Function to generate dynamic graph of student data
     '''
@@ -36,19 +39,13 @@ with st.container():
     numeric_cols = df.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
     numeric_cols = numeric_cols.loc[numeric_cols == True]
     numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
-    col1, col2, col3 = st.columns(3)
+    col1, _, _ = st.columns(3)
     with col1:
         fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
         fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
+        #sel_rows = grid_table["selected_rows"]
+        #sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
         dynamic_fig(df, fig_select1a, fig_select1b)
-    #with col2:
-    #    fig_select2a = st.selectbox("Select X axis for graph 2",numeric_cols.index.values)
-    #    fig_select2b = st.selectbox("Select Y axis for graph 2",numeric_cols.index.values)
-    #    dynamic_fig(df, fig_select2a, fig_select2b)
-    #with col3:
-    #    fig_select3a = st.selectbox("Select X axis for graph 3",numeric_cols.index.values)
-    #    fig_select3b = st.selectbox("Select Y axis for graph 3",numeric_cols.index.values)
-    #    dynamic_fig(df, fig_select3a, fig_select3b)
 
 # Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which filter would you like to apply?",
@@ -75,9 +72,6 @@ grid_table = AgGrid(
     height = 700,
     columns_auto_size_mode=ColumnsAutoSizeMode.FIT_CONTENTS,
 )
-
-# How to access selected rows for use in methods like reviewing
-# sel_rows = grid_table["selected_rows"]
 
 # Actions button that need to have functionality implemented
 with st.container():
