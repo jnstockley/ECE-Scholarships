@@ -31,6 +31,7 @@ def dynamic_fig(df, x_axis, y_axis, highlights=None):
     plt.scatter(xs, ys)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
+    #plt.legend(['<Highlighted Students>'])
     st.pyplot(fig)
     return fig, axis
 
