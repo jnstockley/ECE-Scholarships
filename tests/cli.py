@@ -60,7 +60,7 @@ def run(test: str = 'all'):
             # Do no harm
             pass
 
-        streamlit_process.terminate()
+        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
     elif test == 'pyunit':
         print('Running PyUnit tests:')
         poetry_pyunit_cmd =f"poetry run python -m {CMD['PYUNIT']}"
