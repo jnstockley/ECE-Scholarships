@@ -4,10 +4,15 @@ This script simplifies running the playwright and pyunit tests.
 import time
 import subprocess
 import typer
+from dotenv import dotenv_values
+
+CONFIG = dotenv_values(".env")
+if 'BROWSER' not in CONFIG:
+    CONFIG['BROWSER'] = 'firefox'
 
 CMD = {
     'STREAMLIT_RUN': 'streamlit run main.py --client.showErrorDetails false --server.port 9000 --server.headless true',
-    'PLAYWRIGHT': 'pytest ./tests/feature/*.py --browser webkit',
+    'PLAYWRIGHT': f"pytest ./tests/feature/*.py --browser {CONFIG['BROWSER']}",
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'
 }
