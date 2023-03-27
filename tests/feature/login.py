@@ -121,15 +121,3 @@ def test_valid_login_creds(page: Page):
 
     download_file_page_heading = page.get_by_role("heading", name="Download A File").get_by_text("Download A File")
     expect(download_file_page_heading).to_have_text("Download A File")
-
-
-'''def test_not_logged_in(page: Page):
-    """
-    Tests that the download page responds to not being logged in correctly
-    :param page:
-    :return:
-    """
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
-
-    login_page_heading = page.get_by_role("heading", name="Log In").get_by_text("Log In")
-    expect(login_page_heading).to_have_text("Log In")'''
