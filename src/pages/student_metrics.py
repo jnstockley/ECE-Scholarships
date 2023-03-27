@@ -18,9 +18,9 @@ def create_fig(data, data_title, highlight=None):
     fig, axis = plt.subplots()
     _, bins, patches = axis.hist(data, bins=20)
     if highlight is not None and not math.isnan(highlight):
-        bin = pd.cut([highlight],bins)
-        if not isinstance(bin[0],float):
-            binc = np.where(abs(bins-bin[0].left) < 0.001)
+        bins_group = pd.cut([highlight],bins)
+        if not isinstance(bins_group[0],float):
+            binc = np.where(abs(bins-bins_group[0].left) < 0.001)
             binc = binc[0][0]
             patches[binc].set_fc('red')
     plt.title(data_title)
