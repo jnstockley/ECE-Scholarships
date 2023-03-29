@@ -35,7 +35,9 @@ jobs:
       #----------------------------------------------
       - name: Run PyLint
         run: |
+          echo "src/:"
           poetry run pylint src
+          echo "tests/:"
           poetry run pylint tests
 
   playwright-linux:
