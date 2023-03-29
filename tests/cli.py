@@ -58,8 +58,9 @@ def run(test: str = 'all'):
         try:
             subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
         except subprocess.CalledProcessError as _exc:
-            # Do no harm
-            pass
+            # test failed, kill streamlit
+            os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
+            return
 
         os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
@@ -71,8 +72,9 @@ def run(test: str = 'all'):
         try:
             subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
         except subprocess.CalledProcessError as _exec:
-            # Do no harm
-            pass
+            # test failed, kill streamlit
+            os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
+            return
 
         os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
