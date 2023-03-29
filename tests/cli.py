@@ -56,7 +56,7 @@ def run(test: str = 'all'):
         streamlit_process = start_streamlit_subprocess()
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
         except subprocess.CalledProcessError as _exc:
             # Do no harm
             pass
@@ -64,12 +64,12 @@ def run(test: str = 'all'):
         os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
         print('COVERAGE REPORT:')
-        subprocess.run(CMD['REPORT'], check= False, shell=True)
+        subprocess.run(CMD['REPORT'], check=False, shell=True)
     elif test == 'playwright':
         streamlit_process = start_streamlit_subprocess(coverage = False)
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
         except subprocess.CalledProcessError as _exec:
             # Do no harm
             pass

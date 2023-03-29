@@ -78,6 +78,7 @@ jobs:
       #----------------------------------------------
       - name: Run your tests
         run: poetry run python -m tests.cli --test playwright
+
   pyunit:
     needs: [lint]
     name: test-pyunit
