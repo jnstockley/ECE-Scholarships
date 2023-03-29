@@ -25,7 +25,7 @@ def test_export_page_with_no_data_imported(page: Page):
     I would like it to be apparent that there is no data to export.
     '''
     page.goto("http://localhost:9000/Export Data")
-    expect(page.get_by_Text("Once you've imported data you can return to this page to export it the combined excel sheet")).to_be_visible()
+    expect(page.get_by_text("Once you've imported data you can return to this page to export it the combined excel sheet")).to_be_visible()
 
 @pytest.mark.usefixtures("skip_all_similar_import_complete_page")
 def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
@@ -38,5 +38,5 @@ def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
     page = skip_all_similar_import_complete_page
     page.goto("http://localhost:9000/Export Data")
 
-    expect(page.get_by_Text("Download your merged data locally")).to_be_visible()
+    expect(page.get_by_text("Download your merged data locally")).to_be_visible()
     expect(page.get_attribute('button', name='Export')).to_be_visible()
