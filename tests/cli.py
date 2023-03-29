@@ -43,7 +43,7 @@ def run(test: str = 'all'):
             # Do no harm
             pass
 
-        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGKILL)
+        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGABRT)
 
         print('COVERAGE REPORT:')
         subprocess.run(CMD['REPORT'], check= False, shell=True)
@@ -60,7 +60,7 @@ def run(test: str = 'all'):
             # Do no harm
             pass
 
-        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGKILL)
+        os.killpg(os.getpgid(streamlit_process.pid), signal.SIGABRT)
     elif test == 'pyunit':
         print('Running PyUnit tests:')
         poetry_pyunit_cmd =f"poetry run python -m {CMD['PYUNIT']}"
