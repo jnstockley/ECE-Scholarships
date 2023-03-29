@@ -55,16 +55,22 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'poetry'
       #----------------------------------------------
-      #  -----   install poetry packages    -----
-      #----------------------------------------------
-      - name: Install dependencies
-        run: poetry install
-      #----------------------------------------------
-      #  -----   install poetry packages    -----
+      #  -----    install poetry packages    -----
       #----------------------------------------------
       - name: Install dependencies
         run: poetry install
+      #----------------------------------------------
+      #  -- install / cache playwright packages --
+      #----------------------------------------------
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key: playwright-${{ hashFiles('poetry.lock') }}
+      
       - name: Ensure browsers are installed
         run: poetry run playwright install --with-deps
       #----------------------------------------------
