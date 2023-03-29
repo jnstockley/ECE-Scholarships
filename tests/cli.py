@@ -56,11 +56,11 @@ def run(test: str = 'all'):
         streamlit_process = start_streamlit_subprocess()
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
-        except subprocess.CalledProcessError as _exc:
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
+        except subprocess.CalledProcessError as exception:
             # test failed, kill streamlit
             os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
-            return
+            raise exception
 
         os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
@@ -70,11 +70,11 @@ def run(test: str = 'all'):
         streamlit_process = start_streamlit_subprocess(coverage = False)
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", capture_output=True, check=True, shell=True)
-        except subprocess.CalledProcessError as _exec:
+            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
+        except subprocess.CalledProcessError as exception:
             # test failed, kill streamlit
             os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
-            return
+            raise exception
 
         os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
 
