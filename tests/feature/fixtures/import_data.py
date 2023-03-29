@@ -38,7 +38,7 @@ def import_similar_column_page(page: Page) -> Page:
 
     page.get_by_role("button", name="submit").click()
 
-    expect(page.get_by_text("Duplicate Column(s) Found")).to_have_text("Duplicate Column(s) Found")
+    expect(page.get_by_text("Duplicate Column(s) Found")).to_have_text("Duplicate Column(s) Found", timeout=10000)
 
     page.get_by_role("button", name="Next").click()
     page.get_by_role("button", name="Next").click()

@@ -45,4 +45,4 @@ def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
     click_export_sidebar_link(page)
 
     expect(page.get_by_text("Download your merged data locally")).to_be_visible()
-    expect(page.get_attribute('button', name='Export')).to_be_visible()
+    expect(page.get_attribute('button', name='Export', timeout=5000)).to_be_visible()
