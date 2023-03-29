@@ -4,7 +4,7 @@ UI tests for the export data page
 from playwright.sync_api import Page, expect
 import pytest
 
-def export_page_visible(page: Page):
+def test_export_page_visible(page: Page):
     '''
     As a user,
     so that I can export data,
@@ -18,7 +18,7 @@ def export_page_visible(page: Page):
     export_page_heading = page.get_by_role("heading", name="Export Data").get_by_text("Export Data")
     expect(export_page_heading).to_be_visible()
 
-def export_page_with_no_data_imported(page: Page):
+def test_export_page_with_no_data_imported(page: Page):
     '''
     As a user,
     when navigating the the export data page,
@@ -28,7 +28,7 @@ def export_page_with_no_data_imported(page: Page):
     expect(page.get_by_Text("Once you've imported data you can return to this page to export it the combined excel sheet")).to_be_visible()
 
 @pytest.mark.usefixtures("skip_all_similar_import_complete_page")
-def export_page_with_imported(skip_all_similar_import_complete_page: Page):
+def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
     '''
     As a user,
     when navigating the the export data page,
