@@ -1,3 +1,4 @@
+# pylint: disable=R0801
 '''
 Test functionality of the import document tools.
 '''
