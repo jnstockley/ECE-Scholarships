@@ -44,8 +44,6 @@ def test_import_files_start_to_end(skip_all_similar_import_complete_page: Page):
 
     This test verifies the entire import data flow is functioning
     '''
-    expect(skip_all_similar_import_complete_page.get_by_text("import completed!")).to_have_text("import completed!")
-
     skip_all_similar_import_complete_page.get_by_role("button", name="import another").click()
     expect(skip_all_similar_import_complete_page.get_by_role("heading", name="Import Data")).to_have_text("Import Data")
 
@@ -58,8 +56,6 @@ def test_import_files_start_to_end_with_merging(merge_all_similar_import_complet
 
     With merging specifies that the user chooses to merge all similar columns instead of skip!
     '''
-    expect(merge_all_similar_import_complete_page.get_by_text("import completed!")).to_have_text("import completed!")
-
     merge_all_similar_import_complete_page.get_by_role("button", name="import another").click()
     expect(merge_all_similar_import_complete_page.get_by_role("heading", name="Import Data")).to_have_text("Import Data")
 

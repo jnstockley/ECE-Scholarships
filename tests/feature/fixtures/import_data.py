@@ -73,6 +73,7 @@ def skip_all_similar_import_complete_page(import_similar_column_page: Page) -> P
     merging all similar columns.
     '''
     handle_similar_columns(import_similar_column_page)
+    expect(import_similar_column_page.get_by_text("import completed!")).to_have_text("import completed!")
     return import_similar_column_page
 
 @pytest.fixture
@@ -82,4 +83,5 @@ def merge_all_similar_import_complete_page(import_similar_column_page: Page) -> 
     merging all similar columns.
     '''
     handle_similar_columns(import_similar_column_page)
+    expect(import_similar_column_page.get_by_text("import completed!")).to_have_text("import completed!")
     return import_similar_column_page
