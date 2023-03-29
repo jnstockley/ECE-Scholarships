@@ -3,12 +3,12 @@ Test functionality of the import document tools.
 '''
 import os
 import re
+import pytest
 from playwright.sync_api import Page, expect
 
 ABSOLUTE_PATH = os.path.dirname(__file__)
 SAMPLE_FILE_PATHS = [os.path.join(ABSOLUTE_PATH, '../data/ece_scholarship_applicants.xlsx'), os.path.join(ABSOLUTE_PATH, '../data/ece_school_applicants.xlsx')]
 
-# TESTS:
 def test_import_page(page: Page):
     '''
     As a user I should be able to find and navigate to
@@ -35,6 +35,8 @@ def test_add_file_button(page: Page):
     # The page should have a browse files button
     expect(add_files_btn).to_have_text('Browse files')
 
+# File uploader with streamlit not working on chromium
+@pytest.mark.skip_browser("chromium")
 def test_import_files_start_to_end(page: Page):
     '''
     As a user so that I can upload scholarship applications details from multiple sources,
@@ -85,6 +87,8 @@ def test_import_files_start_to_end(page: Page):
 
     expect(page.get_by_role("heading", name="Import Data")).to_have_text("Import Data")
 
+# File uploader with streamlit not working on chromium
+@pytest.mark.skip_browser("chromium")
 def test_import_files_start_to_end_with_merging(page: Page):
     '''
     As a user so that I can upload scholarship applications details from multiple sources,
