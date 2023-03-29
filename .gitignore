@@ -1,3 +1,6 @@
+# Playwright test results
+test-results/
+
 # Directory used by application runtime to store temp files.
 .app_data
 
