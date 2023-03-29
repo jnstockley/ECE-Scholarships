@@ -5,7 +5,7 @@ import os
 
 APP_DATA = ".app_data"
 
-def get_output_dir(sub_dir: str = None) -> str:
+def get_output_dir(sub_dir: str = "") -> str:
     '''
     Returns the output data directory for runtime. Will create the directory
     if it is not already present.
