@@ -1,4 +1,6 @@
-import os
+'''
+Scholarship management tests
+'''
 from playwright.sync_api import Page, expect
 
 # TESTS:

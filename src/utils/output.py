@@ -5,12 +5,19 @@ import os
 
 APP_DATA = ".app_data"
 
-def get_output_dir():
+def get_output_dir(sub_dir: str = None) -> str:
     '''
     Returns the output data directory for runtime. Will create the directory
     if it is not already present.
-    '''
-    if not os.path.exists(APP_DATA):
-        os.makedirs(APP_DATA)
 
-    return APP_DATA
+    Parameters
+    ----------
+    sub_dir : str, optional
+        Subdirectory output file will be written to, will create if not present
+    '''
+    path = os.path.join(APP_DATA, sub_dir)
+
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+    return path
