@@ -4,6 +4,14 @@ UI tests for the export data page
 from playwright.sync_api import Page, expect
 import pytest
 
+def click_export_sidebar_link(page: Page):
+    '''
+    clicks the export data link in the sidebar
+    '''
+    export_link = page.get_by_role("link", name="Export Data")
+    expect(export_link).to_be_visible()
+    export_link.click()
+
 def test_export_page_visible(page: Page):
     '''
     As a user,
@@ -11,9 +19,7 @@ def test_export_page_visible(page: Page):
     I would like to see an export page tabe on the side bar which I can navigate to
     '''
     page.goto("http://localhost:9000")
-    export_link = page.get_by_role("link", name="Export Data")
-    expect(export_link).to_be_visible()
-    export_link.click()
+    click_export_sidebar_link(page)
 
     export_page_heading = page.get_by_role("heading", name="Export Data").get_by_text("Export Data")
     expect(export_page_heading).to_be_visible()
@@ -36,7 +42,7 @@ def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
     '''
     # shorten name of variable
     page = skip_all_similar_import_complete_page
-    page.goto("http://localhost:9000/Export Data")
+    click_export_sidebar_link(page)
 
     expect(page.get_by_text("Download your merged data locally")).to_be_visible()
     expect(page.get_attribute('button', name='Export')).to_be_visible()
