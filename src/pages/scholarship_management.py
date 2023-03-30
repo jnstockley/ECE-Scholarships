@@ -49,6 +49,19 @@ with st.container():
         #but I doubt any scholarships require above 5.0, or even above 4.0, as that would greatly limit students unfairly.
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
+
+        group1 = []
+        group2 = []
+        group3 = []
+        if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
+            group1 = st.multiselect("Choose Group One", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
+            if button('Add a second Requirement Grouping', key='Add a second Requirement Grouping'):
+                group2 = st.multiselect("Choose Group Two", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
+                if button('Add a third Requirement Grouping', key='Add a third Requirement Grouping'):
+                    group3 = st.multiselect("Choose Group Three", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
         if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
