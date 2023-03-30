@@ -10,5 +10,6 @@ export SCRIPT_DIR=$SCRIPT_DIR
 PWD=$( pwd )
 
 cd $SCRIPT_DIR/../
+poetry run playwright install
 poetry run python -m tests.cli
 cd $PWD

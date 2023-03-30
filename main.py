@@ -8,7 +8,9 @@ from st_pages import Page, show_pages
 show_pages(
     [
         Page("src/pages/home.py", "Home"),
-        Page("src/pages/import.py", "Import Data"),
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
+        Page("src/pages/student_metrics.py", "Student Metrics"),
+        Page("src/pages/import.py", "Import Data"),
+        Page("src/pages/export.py", "Export Data"),
     ]
 )

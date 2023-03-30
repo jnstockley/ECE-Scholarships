@@ -6,6 +6,9 @@ on:
       - main
       - develop
 
+env:
+  BROWSER: "firefox"
+
 jobs:
   lint:
     name: lint
@@ -16,35 +19,12 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
-      #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
+          cache: 'poetry'
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
@@ -55,61 +35,52 @@ jobs:
       #----------------------------------------------
       - name: Run PyLint
         run: |
+          echo "src/:"
           poetry run pylint src
+          echo "tests/:"
           poetry run pylint tests
 
   playwright-linux:
+    needs: [lint]
     name: test-playwright
     runs-on: ubuntu-latest
     steps:
       #----------------------------------------------
       #             Setup environment
       #----------------------------------------------
-      - uses: microsoft/playwright-github-action@v1
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
+          cache: 'poetry'
       #----------------------------------------------
-      #                 Load Cache
-      #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
-      #----------------------------------------------
-      #  -----   install poetry packages    -----
+      #  -----    install poetry packages    -----
       #----------------------------------------------
       - name: Install dependencies
         run: poetry install
+      #----------------------------------------------
+      #  -- install / cache playwright packages --
+      #----------------------------------------------
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key: playwright-${{ hashFiles('poetry.lock') }}
+      
       - name: Ensure browsers are installed
-        run: poetry run playwright install
+        run: poetry run playwright install --with-deps
       #----------------------------------------------
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
         run: poetry run python -m tests.cli --test playwright
+
   pyunit:
+    needs: [lint]
     name: test-pyunit
     runs-on: ubuntu-latest
     steps:
@@ -118,35 +89,17 @@ jobs:
       #----------------------------------------------
       - name: Check out repository
         uses: actions/checkout@v3
-      - name: Set up python
-        id: setup-python
-        uses: actions/setup-python@v4
+      - name: Install poetry
+        run: pipx install poetry
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-      - name: Install poetry
-        uses: snok/install-poetry@v1
-        with:
-          virtualenvs-path: ~/.cache/virtualenvs
+          cache: 'poetry'
       #----------------------------------------------
-      #                 Load Cache
+      #  -----   install poetry packages    -----
       #----------------------------------------------
-      - name: Cache packages
-        id: cache-poetry
-        uses: actions/cache@v3
-        env:
-          cache-name: cache-poetry-packages
-        with:
-          path: ~/.cache
-          key: ${{ runner.os }}-build-${{ env.cache-name }}-${{ hashFiles('poetry.lock') }}
-          restore-keys: |
-            ${{ runner.os }}-build-${{ env.cache-name }}-
-            ${{ runner.os }}-build-
-            ${{ runner.os }}-
-      
-      - if: ${{ steps.cache-poetry.outputs.cache-hit != 'true' }}
-        name: List the state of poetry packages
-        continue-on-error: true
-        run: poetry env list
+      - name: Install dependencies
+        run: poetry install
       #----------------------------------------------
       #  -----   install poetry packages    -----
       #----------------------------------------------
