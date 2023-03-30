@@ -54,14 +54,28 @@ with st.container():
         group2 = []
         group3 = []
         if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
+            st.write('A requirement grouping groups the selected requirements so only one is required.')
+            st.write('i.e. ACT Math and SAT Math being selected requires only the minimum of ACT Math or SAT Math.')
             group1 = st.multiselect("Choose Group One", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"], 
+                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
+                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
+                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
+                                                                 """)
             if button('Add a second Requirement Grouping', key='Add a second Requirement Grouping'):
                 group2 = st.multiselect("Choose Group Two", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"],
+                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
+                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
+                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
+                                                                 """)
                 if button('Add a third Requirement Grouping', key='Add a third Requirement Grouping'):
                     group3 = st.multiselect("Choose Group Three", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"])
+                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"],
+                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
+                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
+                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
+                                                                 """)
         if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
