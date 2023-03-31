@@ -10,13 +10,18 @@ import time
 from re import Pattern
 
 import extra_streamlit_components as stx
+from office365.runtime.auth.user_credential import UserCredential
+from office365.runtime.client_request_exception import ClientRequestException
+from office365.sharepoint.client_context import ClientContext
 
+VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 HAWKID_REGEX = re.compile(r"[a-zA-Z]{1}[a-zA-Z0-9]{2,}@uiowa.edu")
 
 PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$")
 
 SITE_URL_REGEX = re.compile(r"https://iowa.sharepoint.com/sites/.+")
+
 
 def get_manager():
     """
@@ -59,15 +64,54 @@ def logged_in() -> bool:
     return False
 
 
-def get_files() -> list[str]:
+def login() -> ClientContext | None:
+    """
+        Makes the first connection to sharepoint and ensure the connection was successful
+        :param hawk_id: Username
+        :param password: Password
+        :param site_url: Sharepoint Site URL
+        :return: O365 Creds object, False None otherwise
+        """
+
+    if not logged_in():
+        return None
+
+    creds = get_manager().get("cred")
+
+    hawk_id = creds['hawk-id']
+    password = creds['password']
+    site_url = creds['site-url']
+
+    creds = ClientContext(site_url).with_credentials(UserCredential(hawk_id, password))
+    try:
+        web = creds.web.get().execute_query()
+    except IndexError:
+        return None
+    except ClientRequestException:
+        return None
+    if f"{web.url}/" == site_url:
+        return creds
+    return None
+
+
+def get_files(creds: ClientContext) -> list[str]:
     """
     Gets a list of files on the sharepoint site
     :return: List of files stored in sharepoint
     """
-    return []
+    target_folder_url = "Shared Documents"
+
+    root_folder = creds.web.get_folder_by_server_relative_path(target_folder_url)
+
+    files = root_folder.get_files(True).execute_query()
+
+    data = ["Select File"] + [str(f.properties['ServerRelativeUrl']).split(target_folder_url)[1] for f in files if
+                              str(f.properties['ServerRelativeUrl']).endswith(VALID_EXTENSIONS)]
+
+    return data
 
 
-def download():
+def download(file: str):
     """
     Downloads a specified file from sharepoint
     """
