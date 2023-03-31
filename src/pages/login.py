@@ -10,7 +10,7 @@ from office365.runtime.auth.user_credential import UserCredential
 from office365.runtime.client_request_exception import ClientRequestException
 from office365.sharepoint.client_context import ClientContext
 
-from src.utils.cookies import get_manager
+from src.utils.sharepoint import get_manager
 
 HAWKID_REGEX = re.compile(r"[a-zA-Z]{1}[a-zA-Z0-9]{2,}@uiowa.edu")
 

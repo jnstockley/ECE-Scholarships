@@ -11,7 +11,7 @@ from office365.sharepoint.client_context import ClientContext
 import streamlit as st
 
 from src.pages.login import redirect
-from src.utils.cookies import get_manager
+from src.utils.sharepoint import get_manager
 
 
 # List of valid files to download from sharepoint
