@@ -25,9 +25,21 @@ scholarships = scholarships_excel.head()
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
+
+def groups_string_to_list(default_options):
+    no_brackets = default_options[1:(len(default_options)-1)]
+    no_quotes = no_brackets.replace('\'', '')
+    list_form = no_quotes.split(', ')
+    return list_form
+
 with st.container():
     #This controls the options diplayed for majors
-    majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
+    majors = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
+    group_options = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite', 
+                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
+    group_help="""A requirement grouping groups the selected requirements so only one is required.
+                i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
+                minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
     if button('Create New Scholarship', key='Create New Scholarship'):
         st.title('Create a New Scholarship')
         st.write('If certain requirements are N/A, leave them at 0.')
@@ -56,26 +68,11 @@ with st.container():
         group2 = []
         group3 = []
         if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
-            group1 = st.multiselect("Choose Group One", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"], 
-                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
-                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
-                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
-                                                                 """)
+            group1 = st.multiselect("Choose Group One", options=group_options, help=group_help)
             if button('Add a second Requirement Grouping', key='Add a second Requirement Grouping'):
-                group2 = st.multiselect("Choose Group Two", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"],
-                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
-                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
-                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
-                                                                 """)
+                group2 = st.multiselect("Choose Group Two", options=group_options, help=group_help)
                 if button('Add a third Requirement Grouping', key='Add a third Requirement Grouping'):
-                    group3 = st.multiselect("Choose Group Three", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
-                                                                 "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"],
-                                                                 help="""A requirement grouping groups the selected requirements so only one is required.
-                                                                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
-                                                                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile.
-                                                                 """)
+                    group3 = st.multiselect("Choose Group Three", options=group_options, help=group_help)
         if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
@@ -121,6 +118,9 @@ with st.container():
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 hs_percentile = st.select_slider('Select the minimum highschool percentile', value=values['HS Percentile'], options=(x for x in range(0,101)))
+                group1 = st.multiselect("Choose Group One", options=group_options, default=groups_string_to_list(values['Group One']), help=group_help)
+                group2 = st.multiselect("Choose Group Two", options=group_options, default=groups_string_to_list(values['Group Two']), help=group_help)
+                group3 = st.multiselect("Choose Group Three", options=group_options, default=groups_string_to_list(values['Group Three']), help=group_help)
                 if st.button('Finalize Changes', key='Finalize Changes'):
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
@@ -164,5 +164,4 @@ with st.container():
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
                     st.write(delete_sch + ' has been successfully deleted.')
 
-#NOTE: It might be worth looking into trying to find a way to remove/disable buttons above when they are clicked (i.e. disable 'Create New Scholarship')
-#when 'Edit Existing Scholarship', as currently only buttons below get removed on click.
+
