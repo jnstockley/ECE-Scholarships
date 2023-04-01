@@ -16,8 +16,10 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
-#'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
+# df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
+# 'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96'],
+# 'Group One': [['ACT Math', 'SAT Math']], 'Group Two': [['ACT Composite', 'SAT Combined']], 'Group Three': [[]]})
+# df.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 #df.to_excel(f"get_output_data()/scholarships/scholarships.xlsx", sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
@@ -82,7 +84,8 @@ with st.container():
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, sat_comb, gpa, hs_percentile],
+                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, 
+                                              sat_comb, gpa, hs_percentile, group1, group2, group3],
                                          index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
