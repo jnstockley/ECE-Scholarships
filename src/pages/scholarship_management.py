@@ -25,10 +25,15 @@ scholarships = scholarships_excel.head()
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
-
+#This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
+#to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
+#when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
 def groups_string_to_list(default_options):
+    #Removes [] from the string
     no_brackets = default_options[1:(len(default_options)-1)]
+    #Removes ' ' around the items in the group
     no_quotes = no_brackets.replace('\'', '')
+    #Removes the ,_ from the string and places everything into the split list
     list_form = no_quotes.split(', ')
     return list_form
 
