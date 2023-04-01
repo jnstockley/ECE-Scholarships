@@ -29,6 +29,9 @@ st.write("Select an Action from Below")
 #to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
 #when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
 def groups_string_to_list(default_options):
+    #Needed edge case for when there is no options
+    if default_options == "[]":
+        return []
     #Removes [] from the string
     no_brackets = default_options[1:(len(default_options)-1)]
     #Removes ' ' around the items in the group
