@@ -56,8 +56,6 @@ with st.container():
         group2 = []
         group3 = []
         if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
-            st.write('A requirement grouping groups the selected requirements so only one is required.')
-            st.write('i.e. ACT Math and SAT Math being selected requires only the minimum of ACT Math or SAT Math.')
             group1 = st.multiselect("Choose Group One", options=["RAI", "Admit Score", "Major", "ACT Math", "ACT English", "ACT Composite", 
                                                                  "SAT Math", "SAT Reading", "SAT Combined", "GPA", "HS Percentile"], 
                                                                  help="""A requirement grouping groups the selected requirements so only one is required.
@@ -90,7 +88,9 @@ with st.container():
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
+                #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
 
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
