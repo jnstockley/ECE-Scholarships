@@ -6,7 +6,7 @@ import time
 
 import streamlit as st
 
-from src.pages.login import redirect
+from src.utils.html import redirect
 from src.utils.sharepoint import login, get_files, download, logged_in
 
 # List of valid files to download from sharepoint
@@ -15,7 +15,7 @@ VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 def download_file(site_url: str, file_path: str, ctx):
     """
-    Downlaods the specific file from the sharepoint site
+    Downloads the specific file from the sharepoint site
     :param site_url: Full URL to Sharepoint site
     :param file_path: Path to File in SharePoint
     :param ctx: Session manager to manager connection with SharePoint

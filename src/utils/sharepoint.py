@@ -10,13 +10,14 @@ import time
 from re import Pattern
 
 import extra_streamlit_components as stx
+from extra_streamlit_components import CookieManager
 from office365.runtime.auth.user_credential import UserCredential
 from office365.runtime.client_request_exception import ClientRequestException
 from office365.sharepoint.client_context import ClientContext
 
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
-HAWKID_REGEX = re.compile(r"[a-zA-Z]{1}[a-zA-Z0-9]{2,}@uiowa.edu")
+HAWKID_REGEX = re.compile(r"[a-zA-Z][a-zA-Z0-9]{2,}@uiowa.edu")
 
 PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$")
 
@@ -40,20 +41,23 @@ def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
     return re.fullmatch(regex, string)
 
 
-def logged_in() -> bool:
+def logged_in(manager: CookieManager = None, creds: dict = None) -> bool:
     """
     Checks if the cookies are present, and in a valid format
     :return: True if cookie looks good, otherwise false
     """
+    if manager is None:
+        manager = get_manager()
+
     # Work around for caching not working with cookie manager
     time.sleep(0.2)
 
-    manager = get_manager()
-    cookies = manager.get_all()
-    if "cred" not in cookies:
-        return False
-    creds = manager.get("cred")
-    if type(creds) is dict and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
+    if creds is None:
+        cookies = manager.get_all()
+        if "cred" not in cookies:
+            return False
+        creds = manager.get("cred")
+    if isinstance(creds, dict) and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
         return False
     hawk_id = creds['hawk-id']
     password = creds['password']
@@ -67,9 +71,6 @@ def logged_in() -> bool:
 def login() -> ClientContext | None:
     """
         Makes the first connection to sharepoint and ensure the connection was successful
-        :param hawk_id: Username
-        :param password: Password
-        :param site_url: Sharepoint Site URL
         :return: O365 Creds object, False None otherwise
         """
 
