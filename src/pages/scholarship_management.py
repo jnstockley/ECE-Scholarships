@@ -136,9 +136,14 @@ with st.container():
                     scholarships.loc[index, 'SAT Combined'] = sat_comb
                     scholarships.loc[index, 'GPA'] = gpa
                     scholarships.loc[index, 'HS Percentile'] = hs_percentile
+                    scholarships.loc[index, 'Group One'] = str(group1)
+                    scholarships.loc[index, 'Group Two'] = str(group2)
+                    scholarships.loc[index, 'Group Three'] = str(group3)
                     #We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                    scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
+                    #scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
@@ -160,8 +165,10 @@ with st.container():
                     #In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
-                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
+                    new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
+                    #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
 
 
