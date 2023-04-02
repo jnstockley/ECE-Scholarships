@@ -45,7 +45,9 @@ def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
 def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | CookieManager:
     """
     Checks if the cookies are present, and in a valid format
-    :return: True if cookie looks good, otherwise false
+    :param manager: Optional cookie manager, use if used more than once per page
+    :param creds: Sharepoint login connection
+    :return: True if logged in, False otherwise, CookieManager only for internal user
     """
     if manager is None:
         manager = get_manager()
@@ -75,9 +77,9 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
 def login(manager: CookieManager = None) -> ClientContext | None:
     """
     Makes the first connection to sharepoint and ensure the connection was successful
-    :return: O365 Creds object, False None otherwise
+    :param manager: Optional cookie manager, use if used more than once per page
+    :return: Sharepoint connection if successful, otherwise None
     """
-
     if manager is None:
         manager = get_manager()
 
@@ -118,7 +120,11 @@ def get_files(creds: ClientContext) -> list[str]:
 
 def download(file: str, download_location: str, cred: ClientContext) -> bool:
     """
-    Downloads a specified file from sharepoint
+    Downloads a specified file from Sharepoint
+    :param file: Sharepoint file path
+    :param download_location: Location, on disk, to download the file
+    :param cred: Sharepoint login connection
+    :return: True if file downloaded successfully, False otherwise
     """
     full_site_url: str = f"{cred.web.url}/"
     site_url = full_site_url.split(".com")[1]

@@ -41,8 +41,8 @@ def files_dropdown():
                 return
             file_selector.error(f"Error downloading {file}")
             return
-        else:
-            file_selector.error("Invalid File Selected")
+        file_selector.error("Invalid File Selected")
+        return
 
 
 time.sleep(.2)
