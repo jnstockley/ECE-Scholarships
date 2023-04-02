@@ -8,7 +8,7 @@ from src.utils.output import get_output_dir
 
 #This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 #NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
-scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
+scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
 scholarships = scholarships_excel.head()
 #NOTE: Here for viewing purposes
 #print(scholarships)
@@ -93,9 +93,8 @@ with st.container():
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
-                #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                #new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
 
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
@@ -149,9 +148,8 @@ with st.container():
                     scholarships.loc[index, 'Group Three'] = str(group3)
                     #We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                    #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
-                    #scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                    #scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
@@ -174,9 +172,8 @@ with st.container():
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                    #NOTE: This was changed to be this by someone but it does not correctly write to the file when used, not sure why so it is commented out.
-                    #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                    #new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
 
 
