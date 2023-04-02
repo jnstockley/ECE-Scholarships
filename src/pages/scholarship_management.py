@@ -4,10 +4,11 @@ scholarship managment page render
 import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
+from src.utils.output import get_output_dir
 
 #This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 #NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
-scholarships_excel = pd.read_excel('./scholarships/scholarships.xlsx')
+scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
 scholarships = scholarships_excel.head()
 #NOTE: Here for viewing purposes
 #print(scholarships)
@@ -17,7 +18,7 @@ scholarships = scholarships_excel.head()
 #after you run it once or it will continuously reset it.
 #df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
 #'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
-#df.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+#df.to_excel(f"get_output_data()/scholarships/scholarships.xlsx", sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
@@ -59,7 +60,7 @@ with st.container():
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
 
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
@@ -107,7 +108,7 @@ with st.container():
                     scholarships.loc[index, 'HS Percentile'] = hs_percentile
                     #We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
@@ -129,7 +130,7 @@ with st.container():
                     #In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
-                    new_scholarships.to_excel('./scholarships/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
                     st.write(delete_sch + ' has been successfully deleted.')
 

@@ -3,11 +3,18 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 '''
 
 # Importing packages
+# Packages used in code
+import numbers
+import decimal
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
+import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
+from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 
 # Default settings for Streamlit page
 st.set_page_config(layout="wide")
@@ -45,6 +52,31 @@ CLEARJS = '''<script>
 st.title("Home")
 st.header("Review Applicants")
 
+def dynamic_fig(df, x_axis, y_axis, highlights=None):
+    '''
+    Function to generate dynamic graph of student data
+    '''
+    fig, axis = plt.subplots()
+    xs = df[x_axis][df[x_axis] != 0][df[y_axis] != 0]
+    ys = df[y_axis][df[x_axis] != 0][df[y_axis] != 0]
+    plt.scatter(xs, ys)
+    if highlights is not None:
+        hxs = df.iloc[highlights][x_axis]
+        hys = df.iloc[highlights][y_axis]
+        colors = iter(cm.rainbow(np.linspace(0, 1, len(hys)+1)))
+        next(colors)
+        for x, y in zip(hxs,hys):
+            plt.scatter(x, y, color=next(colors))
+        legend_names = ['Other Students']
+        legend_names.extend(df.iloc[highlights]['Name'].values)
+        plt.legend(legend_names)
+    plt.xlabel(x_axis)
+    plt.ylabel(y_axis)
+    st.pyplot(fig)
+    return fig, axis
+
+
+
 # Filter selection (Will want to implement this once we have example filters)
 current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], SCHOLARSHIPS["Name"].values))
 
@@ -79,6 +111,12 @@ grid_table = AgGrid(
 st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
 if st.button("Clear Selection"):
     components.html(CLEARJS)
+
+    
+
+
+# How to access selected rows for use in methods like reviewing
+# sel_rows = grid_table["selected_rows"]
 
 # Helper function used for processing the scholarship recommendations
 def submit_recommendations(recommended_scholarship_input, additional_feedback_input):
@@ -119,8 +157,16 @@ with st.container():
                         st.error(errorMessage)
     # Viewing graphs of student distributions
     with col2:
-        with st.expander("See Distribution of Selected Students"):
-            st.write("Add Ashelyn's Data Analysis")
-    # Exporting the selected students
+        with st.expander("See Distribution of Students"):
+            with st.container():
+                numeric_cols = STUDENTS.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+                numeric_cols = numeric_cols.loc[numeric_cols == True]
+                numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+                numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
+                fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
+                fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
+                sel_rows = grid_table["selected_rows"]
+                sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")

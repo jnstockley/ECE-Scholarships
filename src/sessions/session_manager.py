@@ -46,7 +46,7 @@ class SessionManager:
         '''
         Verifies key is present in current session.
         '''
-        return key in self._session
+        return key in self._session and self._session[key] is not None
 
     def set_main_data_source(self, data: pd.DataFrame):
         '''

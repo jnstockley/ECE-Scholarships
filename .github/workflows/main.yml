@@ -35,7 +35,10 @@ jobs:
       #----------------------------------------------
       - name: Run PyLint
         run: |
+          echo "src/:"
           poetry run pylint src
+          echo "tests/:"
+          poetry run pylint tests
 
   playwright-linux:
     needs: [lint]
@@ -52,23 +55,34 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: '3.11'
+          cache: 'poetry'
       #----------------------------------------------
-      #  -----   install poetry packages    -----
-      #----------------------------------------------
-      - name: Install dependencies
-        run: poetry install
-      #----------------------------------------------
-      #  -----   install poetry packages    -----
+      #  -----    install poetry packages    -----
       #----------------------------------------------
       - name: Install dependencies
         run: poetry install
+      #----------------------------------------------
+      #  -- install / cache playwright packages --
+      #----------------------------------------------
+      - name: Cache playwright binaries
+        uses: actions/cache@v3
+        id: playwright-cache
+        with:
+          path: /home/runner/.cache/ms-playwright
+          key: playwright-${{ hashFiles('poetry.lock') }}
+      
       - name: Ensure browsers are installed
         run: poetry run playwright install --with-deps
       #----------------------------------------------
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
+        env:
+          HAWK_ID: ${{ secrets.HAWK_ID }}
+          HAWK_ID_PASSWORD: ${{ secrets.HAWK_ID_PASSWORD }}
+          SHAREPOINT_URL: ${{ secrets.SHAREPOINT_URL }}
         run: poetry run python -m tests.cli --test playwright
+
   pyunit:
     needs: [lint]
     name: test-pyunit
