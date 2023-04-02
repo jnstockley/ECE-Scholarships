@@ -7,6 +7,7 @@ Downloads files
 """
 import re
 import time
+from os.path import exists
 from re import Pattern
 
 import extra_streamlit_components as stx
@@ -28,7 +29,7 @@ def get_manager():
     """
     Cookie Manager    :return: , to access login creds
     """
-    return stx.CookieManager()
+    return stx.CookieManager(key="cookie-manager")
 
 
 def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
@@ -41,7 +42,7 @@ def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
     return re.fullmatch(regex, string)
 
 
-def logged_in(manager: CookieManager = None, creds: dict = None) -> bool:
+def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | CookieManager:
     """
     Checks if the cookies are present, and in a valid format
     :return: True if cookie looks good, otherwise false
@@ -50,34 +51,40 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool:
         manager = get_manager()
 
     # Work around for caching not working with cookie manager
-    time.sleep(0.2)
+    time.sleep(.2)
 
     if creds is None:
         cookies = manager.get_all()
+        # Work around for caching not working with cookie manager
+        if cookies == {}:
+            return logged_in(manager)
         if "cred" not in cookies:
+            print("cred")
             return False
         creds = manager.get("cred")
     if isinstance(creds, dict) and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
+        print("instance")
         return False
     hawk_id = creds['hawk-id']
     password = creds['password']
     site_url = creds['site-url']
     if regex_validation(hawk_id, HAWKID_REGEX) and regex_validation(password, PASSWORD_REGEX) \
             and regex_validation(site_url, SITE_URL_REGEX):
-        return True
+        return manager
+    print("validation")
     return False
 
 
-def login() -> ClientContext | None:
+def login(manager: CookieManager = None) -> ClientContext | None:
     """
-        Makes the first connection to sharepoint and ensure the connection was successful
-        :return: O365 Creds object, False None otherwise
-        """
+    Makes the first connection to sharepoint and ensure the connection was successful
+    :return: O365 Creds object, False None otherwise
+    """
 
-    if not logged_in():
-        return None
+    if manager is None:
+        manager = get_manager()
 
-    creds = get_manager().get("cred")
+    creds = manager.get("cred")
 
     hawk_id = creds['hawk-id']
     password = creds['password']
@@ -112,14 +119,23 @@ def get_files(creds: ClientContext) -> list[str]:
     return data
 
 
-def download(file: str):
+def download(file: str, download_location: str, cred: ClientContext) -> bool:
     """
     Downloads a specified file from sharepoint
     """
-    return None
+    full_site_url: str = f"{cred.web.url}/"
+    site_url = full_site_url.split(".com")[1]
+    root_folder = "Shared Documents"
+    download_url = f"{site_url}{root_folder}{file}"
+    file_name = file.split("/")[len(file.split("/")) - 1]
+    if not download_location.endswith("/"):
+        download_location += "/"
+    with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
+        cred.web.get_file_by_server_relative_url(download_url).download(sharepoint_file).execute_query()
+    return exists(f"{download_location}{file_name}")
 
 
-def upload() -> bool:
+def upload(cred: ClientContext) -> bool:
     """
     Uploads a file to sharepoint
     :return: True if the file was uploaded, otherwise False
