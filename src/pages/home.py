@@ -38,7 +38,9 @@ def dynamic_fig(df, x_axis, y_axis, highlights=None):
         next(colors)
         for x, y in zip(hxs,hys):
             plt.scatter(x, y, color=next(colors))
-        plt.legend(df.iloc[highlights]['Name'])
+        legend_names = ['Other Students']
+        legend_names.extend(df.iloc[highlights]['Name'].values)
+        plt.legend(legend_names)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
     st.pyplot(fig)
