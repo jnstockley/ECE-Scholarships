@@ -5,6 +5,7 @@ Ensure login
 Uploads files
 Downloads files
 """
+import os.path
 import re
 import time
 from os.path import exists
@@ -138,9 +139,27 @@ def download(file: str, download_location: str, cred: ClientContext) -> bool:
     return exists(f"{download_location}{file_name}")
 
 
-def upload(cred: ClientContext) -> bool:
+def upload(full_file_path: str, upload_location: str, cred: ClientContext) -> bool:
     """
     Uploads a file to sharepoint
-    :return: True if the file was uploaded, otherwise False
+    :param full_file_path: Full path to the location of the file on disk
+    :param upload_location: Location for where to upload the file to Sharepoint
+    :param cred: Sharepoint login connection
+    :return: True if the file is uploaded successfully, False otherwise
     """
-    return False
+    if not exists(full_file_path):
+        return False
+
+    full_site_url: str = f"{cred.web.url}/"
+    site_url = full_site_url.split(".com")[1]
+    root_folder = "Shared Documents"
+    upload_url = f"{site_url}{root_folder}{upload_location}"
+
+    folder = cred.web.get_folder_by_server_relative_url(upload_url)
+
+    print(f"{upload_url}/{os.path.basename(full_file_path)}")
+
+    with open(full_file_path, "rb") as file:
+        file = folder.files.create_upload_session(file, 1000000).execute_query()
+
+    return f"{upload_url}/{os.path.basename(full_file_path)}" == file.serverRelativeUrl
