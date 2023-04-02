@@ -59,11 +59,9 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
         if cookies == {}:
             return logged_in(manager)
         if "cred" not in cookies:
-            print("cred")
             return False
         creds = manager.get("cred")
     if isinstance(creds, dict) and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
-        print("instance")
         return False
     hawk_id = creds['hawk-id']
     password = creds['password']
@@ -71,7 +69,6 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
     if regex_validation(hawk_id, HAWKID_REGEX) and regex_validation(password, PASSWORD_REGEX) \
             and regex_validation(site_url, SITE_URL_REGEX):
         return manager
-    print("validation")
     return False
 
 
