@@ -9,24 +9,6 @@ import streamlit as st
 from src.utils.html import redirect
 from src.utils.sharepoint import login, get_files, download, logged_in
 
-# List of valid files to download from sharepoint
-VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
-
-
-def download_file(site_url: str, file_path: str, ctx):
-    """
-    Downloads the specific file from the sharepoint site
-    :param site_url: Full URL to Sharepoint site
-    :param file_path: Path to File in SharePoint
-    :param ctx: Session manager to manager connection with SharePoint
-    """
-    full_url = f"{site_url.replace('https://iowa.sharepoint.com', '')}Shared Documents{file_path}"
-
-    cwd = os.getcwd()
-
-    with open(f"{cwd}/data/temp.xlsx", "wb") as local_file:
-        ctx.web.get_file_by_server_relative_url(full_url).download(local_file).execute_query()
-
 
 def files_dropdown():
     """
@@ -35,13 +17,15 @@ def files_dropdown():
 
     st.header("Download A File")
 
-    if not logged_in():
+    cookie = logged_in()
+
+    if not cookie:
         redirect("/Log%20In")
         return
 
     with st.spinner("Loading Sharepoint Files..."):
 
-        creds = login()
+        creds = login(cookie)
 
         files = get_files(creds)
 
@@ -51,7 +35,12 @@ def files_dropdown():
 
     if file_selector.form_submit_button("Download File"):
         if file != "Select File":
-            download(file)
+            downloaded = download(file, f"{os.getcwd()}/data/", creds)
+            if downloaded:
+                file_selector.info(f"Downloaded {file}")
+                return
+            file_selector.error(f"Error downloading {file}")
+            return
         else:
             file_selector.error("Invalid File Selected")
 
