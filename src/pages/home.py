@@ -8,6 +8,8 @@ import decimal
 import streamlit as st
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib.cm as cm
+import numpy as np
 from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 from streamlit_extras.stateful_button import button
 
@@ -30,7 +32,12 @@ def dynamic_fig(df, x_axis, y_axis, highlights=None):
     ys = df[y_axis][df[x_axis] != 0][df[y_axis] != 0]
     plt.scatter(xs, ys)
     if highlights is not None:
-        plt.scatter(df.iloc[highlights][x_axis],df.iloc[highlights][y_axis],color='r')
+        hxs = df.iloc[highlights][x_axis]
+        hys = df.iloc[highlights][y_axis]
+        colors = iter(cm.rainbow(np.linspace(0, 1, len(hys)+1)))
+        next(colors)
+        for x, y in zip(hxs,hys):
+            plt.scatter(x, y, color=next(colors))
         plt.legend(df.iloc[highlights]['Name'])
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
