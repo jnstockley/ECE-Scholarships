@@ -25,10 +25,12 @@ scholarships = scholarships_excel.head()
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
-#This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
-#to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
-#when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
 def groups_string_to_list(default_options):
+    '''
+    This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
+    to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
+    when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
+    '''
     #Needed edge case for when there is no options
     if default_options == "[]":
         return []
@@ -43,9 +45,9 @@ def groups_string_to_list(default_options):
 with st.container():
     #This controls the options diplayed for majors
     majors = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
-    group_options = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite', 
+    group_options = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                     'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
-    group_help="""A requirement grouping groups the selected requirements so only one is required.
+    GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
                 i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
                 minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
     if button('Create New Scholarship', key='Create New Scholarship'):
@@ -76,18 +78,18 @@ with st.container():
         group2 = []
         group3 = []
         if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
-            group1 = st.multiselect("Choose Group One", options=group_options, help=group_help)
+            group1 = st.multiselect("Choose Group One", options=group_options, help=GROUP_HELP)
             if button('Add a second Requirement Grouping', key='Add a second Requirement Grouping'):
-                group2 = st.multiselect("Choose Group Two", options=group_options, help=group_help)
+                group2 = st.multiselect("Choose Group Two", options=group_options, help=GROUP_HELP)
                 if button('Add a third Requirement Grouping', key='Add a third Requirement Grouping'):
-                    group3 = st.multiselect("Choose Group Three", options=group_options, help=group_help)
+                    group3 = st.multiselect("Choose Group Three", options=group_options, help=GROUP_HELP)
         if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, 
+                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading,
                                               sat_comb, gpa, hs_percentile, group1, group2, group3],
                                          index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
@@ -125,9 +127,9 @@ with st.container():
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 hs_percentile = st.select_slider('Select the minimum highschool percentile', value=values['HS Percentile'], options=(x for x in range(0,101)))
-                group1 = st.multiselect("Choose Group One", options=group_options, default=groups_string_to_list(values['Group One']), help=group_help)
-                group2 = st.multiselect("Choose Group Two", options=group_options, default=groups_string_to_list(values['Group Two']), help=group_help)
-                group3 = st.multiselect("Choose Group Three", options=group_options, default=groups_string_to_list(values['Group Three']), help=group_help)
+                group1 = st.multiselect("Choose Group One", options=group_options, default=groups_string_to_list(values['Group One']), help=GROUP_HELP)
+                group2 = st.multiselect("Choose Group Two", options=group_options, default=groups_string_to_list(values['Group Two']), help=GROUP_HELP)
+                group3 = st.multiselect("Choose Group Three", options=group_options, default=groups_string_to_list(values['Group Three']), help=GROUP_HELP)
                 if st.button('Finalize Changes', key='Finalize Changes'):
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
@@ -175,5 +177,4 @@ with st.container():
                     #new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
-
-
+                    
