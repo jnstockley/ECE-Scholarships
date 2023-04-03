@@ -9,7 +9,7 @@ from src.utils.output import get_output_dir
 #This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 #NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
 #scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
-scholarships_excel = pd.read_excel('/tests/data/scholarships.xlsx')
+scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
 scholarships = scholarships_excel.head()
 #NOTE: Here for viewing purposes
 #print(scholarships)
