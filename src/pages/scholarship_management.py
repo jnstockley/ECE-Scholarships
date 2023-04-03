@@ -122,7 +122,7 @@ with st.container():
                 major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=majors)
                 act_math = st.select_slider('Select the minimum ACT Math requirement', value=values['ACT Math'], options=range(0,37))
                 act_english = st.select_slider('Select the minimum ACT English requirement', value=values['ACT English'], options=range(0,37))
-                act_comp = st.select_slider('New minimum ACT Composite requirement', value=values['ACT Composite'], options=range(1,37))
+                act_comp = st.select_slider('New minimum ACT Composite requirement', value=values['ACT Composite'], options=range(0,37))
                 sat_math = st.select_slider('New minimum SAT Math requirement', value=values['SAT Math'], options=(x*10 for x in range(0,81)))
                 sat_reading = st.select_slider('New minimum SAT Reading requirement', value=values['SAT Reading'], options=(x*10 for x in range(0,81)))
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
@@ -175,6 +175,6 @@ with st.container():
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    #new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                    new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
