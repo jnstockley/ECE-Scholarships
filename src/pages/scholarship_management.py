@@ -8,6 +8,7 @@ from src.utils.output import get_output_dir
 
 #This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 #NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
+#scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
 scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
 scholarships = scholarships_excel.head()
 #NOTE: Here for viewing purposes
@@ -16,16 +17,40 @@ scholarships = scholarships_excel.head()
 
 #NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
 #after you run it once or it will continuously reset it.
-#df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
-#'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96']})
+# df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
+# 'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96'],
+# 'Group One': [['ACT Math', 'SAT Math']], 'Group Two': [['ACT Composite', 'SAT Combined']], 'Group Three': [[]]})
+# df.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 #df.to_excel(f"get_output_data()/scholarships/scholarships.xlsx", sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
+def groups_string_to_list(default_options):
+    '''
+    This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
+    to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
+    when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
+    '''
+    #Needed edge case for when there is no options
+    if default_options == "[]":
+        return []
+    #Removes [] from the string
+    no_brackets = default_options[1:(len(default_options)-1)]
+    #Removes ' ' around the items in the group
+    no_quotes = no_brackets.replace('\'', '')
+    #Removes the ,_ from the string and places everything into the split list
+    list_form = no_quotes.split(', ')
+    return list_form
+
 with st.container():
     #This controls the options diplayed for majors
-    majors = ["Computer Science and Engineering", "Electrical Engineering", "All"]
+    majors = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
+    group_options = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
+                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
+    GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
+                i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
+                minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
     if button('Create New Scholarship', key='Create New Scholarship'):
         st.title('Create a New Scholarship')
         st.write('If certain requirements are N/A, leave them at 0.')
@@ -49,18 +74,30 @@ with st.container():
         #but I doubt any scholarships require above 5.0, or even above 4.0, as that would greatly limit students unfairly.
         gpa = st.select_slider('Select the minimum GPA requirement', options=(x/20 for x in range (0,101)))
         hs_percentile = st.select_slider('Select the minimum highschool percentile', options=(x for x in range(0,101)))
+
+        group1 = []
+        group2 = []
+        group3 = []
+        if button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
+            group1 = st.multiselect("Choose Group One", options=group_options, help=GROUP_HELP)
+            if button('Add a second Requirement Grouping', key='Add a second Requirement Grouping'):
+                group2 = st.multiselect("Choose Group Two", options=group_options, help=GROUP_HELP)
+                if button('Add a third Requirement Grouping', key='Add a third Requirement Grouping'):
+                    group3 = st.multiselect("Choose Group Three", options=group_options, help=GROUP_HELP)
         if st.button('Create Scholarship', key='Create Scholarship'):
             #These fields should not be able to be blank
             if name == "" or total == "" or value == "":
                 st.write("Please make sure all the fields are filled out.")
             else:
                 #pd.Series creates a Panda object that can be appended to the scholarships dataframe.
-                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading, sat_comb, gpa, hs_percentile],
+                scholarship = pd.Series(data=[name, total, value, rai, admit_score, major, act_math, act_english, act_comp, sat_math, sat_reading,
+                                              sat_comb, gpa, hs_percentile, group1, group2, group3],
                                          index=scholarships.columns, name = scholarships.shape[0])
                 new_scholarships = scholarships.append(scholarship)
                 #We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
                 #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                 st.write(name + " has been successfully created.")
 
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
@@ -91,6 +128,9 @@ with st.container():
                 sat_comb = st.select_slider('Select the minimum SAT Combined requirement', value=values['SAT Combined'], options=(x*10 for x in range(0,161)))
                 gpa = st.select_slider('New minimum GPA requirement', value=values['GPA'], options=(x/20 for x in range (0,101)))
                 hs_percentile = st.select_slider('Select the minimum highschool percentile', value=values['HS Percentile'], options=(x for x in range(0,101)))
+                group1 = st.multiselect("Choose Group One", options=group_options, default=groups_string_to_list(values['Group One']), help=GROUP_HELP)
+                group2 = st.multiselect("Choose Group Two", options=group_options, default=groups_string_to_list(values['Group Two']), help=GROUP_HELP)
+                group3 = st.multiselect("Choose Group Three", options=group_options, default=groups_string_to_list(values['Group Three']), help=GROUP_HELP)
                 if st.button('Finalize Changes', key='Finalize Changes'):
                     #loc takes in the row index and the column name and rewrites the value of that row and column
                     scholarships.loc[index, 'Total Amount'] = total
@@ -106,9 +146,13 @@ with st.container():
                     scholarships.loc[index, 'SAT Combined'] = sat_comb
                     scholarships.loc[index, 'GPA'] = gpa
                     scholarships.loc[index, 'HS Percentile'] = hs_percentile
+                    scholarships.loc[index, 'Group One'] = str(group1)
+                    scholarships.loc[index, 'Group Two'] = str(group2)
+                    scholarships.loc[index, 'Group Three'] = str(group3)
                     #We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                    scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                    scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    #scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(edit_sch + " has been successfully edited.")
 
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
@@ -130,9 +174,7 @@ with st.container():
                     #In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                     new_scholarships = scholarships.drop(index=index)
                     #We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
-                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     #NOTE: This needs to be changed with sharepoint to save there instead of locally.
+                    #new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+                    new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
-
-#NOTE: It might be worth looking into trying to find a way to remove/disable buttons above when they are clicked (i.e. disable 'Create New Scholarship')
-#when 'Edit Existing Scholarship', as currently only buttons below get removed on click.
