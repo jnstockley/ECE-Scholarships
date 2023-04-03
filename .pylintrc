@@ -424,7 +424,8 @@ disable=raw-checker-failed,
         use-symbolic-message-instead,
         W0604,
         W0603,
-        E1101
+        E1101,
+        C0121
 
 # Enable the message, report, category or checker with the given id(s). You can
 # either give multiple identifier separated by comma (,) or put this option
