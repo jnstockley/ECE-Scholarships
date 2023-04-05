@@ -211,8 +211,7 @@ def display_import():
         add_scholarships = add_scholarships_excel.head()
         old_scholarships = scholarships
         for index, row in add_scholarships.iterrows():
-            old_scholarships.append(row)
-        
+            old_scholarships = old_scholarships.append(row)
         old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 
