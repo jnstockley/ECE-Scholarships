@@ -197,12 +197,23 @@ def display_import():
     if submit_new:
         # Handle imported files.
         if not file:
-            st.write('No files selected!')
+            st.write('No file selected!')
             return
         
         new_scholarships_excel = pd.read_excel(file[0])
         new_scholarships = new_scholarships_excel.head()
-        new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+        new_columns = new_scholarships.columns
+        fail_columns = 0
+        for col in new_columns:
+            if col not in COLUMNS:
+                st.write(col + " column is not a valid column.")
+                fail_columns += 1
+        for col in COLUMNS:
+            if col not in new_columns:
+                st.write(col + " column is missing.")
+                fail_columns += 1
+        if fail_columns == 0:
+            new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
     
     if submit_add:
         # Handle imported files.
