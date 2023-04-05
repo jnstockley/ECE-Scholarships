@@ -183,7 +183,7 @@ with st.container():
 def display_import():
     st.title("Import Scholarships")
     form = st.form(key="scholarship_import_form")
-    files = form.file_uploader('Scholarship Sources:', accept_multiple_files=True, type=[
+    file = form.file_uploader('Scholarship Source:', accept_multiple_files=True, type=[
                                'xlsx', 'csv', 'tsv'])
     form.markdown(centered_text(
         '<em>supports both excel and csv format</em>'), unsafe_allow_html=True)
@@ -193,15 +193,20 @@ def display_import():
 
     if submit_new:
         # Handle imported files.
-        if not files:
+        if not file:
             st.write('No files selected!')
             return
+        
+        new_scholarships = pd.read_excel(file)
+        new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
     
     if submit_add:
         # Handle imported files.
-        if not files:
+        if not file:
             st.write('No files selected!')
             return
+
+        
 
 
 display_import()
