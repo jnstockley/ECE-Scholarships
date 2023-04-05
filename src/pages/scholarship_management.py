@@ -197,7 +197,8 @@ def display_import():
             st.write('No files selected!')
             return
         
-        new_scholarships = pd.read_excel(file)
+        new_scholarships_excel = pd.read_excel(file)
+        new_scholarships = new_scholarships_excel.head()
         new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
     
     if submit_add:
@@ -205,8 +206,14 @@ def display_import():
         if not file:
             st.write('No files selected!')
             return
-
         
+        add_scholarships_excel = pd.read_excel(file)
+        add_scholarships = add_scholarships_excel.head()
+        old_scholarships = scholarships
+        for index, row in add_scholarships.iterrows():
+            old_scholarships.append(row)
+        
+        old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 
 display_import()
