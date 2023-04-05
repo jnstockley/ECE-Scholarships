@@ -3,6 +3,7 @@ scholarship managment page render
 '''
 import streamlit as st
 from streamlit_extras.stateful_button import button
+from src.utils.html import centered_text
 import pandas as pd
 #from src.utils.output import get_output_dir
 
@@ -178,3 +179,29 @@ with st.container():
                     new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
                     #new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
                     st.write(delete_sch + ' has been successfully deleted.')
+
+def display_import():
+    st.title("Import Scholarships")
+    form = st.form(key="scholarship_import_form")
+    files = form.file_uploader('Scholarship Sources:', accept_multiple_files=True, type=[
+                               'xlsx', 'csv', 'tsv'])
+    form.markdown(centered_text(
+        '<em>supports both excel and csv format</em>'), unsafe_allow_html=True)
+
+    submit_new = form.form_submit_button('Import Scholarships as New')
+    submit_add = form.form_submit_button('Import Scholarships to Existing')
+
+    if submit_new:
+        # Handle imported files.
+        if not files:
+            st.write('No files selected!')
+            return
+    
+    if submit_add:
+        # Handle imported files.
+        if not files:
+            st.write('No files selected!')
+            return
+
+
+display_import()
