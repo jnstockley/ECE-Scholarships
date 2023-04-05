@@ -199,6 +199,9 @@ def display_import():
         if not file:
             st.write('No file selected!')
             return
+        if len(file) > 1:
+            st.write('Only select one file.')
+            return
         
         new_scholarships_excel = pd.read_excel(file[0])
         new_scholarships = new_scholarships_excel.head()
