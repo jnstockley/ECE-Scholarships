@@ -191,6 +191,9 @@ def display_import():
     submit_new = form.form_submit_button('Import Scholarships as New')
     submit_add = form.form_submit_button('Import Scholarships to Existing')
 
+    COLUMNS = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English','ACT Composite',
+               'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two', 'Group Three']
+
     if submit_new:
         # Handle imported files.
         if not file:
