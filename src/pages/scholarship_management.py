@@ -199,22 +199,27 @@ def display_import():
         if not file:
             st.write('No file selected!')
             return
+        # Do not want them to try and create a new file with two separate ones
         if len(file) > 1:
             st.write('Only select one file.')
             return
         
         new_scholarships_excel = pd.read_excel(file[0])
         new_scholarships = new_scholarships_excel.head()
+        #Validation checking to make sure that all the columns are the same
         new_columns = new_scholarships.columns
         fail_columns = 0
+        #Check to make sure that there are no extra/different columns
         for col in new_columns:
             if col not in COLUMNS:
                 st.write(col + " column is not a valid column.")
                 fail_columns += 1
+        #Check to make sure that there are no missing columns
         for col in COLUMNS:
             if col not in new_columns:
                 st.write(col + " column is missing.")
                 fail_columns += 1
+        #Succeed if there are no failures
         if fail_columns == 0:
             new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
     
@@ -223,6 +228,8 @@ def display_import():
         if not file:
             st.write('No files selected!')
             return
+        #This is not necessary technically but it could be confusing since it is necessary for new
+        #The ability to add in more than one at a time is possible, but really not a priority or necessary.
         if len(file) > 1:
             st.write('Only select one file.')
             return
@@ -230,16 +237,20 @@ def display_import():
         add_scholarships_excel = pd.read_excel(file[0])
         add_scholarships = add_scholarships_excel.head()
         old_scholarships = scholarships
+        #Validation checking to make sure that all the columns are the same
         add_columns = add_scholarships.columns
         fail_columns = 0
+        #Check to make sure that there are no extra/different columns
         for col in add_columns:
             if col not in COLUMNS:
                 st.write(col + " column is not a valid column.")
                 fail_columns += 1
+        #Check to make sure that there are no missing columns
         for col in COLUMNS:
             if col not in add_columns:
                 st.write(col + " column is missing.")
                 fail_columns += 1
+        #Succeed if there are no failures
         if fail_columns == 0:
             for index, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
