@@ -223,13 +223,26 @@ def display_import():
         if not file:
             st.write('No files selected!')
             return
+        if len(file) > 1:
+            st.write('Only select one file.')
+            return
         
         add_scholarships_excel = pd.read_excel(file[0])
         add_scholarships = add_scholarships_excel.head()
         old_scholarships = scholarships
-        for index, row in add_scholarships.iterrows():
-            old_scholarships = old_scholarships.append(row)
-        old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-
+        add_columns = add_scholarships.columns
+        fail_columns = 0
+        for col in add_columns:
+            if col not in COLUMNS:
+                st.write(col + " column is not a valid column.")
+                fail_columns += 1
+        for col in COLUMNS:
+            if col not in add_columns:
+                st.write(col + " column is missing.")
+                fail_columns += 1
+        if fail_columns == 0:
+            for index, row in add_scholarships.iterrows():
+                old_scholarships = old_scholarships.append(row)
+            old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
 display_import()
