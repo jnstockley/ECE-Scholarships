@@ -6,9 +6,7 @@ Uploads files
 Downloads files
 """
 import os.path
-import random
 import re
-import string
 import time
 from os.path import exists
 from re import Pattern

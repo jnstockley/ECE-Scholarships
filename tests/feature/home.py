@@ -1,10 +1,16 @@
-import os
-import time
+"""
+Tests that the home page exists, and respects user sign in
+"""
 
 from playwright.sync_api import Page, expect
 
+from tests.feature.login import login
+
 
 def test_home_page_exists(page: Page):
+    """
+    Tests that the home page exists
+    """
     page.goto("http://localhost:9000", wait_until='domcontentloaded')
     home_page_link = page.get_by_role("link", name="Home")
 
@@ -12,6 +18,9 @@ def test_home_page_exists(page: Page):
 
 
 def test_home_page_not_logged_in(page: Page):
+    """
+    Tests that the home page redirects to log in page if not signed in
+    """
     page.goto("http://localhost:9000", wait_until='domcontentloaded')
 
     page_title = page.get_by_role("heading")
@@ -19,37 +28,10 @@ def test_home_page_not_logged_in(page: Page):
 
 
 def test_home_page_logged_in(page: Page):
-    # Valid Hawk ID
-    hawk_id = os.getenv("HAWK_ID")
-
-    # Valid Password
-    hawk_id_password = os.getenv("HAWK_ID_PASSWORD")
-
-    # Valid Sharepoint URL
-    sharepoint_url = os.getenv("SHAREPOINT_URL")
-
-    page.goto("http://localhost:9000/Log%20In", wait_until='domcontentloaded')
-
-    hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
-
-    password_textbox = page.get_by_role("textbox", name="HawkID Password")
-
-    sharepoint_url_textbox = page.get_by_role("textbox", name="Sharepoint Site URL")
-
-    submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
-
-    hawk_id_textbox.click()
-    hawk_id_textbox.fill(hawk_id)
-
-    password_textbox.click()
-    password_textbox.fill(hawk_id_password)
-
-    sharepoint_url_textbox.click()
-    sharepoint_url_textbox.fill(sharepoint_url)
-
-    submit_button_textbox.click()
-
-    time.sleep(4)
+    """
+    Tests that the home page doesn't redirect if the user is signed in
+    """
+    login(page)
 
     page.goto("http://localhost:9000", wait_until='domcontentloaded')
 

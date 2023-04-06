@@ -6,6 +6,7 @@ import time
 
 from playwright.sync_api import Page, expect
 
+
 def test_login_page(page: Page):
     """
     Tests that the login page exists, and has the correct title
@@ -87,6 +88,18 @@ def test_valid_login_creds(page: Page):
     Also checks that download page responds correctly to being logged in
     """
 
+    login(page)
+
+    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+
+    download_file_page_heading = page.get_by_role("heading", name="Download A File").get_by_text("Download A File")
+    expect(download_file_page_heading).to_have_text("Download A File")
+
+
+def login(page: Page):
+    """
+    Login Function
+    """
     # Valid Hawk ID
     hawk_id = os.getenv("HAWK_ID")
 
@@ -118,8 +131,3 @@ def test_valid_login_creds(page: Page):
     submit_button_textbox.click()
 
     time.sleep(4)
-
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
-
-    download_file_page_heading = page.get_by_role("heading", name="Download A File").get_by_text("Download A File")
-    expect(download_file_page_heading).to_have_text("Download A File")
