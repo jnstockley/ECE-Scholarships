@@ -8,8 +8,14 @@ import pandas as pd
 from st_aggrid import GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode
 from streamlit_extras.stateful_button import button
 
+from src.utils.html import redirect
+from src.utils.sharepoint import logged_in
+
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
+
+if not logged_in():
+    redirect("/Log In")
 
 # Accessing test data (Will need to replace with Teams support)
 df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=100)
