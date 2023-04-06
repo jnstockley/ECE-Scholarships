@@ -6,7 +6,9 @@ Uploads files
 Downloads files
 """
 import os.path
+import random
 import re
+import string
 import time
 from os.path import exists
 from re import Pattern
@@ -16,6 +18,7 @@ from extra_streamlit_components import CookieManager
 from office365.runtime.auth.user_credential import UserCredential
 from office365.runtime.client_request_exception import ClientRequestException
 from office365.sharepoint.client_context import ClientContext
+from streamlit.errors import DuplicateWidgetID
 
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
@@ -57,7 +60,12 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
     time.sleep(.2)
 
     if creds is None:
-        cookies = manager.get_all()
+        cookies = {}
+        # Work around for `duplicate` cookie managers
+        try:
+            cookies = manager.get_all()
+        except DuplicateWidgetID:
+            pass
         # Work around for caching not working with cookie manager
         if cookies == {}:
             return logged_in(manager)
