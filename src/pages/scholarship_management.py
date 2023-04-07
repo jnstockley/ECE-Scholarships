@@ -188,8 +188,12 @@ def display_import():
     form.markdown(centered_text(
         '<em>supports both excel and csv format</em>'), unsafe_allow_html=True)
 
-    submit_new = form.form_submit_button('Import Scholarships as New')
-    submit_add = form.form_submit_button('Import Scholarships to Existing')
+    submit_new = form.form_submit_button('Import Scholarships as New', help="""Warning: Please make sure column names and values are consistent
+                                                                            with the values of a normally created scholarship through the application
+                                                                            or else unintended errors can happen.""")
+    submit_add = form.form_submit_button('Import Scholarships to Existing', help="""Warning: Please make sure column names and values are consistent
+                                                                            with the values of a normally created scholarship through the application
+                                                                            or else unintended errors can happen.""")
 
     COLUMNS = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English','ACT Composite',
                'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two', 'Group Three']
