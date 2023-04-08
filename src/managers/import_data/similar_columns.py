@@ -123,22 +123,23 @@ class MergeSimilarDetails:
         def merge_row(row):
             values:list[any] = row.tolist()
             values.remove(row[self.alignment_col])
-            print(values)
 
             common_val = row[self.final_column_name]
             max_count = 0
+
+            if not (common_val is None or (type(common_val) in [int, float] and math.isnan(common_val))):
+                max_count = 1
+
             for val in values:
                 if val is None or (type(val) in [int, float] and math.isnan(val)):
                     continue
 
                 rel_count = values.count(val)
-                print(val)
-                print(rel_count)
+
                 if rel_count > max_count:
                     max_count = rel_count
                     common_val = val
 
-            print(f"common value found: {common_val}")
             return common_val
 
         merged_df[self.final_column_name] = merged_df.apply(merge_row, axis=1)
