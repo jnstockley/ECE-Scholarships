@@ -1,6 +1,7 @@
 '''
 Merge similar columns related managers and state to simplify session management.
 '''
+import math
 import pandas as pd
 import streamlit as st
 from src.utils import merge
@@ -117,18 +118,32 @@ class MergeSimilarDetails:
         Returns the merged alignment dataframe if the similar column names were
         combined together.
         '''
-        final_column_data = []
+        merged_df = self.aligned_df.loc[:, self.selected_columns + [self.alignment_col]].copy(deep=True)
 
-        for column in self.selected_columns:
-            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
-            data.rename({"{column}": self.final_column_name}, inplace=True)
-            final_column_data.append(data)
+        def merge_row(row):
+            values:list[any] = row.tolist()
+            values.remove(row[self.alignment_col])
+            print(values)
 
-        merged_df: pd.DataFrame = final_column_data.pop()
-        for remaining_data in final_column_data:
-            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
+            common_val = row[self.final_column_name]
+            max_count = 0
+            for val in values:
+                if val is None or (type(val) in [int, float] and math.isnan(val)):
+                    continue
 
-        return merged_df
+                rel_count = values.count(val)
+                print(val)
+                print(rel_count)
+                if rel_count > max_count:
+                    max_count = rel_count
+                    common_val = val
+
+            print(f"common value found: {common_val}")
+            return common_val
+
+        merged_df[self.final_column_name] = merged_df.apply(merge_row, axis=1)
+
+        return merged_df.loc[:, [self.alignment_col, self.final_column_name]]
 
 class MergeSimilarManager:
     '''
