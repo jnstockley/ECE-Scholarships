@@ -252,6 +252,7 @@ def display_import():
         # Succeed if there are no failures
         if fail_columns == 0:
             new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+            st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
         # Handle imported files.
@@ -285,5 +286,6 @@ def display_import():
             for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
             old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+            st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 display_import()
