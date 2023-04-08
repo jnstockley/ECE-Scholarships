@@ -3,8 +3,8 @@ scholarship managment page render
 '''
 import streamlit as st
 from streamlit_extras.stateful_button import button
-from src.utils.html import centered_text
 import pandas as pd
+from src.utils.html import centered_text
 # from src.utils.output import get_output_dir
 
 # This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
@@ -119,17 +119,17 @@ def display_edit():
         else:
             # values is the current values of the scholarship, index is the row of that scholarship
             # Find both the index and the values that match the scholarship we are trying to edit.
-            for n in range(0, scholarships.shape[0]):
-                values = scholarships.iloc[n]
+            for ind in range(0, scholarships.shape[0]):
+                values = scholarships.iloc[ind]
                 if values['Name'] == edit_sch:
-                    index = n
+                    index = ind
                     break
             # Display the information; value is set so that it loads the current values into the fields.
             total = st.text_input("New total amount of Scholarships", value = values['Total Amount'], max_chars=8, placeholder="Enter Numerical Amount")
             value = st.text_input('New value of each individual Scholarship', value = values['Value'], max_chars=8, placeholder="Enter Numerical Amount")
             rai = st.select_slider('Select the minimum RAI requirement', value=values['RAI'], options=(x*5 for x in range(0,81)))
             admit_score = st.select_slider('Select the minimum Admit Score requirement', value=values['Admit Score'], options=range(0,37))
-            major = st.selectbox("New majors the scholarship applies to", index = majors.index(values['Major']), options=MAJORS)
+            major = st.selectbox("New majors the scholarship applies to", index = MAJORS.index(values['Major']), options=MAJORS)
             act_math = st.select_slider('Select the minimum ACT Math requirement', value=values['ACT Math'], options=range(0,37))
             act_english = st.select_slider('Select the minimum ACT English requirement', value=values['ACT English'], options=range(0,37))
             act_comp = st.select_slider('New minimum ACT Composite requirement', value=values['ACT Composite'], options=range(0,37))
@@ -180,10 +180,10 @@ def display_delete():
             # Extra layers of decisions to make sure they want to do this.
             if st.button('Finalize Deletion', key='Finalize Deletion'):
                 # index is the row index of the scholarship we are deleting.
-                for n in range(0, scholarships.shape[0]):
-                    values = scholarships.iloc[n]
+                for ind in range(0, scholarships.shape[0]):
+                    values = scholarships.iloc[ind]
                     if values['Name'] == delete_sch:
-                        index = n
+                        index = ind
                         break
                 # In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                 new_scholarships = scholarships.drop(index=index)
@@ -203,6 +203,10 @@ with st.container():
 
 
 def display_import():
+    '''
+    This function displays all of the associated view/actions for importing scholarships
+    from outside files and either overwriting or adding to the previous scholarships file
+    '''
     st.title("Import Scholarships")
     form = st.form(key="scholarship_import_form")
     file = form.file_uploader('Scholarship Source:', accept_multiple_files=True, type=[
@@ -217,7 +221,7 @@ def display_import():
                                                                             with the values of a normally created scholarship through the application
                                                                             or else unintended errors can happen.""")
 
-    COLUMNS = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English','ACT Composite',
+    columns = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English','ACT Composite',
                'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two', 'Group Three']
 
     if submit_new:
@@ -229,7 +233,7 @@ def display_import():
         if len(file) > 1:
             st.write('Only select one file.')
             return
-        
+
         new_scholarships_excel = pd.read_excel(file[0])
         new_scholarships = new_scholarships_excel.head()
         # Validation checking to make sure that all the columns are the same
@@ -237,18 +241,18 @@ def display_import():
         fail_columns = 0
         # Check to make sure that there are no extra/different columns
         for col in new_columns:
-            if col not in COLUMNS:
+            if col not in columns:
                 st.write(col + " column is not a valid column.")
                 fail_columns += 1
         # Check to make sure that there are no missing columns
-        for col in COLUMNS:
+        for col in columns:
             if col not in new_columns:
                 st.write(col + " column is missing.")
                 fail_columns += 1
         # Succeed if there are no failures
         if fail_columns == 0:
             new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-    
+
     if submit_add:
         # Handle imported files.
         if not file:
@@ -259,7 +263,7 @@ def display_import():
         if len(file) > 1:
             st.write('Only select one file.')
             return
-        
+
         add_scholarships_excel = pd.read_excel(file[0])
         add_scholarships = add_scholarships_excel.head()
         old_scholarships = scholarships
@@ -268,17 +272,17 @@ def display_import():
         fail_columns = 0
         # Check to make sure that there are no extra/different columns
         for col in add_columns:
-            if col not in COLUMNS:
+            if col not in columns:
                 st.write(col + " column is not a valid column.")
                 fail_columns += 1
         # Check to make sure that there are no missing columns
-        for col in COLUMNS:
+        for col in columns:
             if col not in add_columns:
                 st.write(col + " column is missing.")
                 fail_columns += 1
         # Succeed if there are no failures
         if fail_columns == 0:
-            for index, row in add_scholarships.iterrows():
+            for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
             old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
 
