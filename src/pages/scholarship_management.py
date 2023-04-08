@@ -53,6 +53,10 @@ def groups_string_to_list(default_options):
     return list_form
 
 def display_create():
+    '''
+    This function displays all of the associated view/actions for creating a scholarship
+    and adding it to the scholarship file.
+    '''
     st.title('Create a New Scholarship')
     st.write('If certain requirements are N/A, leave them at 0.')
     # NOTE: text_input is used instead of number_input because I feel like the stepping functionality is unnecessary and could
@@ -102,6 +106,10 @@ def display_create():
             st.write(name + " has been successfully created.")
 
 def display_edit():
+    '''
+    This function displays all of the associated view/actions for editing a scholarship
+    and overwriting the old version with the new version in the scholarship file.
+    '''
     edit_sch = st.selectbox("Select the scholarship to edit", options=scholarships['Name'])
     if button('Edit This Scholarship', key = 'Edit This Scholarship'):
         # Don't let them try to edit nothing.
@@ -157,6 +165,10 @@ def display_edit():
                 st.write(edit_sch + " has been successfully edited.")
 
 def display_delete():
+    '''
+    This function displays all of the associated view/actions for deleting a scholarship
+    and removing it from the scholarship file.
+    '''
     delete_sch = st.selectbox("Select the scholarship to delete", options=scholarships['Name'])
     if button ('Delete This Scholarship', key='Delete This Scholarship'):
         # Don't let them try to delete nothing.
