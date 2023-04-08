@@ -172,16 +172,12 @@ def display_merge_form(similar_details: MergeSimilarDetails):
         st.write('You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
 
+    select_columns_container = merge_form.container()
+    selected_columns = select_columns_container.multiselect('Select Columns to Merge', similar_details.similar_columns, similar_details.selected_columns)
+    selected_columns_update = select_columns_container.form_submit_button('Update')
+
     # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
-    merge_comparison_table = similar_details.get_comparison_table()
-
-    current_table_view, final_merge_view = merge_form.columns(2, gap="small")
-    print(merge_comparison_table.columns)
-
-    with current_table_view:
-        st.dataframe(merge_comparison_table.drop(columns="FINAL COLUMN"))
-    with final_merge_view:
-        edited_final_col = st.experimental_data_editor(similar_details.get_comparison_table()["FINAL COLUMN"])
+    edited_final_col = merge_form.experimental_data_editor(similar_details.get_comparison_table())
 
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
@@ -196,6 +192,12 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     elif merge_button:
         SESSION.similar.get_column_group().set_final_column_name(final_column_name)
         SESSION.similar.merge_columns(edited_final_col)
+    elif selected_columns_update:
+        if len(selected_columns) <= 1:
+            select_columns_container.write("Please select atleast two columns to merge. If you don't want to merge any columns, you can press skip at the bottom of the form.")
+            return
+
+        similar_details.set_selected_columns(selected_columns)
 
 def display_done_view():
     '''

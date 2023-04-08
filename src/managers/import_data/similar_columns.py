@@ -36,7 +36,12 @@ class MergeSimilarDetails:
         '''
         Updates the list of selected columns from the similar columns that the user would actually like to merge.
         '''
+        # Final column name may have been the column that was removed causing issues when creating merged df
+        if self.final_column_name not in selected:
+            self.final_column_name = selected[0]
+
         self.selected_columns = selected
+        st.experimental_rerun()
 
     def get_similar_column_df(self):
         '''
@@ -65,7 +70,7 @@ class MergeSimilarDetails:
         merged_df = self._get_merged_df()
 
         different_rows_mask = self._get_different_rows_mask()
-        table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.similar_columns].copy(deep=True)
+        table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.selected_columns].copy(deep=True)
         table['FINAL COLUMN'] = merged_df.loc[different_rows_mask, self.final_column_name]
 
         return table
@@ -102,7 +107,7 @@ class MergeSimilarDetails:
         between the similar columns.
         '''
         def check_if_row_values_equal(row: pd.Series):
-            unique_vals = row[self.similar_columns].unique()
+            unique_vals = row[self.selected_columns].unique()
             return len(unique_vals) > 1
 
         return self.aligned_df.apply(check_if_row_values_equal, axis=1)
@@ -114,7 +119,7 @@ class MergeSimilarDetails:
         '''
         final_column_data = []
 
-        for column in self.similar_columns:
+        for column in self.selected_columns:
             data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
             data.rename({"{column}": self.final_column_name}, inplace=True)
             final_column_data.append(data)
