@@ -16,6 +16,8 @@ class MergeSimilarDetails:
     ----------
     final_column_name : str
         The final column name to use if similar columns are merged
+    self.selected_columns : list[str]
+        List of the selected columns (from the similar columns) that the user would like to merge.
     similar_columns : list[str]
         List of similar columns.
     aligned_df : pd.DataFrame()
@@ -25,9 +27,16 @@ class MergeSimilarDetails:
     '''
     def __init__(self, final_column_name: str, similar_columns: list[str], alignment_col: str, aligned_df: pd.DataFrame):
         self.final_column_name: str = final_column_name
+        self.selected_columns: list[str] = similar_columns
         self.similar_columns: list[str] = similar_columns
         self.alignment_col = alignment_col
         self.aligned_df = aligned_df
+
+    def set_selected_columns(self, selected: list[str]):
+        '''
+        Updates the list of selected columns from the similar columns that the user would actually like to merge.
+        '''
+        self.selected_columns = selected
 
     def get_similar_column_df(self):
         '''

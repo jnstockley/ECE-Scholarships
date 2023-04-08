@@ -55,10 +55,6 @@ def display_file_upload():
         SESSION.import_sheets(files)
         SESSION.set_view(View.ALIGNMENT_COLUMNS)
 
-# def display_scholarship_import():
-#     st.title("Import Scholarships")
-#     st.write("Add files to be imported. This should be of the form ECE_SCHOLARSHIPS_SPRING_2023")
-
 def display_alignment_column_form():
     '''
     Secondary prompt will ask for alignment column to help combine datasets
@@ -172,19 +168,34 @@ def display_merge_form(similar_details: MergeSimilarDetails):
                      f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
 
     merge_form.write('---')
-    merge_form.write('*Note:* You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
+    with merge_form.expander('Help me!'):
+        st.write('You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
-    edited_df = merge_form.experimental_data_editor(similar_details.get_comparison_table())
+
+    # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
+    merge_comparison_table = similar_details.get_comparison_table()
+
+    current_table_view, final_merge_view = merge_form.columns(2, gap="small")
+    print(merge_comparison_table.columns)
+
+    with current_table_view:
+        st.dataframe(merge_comparison_table.drop(columns="FINAL COLUMN"))
+    with final_merge_view:
+        edited_final_col = st.experimental_data_editor(similar_details.get_comparison_table()["FINAL COLUMN"])
+
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
-    merge_button = merge_form.form_submit_button('merge')
-    skip_button = merge_form.form_submit_button('skip')
+    merge_col, skip_col, _blank = merge_form.columns([2,2,10])
+    with merge_col:
+        merge_button = st.form_submit_button('merge')
+    with skip_col:
+        skip_button = st.form_submit_button('skip')
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
     elif merge_button:
         SESSION.similar.get_column_group().set_final_column_name(final_column_name)
-        SESSION.similar.merge_columns(edited_df['FINAL COLUMN'])
+        SESSION.similar.merge_columns(edited_final_col)
 
 def display_done_view():
     '''
