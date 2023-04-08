@@ -27,7 +27,8 @@ scholarships = scholarships_excel.head()
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
-
+# Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
+# and group help is the help message when hovering over the ? on a group field.
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                     'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
@@ -193,13 +194,6 @@ def display_delete():
                 st.write(delete_sch + ' has been successfully deleted.')
 
 with st.container():
-    # This controls the options diplayed for majors
-    majors = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
-    group_options = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
-                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
-    GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
-                i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
-                minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
     if button('Create New Scholarship', key='Create New Scholarship'):
         display_create()
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
