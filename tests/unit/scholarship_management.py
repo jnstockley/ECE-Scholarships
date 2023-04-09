@@ -3,29 +3,36 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-import scholarship_management
+from src.utils.scholarship_management import read_rows
 
 class ScholarshipManagementTest(unittest.TestCase):
-    def test_read_rows():
-        return
-    def test_write_rows():
-        return
-    def test_edit_row():
-        return
-    def test_read_write_rows():
-        return
-    def test_read_edit_write_rows():
-        return
-    def test_groups_string_to_list():
-        return
-    def test_display_create_no_error():
-        return
-    def test_display_edit_no_error():
-        return
-    def test_display_delete_no_error():
-        return
-    def test_display_import_no_error():
-        return
+    def test_read_rows(self):
+        '''
+        Verify that rows are correctly read from a file
+        '''
+        rows = read_rows('tests/data/scholarships_test_file.xlsx')
+
+        assert(not rows is None)
+        assert(isinstance(rows, pd.DataFrame))
+        
+    # def test_write_rows(self):
+    #     return
+    # def test_edit_row(self):
+    #     return
+    # def test_read_write_rows(self):
+    #     return
+    # def test_read_edit_write_rows(self):
+    #     return
+    # def test_groups_string_to_list(self):
+    #     return
+    # def test_display_create_no_error():
+    #     return
+    # def test_display_edit_no_error():
+    #     return
+    # def test_display_delete_no_error():
+    #     return
+    # def test_display_import_no_error():
+    #     return
 
 if __name__ == '__main__':
     unittest.main()
