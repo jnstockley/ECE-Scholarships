@@ -41,14 +41,28 @@ class ScholarshipManagementTest(unittest.TestCase):
         '''
         Verify that a row in a dataframe is correctly edited
         '''
-        edit_row(self.scholarships_df, 0, [('Total Amount', '1500'), ('Group Three', ['RAI', 'Admit Score'])])
+        edit_row(self.scholarships_df, 0, [('Total Amount', '1500'), ('Group Three', "['RAI', 'Admit Score']")])
 
         assert(self.scholarships_df['Name'][0] == 'Test Scholarship')
         assert(self.scholarships_df['Total Amount'][0] == '1500')
-        assert(self.scholarships_df['Group Three'][0] == ['RAI', 'Admit Score'])
+        assert(self.scholarships_df['Group Three'][0] == "['RAI', 'Admit Score']")
 
-    # def test_read_edit_write_rows(self):
-    #     return
+    def test_read_edit_write_rows(self):
+        '''
+        Verify that all of the functionality works together
+        '''
+        rows = read_rows('tests/data/scholarships_test_file.xlsx')
+        edit_row(rows, 0, [('Total Amount', '1500'), ('Group Three', "['RAI', 'Admit Score']")])
+        write_rows(rows, 'tests/data/scholarships_test_file.xlsx', 'Scholarships')
+        new_rows =  read_rows('tests/data/scholarships_test_file.xlsx')
+
+        assert(new_rows.shape[0] == 1)
+        assert(rows['Name'][0] == 'Test Scholarship')
+        assert(rows['Total Amount'][0] == '1500')
+        assert(rows['ACT Math'][0] == 25)
+        assert(rows['Group Two'][0] == "['ACT Composite', 'SAT Combined']")
+        assert(rows['Group Three'][0] == "['RAI', 'Admit Score']")
+    
     # def test_groups_string_to_list(self):
     #     return
 
