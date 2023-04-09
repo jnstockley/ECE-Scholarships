@@ -7,19 +7,19 @@ import pandas as pd
 from src.utils.html import centered_text
 
 def read_rows(file_path):
+    '''
+    Reads excel spreasheet and returns the rows
+    NOTE: needs to be changed for sharepoint
+    '''
     excel = pd.read_excel(file_path)
     return excel.head()
 
 def write_rows(dataframe, file_path, sheet_name):
+    '''
+    Writes the rows of a dataframe to the file_path with sheet_name
+    NOTE: needs to be changed for sharepoint
+    '''
     dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
-
-# This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
-# NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
-# scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
-scholarships = read_rows('tests/data/scholarships.xlsx')
-
-st.title("Scholarship Management")
-st.write("Select an Action from Below")
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
@@ -29,6 +29,11 @@ GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT 
 GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
+
+scholarships = read_rows('tests/data/scholarships.xlsx')
+
+st.title("Scholarship Management")
+st.write("Select an Action from Below")
 
 def groups_string_to_list(default_options):
     '''
