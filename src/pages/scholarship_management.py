@@ -32,9 +32,6 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
 
 scholarships = read_rows('tests/data/scholarships.xlsx')
 
-st.title("Scholarship Management")
-st.write("Select an Action from Below")
-
 def groups_string_to_list(default_options):
     '''
     This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
@@ -185,14 +182,6 @@ def display_delete():
                 write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
                 st.write(delete_sch + ' has been successfully deleted.')
 
-with st.container():
-    if button('Create New Scholarship', key='Create New Scholarship'):
-        display_create()
-    elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
-        display_edit()
-    elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
-        display_delete()
-
 
 def display_import():
     '''
@@ -279,5 +268,16 @@ def display_import():
                 old_scholarships = old_scholarships.append(row)
             old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
+
+st.title("Scholarship Management")
+st.write("Select an Action from Below")
+
+with st.container():
+    if button('Create New Scholarship', key='Create New Scholarship'):
+        display_create()
+    elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
+        display_edit()
+    elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
+        display_delete()
 
 display_import()
