@@ -91,7 +91,7 @@ class ScholarshipManagementTest(unittest.TestCase):
 
         assert new_group_one == ['ACT Composite', 'SAT Combined']
         assert new_group_two == []
-    
+
     def test_check_columns_equal_correct(self):
         '''
         Verify that there are no errors when the columns are correct
@@ -99,9 +99,9 @@ class ScholarshipManagementTest(unittest.TestCase):
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns)
 
         assert fail_columns == 0
-        assert invalid_columns == []
-        assert missing_columns == []
-    
+        assert not invalid_columns
+        assert not missing_columns
+
     def test_check_columns_equal_invalid(self):
         '''
         Verify that invalid columns are correctly found and recorded
@@ -110,16 +110,16 @@ class ScholarshipManagementTest(unittest.TestCase):
 
         assert fail_columns == 2
         assert invalid_columns == ['Bad Column', 'Random Column']
-        assert missing_columns == []
-    
+        assert not missing_columns
+
     def test_check_columns_equal_missing(self):
         '''
         Verify that missing columns are correctly found and recorded
         '''
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_missing)
-        
+
         assert fail_columns == 3
-        assert invalid_columns == []
+        assert not invalid_columns
         assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
 
     def test_check_columns_equal_invalid_missing(self):
@@ -127,7 +127,7 @@ class ScholarshipManagementTest(unittest.TestCase):
         Verify that both invalid and missing columns are correctly recorded and found together
         '''
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_invalid_missing)
-        
+
         assert fail_columns == 5
         assert invalid_columns == ['Bad Column', 'Random Column']
         assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
