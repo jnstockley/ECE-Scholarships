@@ -38,12 +38,15 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert(rows['Group Three'][0] == "[]")
 
     def test_edit_row(self):
+        '''
+        Verify that a row in a dataframe is correctly edited
+        '''
         edit_row(self.scholarships_df, 0, [('Total Amount', '1500'), ('Group Three', ['RAI', 'Admit Score'])])
 
         assert(self.scholarships_df['Name'][0] == 'Test Scholarship')
         assert(self.scholarships_df['Total Amount'][0] == '1500')
         assert(self.scholarships_df['Group Three'][0] == ['RAI', 'Admit Score'])
-        
+
     # def test_read_edit_write_rows(self):
     #     return
     # def test_groups_string_to_list(self):
