@@ -23,33 +23,15 @@ aligned_dataframe : pd.Dataframe
     The combined dataframe along a single alignment column.
 '''
 import streamlit as st
-from streamlit_ace import st_ace
-from src.managers.import_data.similar_columns import MergeSimilarDetails, StatusMessage
+from src.managers.import_data.similar_columns import MergeSimilarDetails
 from src.utils.html import centered_text
 from src.utils import merge
 from src.sessions.import_session_manager import ImportSessionManager, View
 from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
+from src.components.import_data.script_editor import render_script_expander
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
-SCRIPT_DEFAULT_TEXT = """def merge(row):
-    '''
-    Takes a row data (ndarray) and will merge several columns together
-    into a single value.
-
-    Inputs
-    ------
-    row : np.ndarray
-        Can be indexed with any of the columns selected above (ex: row["Column Name"])
-    
-    Returns
-    -------
-    any
-        The FINAL COLUMN value
-    '''
-
-    return None
-"""
 
 def display_file_upload():
     '''
@@ -201,19 +183,7 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
     edited_final_col = merge_form.experimental_data_editor(similar_details.get_comparison_table())
 
-    # Custom script editor
-    with merge_form.expander("Create Custom Merge Script (ADVANCED)"):
-        custom_script = st_ace(SCRIPT_DEFAULT_TEXT, auto_update=True, language="python")
-        st.write("Make changes to the function below and then press apply. The function will be run on each row and the value returned is what will appear in the FINAL COLUMN value.")
-
-        apply_col, reset_col, _blank = st.columns([2,2,10])
-        with apply_col:
-            apply_script = st.form_submit_button('apply')
-        with reset_col:
-            reset_script = st.form_submit_button('reset')
-
-        if StatusMessage.CUSTOM_SCRIPT in similar_details.status_messages:
-            st.write(similar_details.status_messages[StatusMessage.CUSTOM_SCRIPT])
+    render_script_expander(merge_form, similar_details)
 
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
@@ -222,11 +192,6 @@ def display_merge_form(similar_details: MergeSimilarDetails):
         merge_button = st.form_submit_button('merge')
     with skip_col:
         skip_button = st.form_submit_button('skip')
-
-    if apply_script:
-        similar_details.apply_custom_merge_script(custom_script)
-    elif reset_script:
-        similar_details.reset_custom_merge_script()
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
