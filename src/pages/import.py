@@ -32,6 +32,24 @@ from src.managers.import_data.alignment_settings import SelectAlignment, Alignme
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
+SCRIPT_DEFAULT_TEXT = """def merge(row):
+    '''
+    Takes a row data (ndarray) and will merge several columns together
+    into a single value.
+
+    Inputs
+    ------
+    row : np.ndarray
+        Can be indexed with any of the columns selected above (ex: row["Column Name"])
+    
+    Returns
+    -------
+    any
+        The FINAL COLUMN value
+    '''
+
+    return None
+"""
 
 def display_file_upload():
     '''
@@ -183,11 +201,13 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
     edited_final_col = merge_form.experimental_data_editor(similar_details.get_comparison_table())
 
-    final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
-
-    with merge_form.expander("Create Custom Merge Script"):
-        custom_script = st_ace(auto_update=True)
+    # Custom script editor
+    custom_script_expander = merge_form.expander("Create Custom Merge Script (ADVANCED)")
+    with custom_script_expander:
+        custom_script = st_ace(SCRIPT_DEFAULT_TEXT, auto_update=True, language="python")
         apply_script = st.form_submit_button("apply")
+
+    final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
     merge_col, skip_col, _blank = merge_form.columns([2,2,10])
     with merge_col:
@@ -196,7 +216,9 @@ def display_merge_form(similar_details: MergeSimilarDetails):
         skip_button = st.form_submit_button('skip')
 
     if apply_script:
-        st.write(custom_script)
+        with custom_script_expander:
+            similar_details.apply_custom_merge_script(custom_script)
+            st.write("Changes saved successfully! The FINAL COLUMN preview has been updated.")
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
