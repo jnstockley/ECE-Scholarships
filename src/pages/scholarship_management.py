@@ -104,9 +104,9 @@ def display_edit():
             group2 = st.multiselect("Choose Group Two", options=GROUP_OPTIONS, default=groups_string_to_list(values['Group Two']), help=GROUP_HELP)
             group3 = st.multiselect("Choose Group Three", options=GROUP_OPTIONS, default=groups_string_to_list(values['Group Three']), help=GROUP_HELP)
             if st.button('Finalize Changes', key='Finalize Changes'):
-                edit_row(scholarships, index, [('Total Amount', total), ('Value', value), ('RAI', rai), ('Admit Score', admit_score),('Major', major), 
-                                               ('ACT Math', act_math), ('ACT English', act_english), ('ACT Composite', act_comp),('SAT Math', sat_math), 
-                                               ('SAT Reading', sat_reading), ('SAT Combined', sat_comb), ('GPA', gpa),('HS Percentile', hs_percentile), 
+                edit_row(scholarships, index, [('Total Amount', total), ('Value', value), ('RAI', rai), ('Admit Score', admit_score),('Major', major),
+                                               ('ACT Math', act_math), ('ACT English', act_english), ('ACT Composite', act_comp),('SAT Math', sat_math),
+                                               ('SAT Reading', sat_reading), ('SAT Combined', sat_comb), ('GPA', gpa),('HS Percentile', hs_percentile),
                                                ('Group One', str(group1)), ('Group Two', str(group2)), ('Group Three', str(group3))])
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                 write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')

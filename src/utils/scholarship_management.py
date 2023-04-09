@@ -1,3 +1,7 @@
+'''
+Functions that are used in scholarship_management.py page
+Some of these are relatively general pandas dataframe functions
+'''
 import pandas as pd
 
 def read_rows(file_path):
@@ -48,14 +52,17 @@ def check_columns_equal(old_columns, new_columns):
     what the failures are. It separates invalid columns and missing columns since they are
     both different errors.
     '''
+    # Tracker of how many failed columns there are
     fail_columns = 0
     invalid_columns = []
     missing_columns = []
 
+    # Determine which columns are invalid
     for col in new_columns:
         if col not in old_columns:
             fail_columns += 1
             invalid_columns.append(col)
+    # Determine which columns are missing
     for col in old_columns:
         if col not in new_columns:
             fail_columns += 1
