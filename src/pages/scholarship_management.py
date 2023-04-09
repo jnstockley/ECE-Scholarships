@@ -12,17 +12,6 @@ from src.utils.html import centered_text
 # scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
 scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
 scholarships = scholarships_excel.head()
-# NOTE: Here for viewing purposes
-# print(scholarships)
-# print('Number of rows: ' + str(scholarships.shape[0]))
-
-# NOTE: Uncomment these two lines if you want to reset the scholarships.xlsx file to the single entry below. You must comment it back out
-# after you run it once or it will continuously reset it.
-# df = pd.DataFrame({'Name':['Test One'], 'Total Amount':['1000'], 'Value':['8000'], 'RAI':['315'], 'Admit Score':['26'], 'Major':['All'], 'ACT Math':['25'],
-# 'ACT English':['27'], 'ACT Composite':['26'], 'SAT Math': ['600'], 'SAT Reading': ['400'], 'SAT Combined':['1000'], 'GPA':['4.0'], 'HS Percentile': ['96'],
-# 'Group One': [['ACT Math', 'SAT Math']], 'Group Two': [['ACT Composite', 'SAT Combined']], 'Group Three': [[]]})
-# df.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-# df.to_excel(f"get_output_data()/scholarships/scholarships.xlsx", sheet_name='Scholarships', index=False)
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
