@@ -101,13 +101,18 @@ class ScholarshipManagementTest(unittest.TestCase):
     
     def test_check_columns_equal_invalid(self):
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_invalid)
+
         assert fail_columns == 2
         assert invalid_columns == ['Bad Column', 'Random Column']
         assert missing_columns == []
     
-    # def test_check_columns_equal_missing(self):
-    #     return
-    
+    def test_check_columns_equal_missing(self):
+        fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_missing)
+        
+        assert fail_columns == 3
+        assert invalid_columns == []
+        assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
+
     # def test_check_columns_equal_invalid_missing(self):
     #     return
 
