@@ -29,7 +29,7 @@ def groups_string_to_list(default_options):
     '''
     This function is for converting the groups read in from the pandas dataframe ('Group One', etc.) from a string
     to the original list they were. Example: ['ACT Composite', 'SAT Combined'] is converted to "['ACT Composite', 'SAT Combined']"
-    when the data is read it, this function converts it back to ['ACT Composite', 'SAT Combined'].
+    when the data is read in, this function converts it back to ['ACT Composite', 'SAT Combined'].
     '''
     # Needed edge case for when there is no options
     if default_options == "[]":

@@ -3,7 +3,7 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from src.utils.scholarship_management import read_rows, write_rows, edit_row
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list
 
 class ScholarshipManagementTest(unittest.TestCase):
     def setUp(self):
@@ -63,8 +63,18 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert(rows['Group Two'][0] == str(['ACT Composite', 'SAT Combined']))
         assert(rows['Group Three'][0] == str(['RAI', 'Admit Score']))
     
-    # def test_groups_string_to_list(self):
-    #     return
+    def test_groups_string_to_list(self):
+        '''
+        Verify that groups_strings_to_list correctly converts data from a
+        list as a string to the list object
+        '''
+        group_one = str(['ACT Composite', 'SAT Combined'])
+        group_two = str([])
+        new_group_one = groups_string_to_list(group_one)
+        new_group_two = groups_string_to_list(group_two)
 
+        assert(new_group_one == ['ACT Composite', 'SAT Combined'])
+        assert(new_group_two == [])
+        
 if __name__ == '__main__':
     unittest.main()
