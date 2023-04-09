@@ -5,7 +5,7 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
@@ -173,17 +173,11 @@ def display_import():
         new_scholarships = read_rows(file[0])
         # Validation checking to make sure that all the columns are the same
         new_columns = new_scholarships.columns
-        fail_columns = 0
-        # Check to make sure that there are no extra/different columns
-        for col in new_columns:
-            if col not in columns:
-                st.write(col + " column is not a valid column.")
-                fail_columns += 1
-        # Check to make sure that there are no missing columns
-        for col in columns:
-            if col not in new_columns:
-                st.write(col + " column is missing.")
-                fail_columns += 1
+        fail_columns, invalid_columns, missing_columns = check_columns_equal(columns, new_columns)
+        for col in invalid_columns:
+            st.write(col + " column is not a valid column.")
+        for col in missing_columns:
+            st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
             new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
@@ -204,17 +198,11 @@ def display_import():
         old_scholarships = scholarships
         # Validation checking to make sure that all the columns are the same
         add_columns = add_scholarships.columns
-        fail_columns = 0
-        # Check to make sure that there are no extra/different columns
-        for col in add_columns:
-            if col not in columns:
-                st.write(col + " column is not a valid column.")
-                fail_columns += 1
-        # Check to make sure that there are no missing columns
-        for col in columns:
-            if col not in add_columns:
-                st.write(col + " column is missing.")
-                fail_columns += 1
+        fail_columns, invalid_columns, missing_columns = check_columns_equal(columns, add_columns)
+        for col in invalid_columns:
+            st.write(col + " column is not a valid column.")
+        for col in missing_columns:
+            st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
             for _, row in add_scholarships.iterrows():
