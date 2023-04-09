@@ -180,7 +180,7 @@ def display_import():
             st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
-            new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
             st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
@@ -207,7 +207,7 @@ def display_import():
         if fail_columns == 0:
             for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
-            old_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
+            write_rows(old_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 st.title("Scholarship Management")
