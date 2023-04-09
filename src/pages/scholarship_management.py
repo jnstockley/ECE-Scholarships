@@ -5,7 +5,6 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text
-# from src.utils.output import get_output_dir
 
 # This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 # NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
