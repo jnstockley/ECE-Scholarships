@@ -172,8 +172,10 @@ def display_merge_form(similar_details: MergeSimilarDetails):
         st.write('You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
 
+    all_columns = similar_details.aligned_df.copy(deep=True).drop(columns=[similar_details.alignment_col]).columns
+
     select_columns_container = merge_form.container()
-    selected_columns = select_columns_container.multiselect('Select Columns to Merge', similar_details.similar_columns, similar_details.selected_columns)
+    selected_columns = select_columns_container.multiselect('Select Columns to Merge', all_columns, similar_details.selected_columns)
     selected_columns_update = select_columns_container.form_submit_button('Update')
 
     # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
