@@ -78,6 +78,18 @@ class ScholarshipManagementTest(unittest.TestCase):
 
         assert new_group_one == ['ACT Composite', 'SAT Combined']
         assert new_group_two == []
+    
+    # def test_check_columns_equal_correct(self):
+    #     return
+    
+    # def test_check_columns_equal_invalid(self):
+    #     return
+    
+    # def test_check_columns_equal_missing(self):
+    #     return
+    
+    # def test_check_columns_equal_invalid_missing(self):
+    #     return
 
 if __name__ == '__main__':
     unittest.main()
