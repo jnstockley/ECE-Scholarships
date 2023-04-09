@@ -1,6 +1,7 @@
 '''
 Merge similar columns related managers and state to simplify session management.
 '''
+from enum import Enum
 import math
 from typing import Callable
 import pandas as pd
@@ -10,6 +11,12 @@ from src.utils import merge
 
 # Desired similarity score
 SIMILARITY_SCORE = 60
+
+class StatusMessage(Enum):
+    '''
+    Global shared sessions
+    '''
+    CUSTOM_SCRIPT = "custom_script"
 
 class MergeSimilarDetails:
     '''
@@ -27,6 +34,7 @@ class MergeSimilarDetails:
         The aligned dataframe.
     alignment_col : str
         Name of the alignment column
+    status_messages : dict[str, str]
     _merge_row_callback : Callable[[np.ndarray], any]
         Custom code written by user to execute per column of the merge DF
     '''
@@ -37,6 +45,7 @@ class MergeSimilarDetails:
         self.alignment_col = alignment_col
         self.aligned_df = aligned_df
         self._merge_row_callback = self._default_merge_lambda
+        self.status_messages = {}
 
     def set_selected_columns(self, selected: list[str]):
         '''
@@ -65,6 +74,15 @@ class MergeSimilarDetails:
         self._get_merged_df(callback_func)
 
         self._merge_row_callback = callback_func
+        self.status_messages[StatusMessage.CUSTOM_SCRIPT] = "Changes successfully saved! The FINAL COLUMN above is now updated!"
+        st.experimental_rerun()
+
+    def reset_custom_merge_script(self):
+        '''
+        Sets the merge row callback to the default merge row callback function.
+        '''
+        self._merge_row_callback = self._default_merge_lambda
+        self.status_messages[StatusMessage.CUSTOM_SCRIPT] = "FINAL COLUMN has been reset to the default merge technique!"
         st.experimental_rerun()
 
     def get_similar_column_df(self):

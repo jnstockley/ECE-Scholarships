@@ -24,7 +24,7 @@ aligned_dataframe : pd.Dataframe
 '''
 import streamlit as st
 from streamlit_ace import st_ace
-from src.managers.import_data.similar_columns import MergeSimilarDetails
+from src.managers.import_data.similar_columns import MergeSimilarDetails, StatusMessage
 from src.utils.html import centered_text
 from src.utils import merge
 from src.sessions.import_session_manager import ImportSessionManager, View
@@ -202,10 +202,18 @@ def display_merge_form(similar_details: MergeSimilarDetails):
     edited_final_col = merge_form.experimental_data_editor(similar_details.get_comparison_table())
 
     # Custom script editor
-    custom_script_expander = merge_form.expander("Create Custom Merge Script (ADVANCED)")
-    with custom_script_expander:
+    with merge_form.expander("Create Custom Merge Script (ADVANCED)"):
         custom_script = st_ace(SCRIPT_DEFAULT_TEXT, auto_update=True, language="python")
-        apply_script = st.form_submit_button("apply")
+        st.write("Make changes to the function below and then press apply. The function will be run on each row and the value returned is what will appear in the FINAL COLUMN value.")
+
+        apply_col, reset_col, _blank = st.columns([2,2,10])
+        with apply_col:
+            apply_script = st.form_submit_button('apply')
+        with reset_col:
+            reset_script = st.form_submit_button('reset')
+
+        if StatusMessage.CUSTOM_SCRIPT in similar_details.status_messages:
+            st.write(similar_details.status_messages[StatusMessage.CUSTOM_SCRIPT])
 
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
@@ -216,9 +224,9 @@ def display_merge_form(similar_details: MergeSimilarDetails):
         skip_button = st.form_submit_button('skip')
 
     if apply_script:
-        with custom_script_expander:
-            similar_details.apply_custom_merge_script(custom_script)
-            st.write("Changes saved successfully! The FINAL COLUMN preview has been updated.")
+        similar_details.apply_custom_merge_script(custom_script)
+    elif reset_script:
+        similar_details.reset_custom_merge_script()
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
