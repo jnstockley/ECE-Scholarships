@@ -21,6 +21,16 @@ def write_rows(dataframe, file_path, sheet_name):
     '''
     dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
 
+def edit_row(dataframe, row_index, column_names_and_values):
+    '''
+    Takes a row index and a list of tuples that contain the column name
+    and the new column value and edits those values of the associated row
+    in that dataframe
+    '''
+    for column_name, row_value in column_names_and_values:
+        # loc takes in the row index and the column name and rewrites the value of that row and column
+        dataframe.loc[row_index, column_name] = row_value
+
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
@@ -135,23 +145,10 @@ def display_edit():
             group2 = st.multiselect("Choose Group Two", options=GROUP_OPTIONS, default=groups_string_to_list(values['Group Two']), help=GROUP_HELP)
             group3 = st.multiselect("Choose Group Three", options=GROUP_OPTIONS, default=groups_string_to_list(values['Group Three']), help=GROUP_HELP)
             if st.button('Finalize Changes', key='Finalize Changes'):
-                # loc takes in the row index and the column name and rewrites the value of that row and column
-                scholarships.loc[index, 'Total Amount'] = total
-                scholarships.loc[index, 'Value'] = value
-                scholarships.loc[index, 'RAI'] = rai
-                scholarships.loc[index, 'Admit Score'] = admit_score
-                scholarships.loc[index, 'Major'] = major
-                scholarships.loc[index, 'ACT Math'] = act_math
-                scholarships.loc[index, 'ACT English'] = act_english
-                scholarships.loc[index, 'ACT Composite'] = act_comp
-                scholarships.loc[index, 'SAT Math'] = sat_math
-                scholarships.loc[index, 'SAT Reading'] = sat_reading
-                scholarships.loc[index, 'SAT Combined'] = sat_comb
-                scholarships.loc[index, 'GPA'] = gpa
-                scholarships.loc[index, 'HS Percentile'] = hs_percentile
-                scholarships.loc[index, 'Group One'] = str(group1)
-                scholarships.loc[index, 'Group Two'] = str(group2)
-                scholarships.loc[index, 'Group Three'] = str(group3)
+                edit_row(scholarships, index, [('Total Amount', total), ('Value', value), ('RAI', rai), ('Admit Score', admit_score),('Major', major), 
+                                               ('ACT Math', act_math), ('ACT English', act_english), ('ACT Composite', act_comp),('SAT Math', sat_math), 
+                                               ('SAT Reading', sat_reading), ('SAT Combined', sat_comb), ('GPA', gpa),('HS Percentile', hs_percentile), 
+                                               ('Group One', str(group1)), ('Group Two', str(group2)), ('Group Three', str(group3))])
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
                 write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
                 st.write(edit_sch + " has been successfully edited.")
@@ -181,7 +178,6 @@ def display_delete():
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
                 write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
                 st.write(delete_sch + ' has been successfully deleted.')
-
 
 def display_import():
     '''
