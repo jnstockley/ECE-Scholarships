@@ -6,11 +6,17 @@ from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text
 
+def read_rows(file_path):
+    excel = pd.read_excel(file_path)
+    return excel.head()
+
+def write_rows(dataframe, file_path, sheet_name):
+    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+
 # This first reads the excel spreadsheet at the file destination and then places the rows in scholarships
 # NOTE: This needs to be changed once sharepoint is implemented to read from there instead of locally.
 # scholarships_excel = pd.read_excel('.app_data/scholarships/scholarships.xlsx')
-scholarships_excel = pd.read_excel('tests/data/scholarships.xlsx')
-scholarships = scholarships_excel.head()
+scholarships = read_rows('tests/data/scholarships.xlsx')
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
@@ -88,10 +94,7 @@ def display_create():
                                             sat_comb, gpa, hs_percentile, group1, group2, group3],
                                         index=scholarships.columns, name = scholarships.shape[0])
             new_scholarships = scholarships.append(scholarship)
-            # We rewrite the file with the new_scholarships dataframe, which has the new scholarship in it.
-            # NOTE: This needs to be changed with sharepoint to save there instead of locally.
-            new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-            # new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
             st.write(name + " has been successfully created.")
 
 def display_edit():
@@ -148,9 +151,7 @@ def display_edit():
                 scholarships.loc[index, 'Group Two'] = str(group2)
                 scholarships.loc[index, 'Group Three'] = str(group3)
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
-                # NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                # scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
                 st.write(edit_sch + " has been successfully edited.")
 
 def display_delete():
@@ -176,9 +177,7 @@ def display_delete():
                 # In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
                 new_scholarships = scholarships.drop(index=index)
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
-                # NOTE: This needs to be changed with sharepoint to save there instead of locally.
-                new_scholarships.to_excel('tests/data/scholarships.xlsx', sheet_name='Scholarships', index=False)
-                # new_scholarships.to_excel(f"{get_output_dir('scholarships')}/scholarships.xlsx", sheet_name='Scholarships', index=False)
+                write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
                 st.write(delete_sch + ' has been successfully deleted.')
 
 with st.container():
