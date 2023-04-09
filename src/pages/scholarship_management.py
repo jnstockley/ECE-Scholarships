@@ -170,8 +170,7 @@ def display_import():
             st.write('Only select one file.')
             return
 
-        new_scholarships_excel = pd.read_excel(file[0])
-        new_scholarships = new_scholarships_excel.head()
+        new_scholarships = read_rows(file[0])
         # Validation checking to make sure that all the columns are the same
         new_columns = new_scholarships.columns
         fail_columns = 0
@@ -201,8 +200,7 @@ def display_import():
             st.write('Only select one file.')
             return
 
-        add_scholarships_excel = pd.read_excel(file[0])
-        add_scholarships = add_scholarships_excel.head()
+        add_scholarships = read_rows(file[0])
         old_scholarships = scholarships
         # Validation checking to make sure that all the columns are the same
         add_columns = add_scholarships.columns
