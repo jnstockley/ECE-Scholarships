@@ -23,11 +23,12 @@ aligned_dataframe : pd.Dataframe
     The combined dataframe along a single alignment column.
 '''
 import streamlit as st
+from streamlit_ace import st_ace
+from src.managers.import_data.similar_columns import MergeSimilarDetails
 from src.utils.html import centered_text
 from src.utils import merge
 from src.sessions.import_session_manager import ImportSessionManager, View
 from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
-from src.managers.import_data.similar_columns import MergeSimilarDetails
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
@@ -174,6 +175,7 @@ def display_merge_form(similar_details: MergeSimilarDetails):
 
     all_columns = similar_details.aligned_df.copy(deep=True).drop(columns=[similar_details.alignment_col]).columns
 
+    # Select columns input
     select_columns_container = merge_form.container()
     selected_columns = select_columns_container.multiselect('Select Columns to Merge', all_columns, similar_details.selected_columns)
     selected_columns_update = select_columns_container.form_submit_button('Update')
@@ -183,11 +185,18 @@ def display_merge_form(similar_details: MergeSimilarDetails):
 
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
+    with merge_form.expander("Create Custom Merge Script"):
+        custom_script = st_ace(auto_update=True)
+        apply_script = st.form_submit_button("apply")
+
     merge_col, skip_col, _blank = merge_form.columns([2,2,10])
     with merge_col:
         merge_button = st.form_submit_button('merge')
     with skip_col:
         skip_button = st.form_submit_button('skip')
+
+    if apply_script:
+        st.write(custom_script)
 
     if skip_button:
         SESSION.similar.dont_merge_columns()

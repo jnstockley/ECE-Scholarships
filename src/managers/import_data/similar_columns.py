@@ -25,6 +25,8 @@ class MergeSimilarDetails:
         The aligned dataframe.
     alignment_col : str
         Name of the alignment column
+    custom_merge_script : str
+        Custom code written by user to execute per column of the merge DF
     '''
     def __init__(self, final_column_name: str, similar_columns: list[str], alignment_col: str, aligned_df: pd.DataFrame):
         self.final_column_name: str = final_column_name
@@ -32,6 +34,7 @@ class MergeSimilarDetails:
         self.similar_columns: list[str] = similar_columns
         self.alignment_col = alignment_col
         self.aligned_df = aligned_df
+        self.custom_merge_script = None
 
     def set_selected_columns(self, selected: list[str]):
         '''
@@ -43,6 +46,12 @@ class MergeSimilarDetails:
 
         self.selected_columns = selected
         st.experimental_rerun()
+
+    def apply_custom_merge_script(self, script: str):
+        '''
+        Takes the custom merge row script and applys it to the DF
+        '''
+        
 
     def get_similar_column_df(self):
         '''
@@ -113,36 +122,35 @@ class MergeSimilarDetails:
 
         return self.aligned_df.apply(check_if_row_values_equal, axis=1)
 
+    def _default_merge_lambda(self, row):
+        values:list[any] = row.tolist()
+        values.remove(row[self.alignment_col])
+
+        common_val = row[self.final_column_name]
+        max_count = 0
+
+        if not (common_val is None or (type(common_val) in [int, float] and math.isnan(common_val))):
+            max_count = 1
+
+        for val in values:
+            if val is None or (type(val) in [int, float] and math.isnan(val)):
+                continue
+
+            rel_count = values.count(val)
+
+            if rel_count > max_count:
+                max_count = rel_count
+                common_val = val
+
+        return common_val
+
     def _get_merged_df(self) -> pd.DataFrame:
         '''
         Returns the merged alignment dataframe if the similar column names were
         combined together.
         '''
         merged_df = self.aligned_df.loc[:, self.selected_columns + [self.alignment_col]].copy(deep=True)
-
-        def merge_row(row):
-            values:list[any] = row.tolist()
-            values.remove(row[self.alignment_col])
-
-            common_val = row[self.final_column_name]
-            max_count = 0
-
-            if not (common_val is None or (type(common_val) in [int, float] and math.isnan(common_val))):
-                max_count = 1
-
-            for val in values:
-                if val is None or (type(val) in [int, float] and math.isnan(val)):
-                    continue
-
-                rel_count = values.count(val)
-
-                if rel_count > max_count:
-                    max_count = rel_count
-                    common_val = val
-
-            return common_val
-
-        merged_df[self.final_column_name] = merged_df.apply(merge_row, axis=1)
+        merged_df[self.final_column_name] = merged_df.apply(self._default_merge_lambda, axis=1)
 
         return merged_df.loc[:, [self.alignment_col, self.final_column_name]]
 
