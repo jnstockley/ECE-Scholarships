@@ -3,7 +3,7 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 class ScholarshipManagementTest(unittest.TestCase):
     '''
@@ -16,6 +16,16 @@ class ScholarshipManagementTest(unittest.TestCase):
                            'GPA': ['3.75'], 'HS Percentile': ['90'], 'Group One': [['ACT Math', 'SAT Math']],
                            'Group Two': [['ACT Composite', 'SAT Combined']], 'Group Three': [[]]}
         self.scholarships_df = pd.DataFrame(self.scholarships)
+
+        self.columns = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
+                        'ACT Composite', 'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 
+                        'Group One', 'Group Two', 'Group Three']
+        self.columns_invalid = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
+                                'ACT Composite', 'SAT Math', 'Bad Column', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 
+                                'Group One', 'Group Two', 'Group Three', 'Random Column']
+        self.columns_missing = ['Name', 'Total Amount', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
+                                'ACT Composite', 'SAT Math', 'SAT Reading', 'GPA', 'HS Percentile', 
+                                'Group One', 'Group Three']
 
     def test_read_rows(self):
         '''
@@ -79,8 +89,15 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert new_group_one == ['ACT Composite', 'SAT Combined']
         assert new_group_two == []
     
-    # def test_check_columns_equal_correct(self):
-    #     return
+    def test_check_columns_equal_correct(self):
+        '''
+        Verify that there are no errors when the columns are correct
+        '''
+        fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns)
+
+        assert fail_columns == 0
+        assert invalid_columns == []
+        assert missing_columns == []
     
     # def test_check_columns_equal_invalid(self):
     #     return
