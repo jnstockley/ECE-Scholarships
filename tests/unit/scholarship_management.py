@@ -14,7 +14,7 @@ class ScholarshipManagementTest(unittest.TestCase):
 
         assert(not rows is None)
         assert(isinstance(rows, pd.DataFrame))
-        
+
     # def test_write_rows(self):
     #     return
     # def test_edit_row(self):
@@ -24,14 +24,6 @@ class ScholarshipManagementTest(unittest.TestCase):
     # def test_read_edit_write_rows(self):
     #     return
     # def test_groups_string_to_list(self):
-    #     return
-    # def test_display_create_no_error():
-    #     return
-    # def test_display_edit_no_error():
-    #     return
-    # def test_display_delete_no_error():
-    #     return
-    # def test_display_import_no_error():
     #     return
 
 if __name__ == '__main__':
