@@ -26,6 +26,9 @@ class ScholarshipManagementTest(unittest.TestCase):
         self.columns_missing = ['Name', 'Total Amount', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
                                 'ACT Composite', 'SAT Math', 'SAT Reading', 'GPA', 'HS Percentile', 
                                 'Group One', 'Group Three']
+        self.columns_invalid_missing = ['Name', 'Total Amount', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
+                                        'ACT Composite', 'SAT Math', 'Bad Column', 'SAT Reading', 'GPA', 'HS Percentile', 
+                                        'Group One', 'Group Three', 'Random Column']
 
     def test_read_rows(self):
         '''
@@ -100,6 +103,9 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert missing_columns == []
     
     def test_check_columns_equal_invalid(self):
+        '''
+        Verify that invalid columns are correctly found and recorded
+        '''
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_invalid)
 
         assert fail_columns == 2
@@ -107,14 +113,24 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert missing_columns == []
     
     def test_check_columns_equal_missing(self):
+        '''
+        Verify that missing columns are correctly found and recorded
+        '''
         fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_missing)
         
         assert fail_columns == 3
         assert invalid_columns == []
         assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
 
-    # def test_check_columns_equal_invalid_missing(self):
-    #     return
+    def test_check_columns_equal_invalid_missing(self):
+        '''
+        Verify that both invalid and missing columns are correctly recorded and found together
+        '''
+        fail_columns, invalid_columns, missing_columns = check_columns_equal(self.columns, self.columns_invalid_missing)
+        
+        assert fail_columns == 5
+        assert invalid_columns == ['Bad Column', 'Random Column']
+        assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
 
 if __name__ == '__main__':
     unittest.main()
