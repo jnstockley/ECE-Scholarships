@@ -41,3 +41,24 @@ def groups_string_to_list(default_options):
     # Removes the ,_ from the string and places everything into the split list
     list_form = no_quotes.split(', ')
     return list_form
+
+def check_columns_equal(old_columns, new_columns):
+    '''
+    This function is for determining if two lists of columns are equal, and if they are not,
+    what the failures are. It separates invalid columns and missing columns since they are
+    both different errors.
+    '''
+    fail_columns = 0
+    invalid_columns = []
+    missing_columns = []
+
+    for col in new_columns:
+        if col not in old_columns:
+            fail_columns += 1
+            invalid_columns.append(col)
+    for col in old_columns:
+        if col not in new_columns:
+            fail_columns += 1
+            missing_columns.append(col)
+
+    return fail_columns, invalid_columns, missing_columns
