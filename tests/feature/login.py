@@ -1,9 +1,9 @@
 """
 Login Feature Test
 """
-import os
 import time
 
+from dotenv import dotenv_values
 from playwright.sync_api import Page, expect
 
 
@@ -100,14 +100,17 @@ def login(page: Page):
     """
     Login Function
     """
+
+    config = dotenv_values(".env")
+
     # Valid Hawk ID
-    hawk_id = os.getenv("HAWK_ID")
+    hawk_id = config["HAWK_ID"]
 
     # Valid Password
-    hawk_id_password = os.getenv("HAWK_ID_PASSWORD")
+    hawk_id_password = config["HAWK_ID_PASSWORD"]
 
     # Valid Sharepoint URL
-    sharepoint_url = os.getenv("SHAREPOINT_URL")
+    sharepoint_url = config["SHAREPOINT_URL"]
 
     page.goto("http://localhost:9000/Log%20In", wait_until='domcontentloaded')
 

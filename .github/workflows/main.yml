@@ -74,13 +74,19 @@ jobs:
       - name: Ensure browsers are installed
         run: poetry run playwright install --with-deps
       #----------------------------------------------
+      #  -----     Create .evn file             -----
+      #----------------------------------------------
+      - name: Create .evn file
+        run: |
+          touch .env
+          echo BROWSER=firefox >> .env
+          echo HAWK_ID=${{ secrets.HAWK_ID }} >> .env
+          echo HAWK_ID_PASSWORD=${{ secrets.HAWK_ID_PASSWORD }} >> .env
+          echo SHAREPOINT_URL=${{ secrets.SHAREPOINT_URL }}
+      #----------------------------------------------
       #  -----     Run PlayWright Tests     -----
       #----------------------------------------------
       - name: Run your tests
-        env:
-          HAWK_ID: ${{ secrets.HAWK_ID }}
-          HAWK_ID_PASSWORD: ${{ secrets.HAWK_ID_PASSWORD }}
-          SHAREPOINT_URL: ${{ secrets.SHAREPOINT_URL }}
         run: poetry run python -m tests.cli --test playwright
 
   pyunit:
