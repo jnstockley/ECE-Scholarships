@@ -1,12 +1,22 @@
 '''
 Merge similar columns related managers and state to simplify session management.
 '''
+from enum import Enum
+import math
+from typing import Callable
 import pandas as pd
+import numpy as np
 import streamlit as st
 from src.utils import merge
 
 # Desired similarity score
 SIMILARITY_SCORE = 60
+
+class StatusMessage(Enum):
+    '''
+    Global shared sessions
+    '''
+    CUSTOM_SCRIPT = "custom_script"
 
 class MergeSimilarDetails:
     '''
@@ -16,18 +26,64 @@ class MergeSimilarDetails:
     ----------
     final_column_name : str
         The final column name to use if similar columns are merged
+    self.selected_columns : list[str]
+        List of the selected columns (from the similar columns) that the user would like to merge.
     similar_columns : list[str]
         List of similar columns.
     aligned_df : pd.DataFrame()
         The aligned dataframe.
     alignment_col : str
         Name of the alignment column
+    status_messages : dict[str, str]
+    _merge_row_callback : Callable[[np.ndarray], any]
+        Custom code written by user to execute per column of the merge DF
     '''
     def __init__(self, final_column_name: str, similar_columns: list[str], alignment_col: str, aligned_df: pd.DataFrame):
         self.final_column_name: str = final_column_name
+        self.selected_columns: list[str] = similar_columns
         self.similar_columns: list[str] = similar_columns
         self.alignment_col = alignment_col
         self.aligned_df = aligned_df
+        self._merge_row_callback = self._default_merge_lambda
+        self.status_messages = {}
+
+    def set_selected_columns(self, selected: list[str]):
+        '''
+        Updates the list of selected columns from the similar columns that the user would actually like to merge.
+        '''
+        # Final column name may have been the column that was removed causing issues when creating merged df
+        if self.final_column_name not in selected:
+            self.final_column_name = selected[0]
+
+        self.selected_columns = selected
+        st.experimental_rerun()
+
+    def apply_custom_merge_script(self, script: str):
+        '''
+        Takes the custom merge row script and applys it to the DF
+        '''
+        my_globals = {}
+        my_locals = {}
+
+        exec(script, my_globals, my_locals)
+
+        # Extract the function object from the locals dictionary
+        callback_func = my_locals['merge']
+
+        # Test for any runtime errors
+        self._get_merged_df(callback_func)
+
+        self._merge_row_callback = callback_func
+        self.status_messages[StatusMessage.CUSTOM_SCRIPT] = "Changes successfully saved! The FINAL COLUMN above is now updated!"
+        st.experimental_rerun()
+
+    def reset_custom_merge_script(self):
+        '''
+        Sets the merge row callback to the default merge row callback function.
+        '''
+        self._merge_row_callback = self._default_merge_lambda
+        self.status_messages[StatusMessage.CUSTOM_SCRIPT] = "FINAL COLUMN has been reset to the default merge technique!"
+        st.experimental_rerun()
 
     def get_similar_column_df(self):
         '''
@@ -45,7 +101,7 @@ class MergeSimilarDetails:
         '''
         Returns a preview of what the merged dataframe will look like if all similar columns are combined.
         '''
-        merged_df = self._get_merged_df()
+        merged_df = self._get_merged_df(self._merge_row_callback)
 
         return merged_df.loc[:, self.final_column_name]
 
@@ -53,10 +109,10 @@ class MergeSimilarDetails:
         '''
         Returns a table with only the rows that have differing values
         '''
-        merged_df = self._get_merged_df()
+        merged_df = self._get_merged_df(self._merge_row_callback)
 
         different_rows_mask = self._get_different_rows_mask()
-        table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.similar_columns].copy(deep=True)
+        table = self.aligned_df.loc[different_rows_mask, [self.alignment_col] + self.selected_columns].copy(deep=True)
         table['FINAL COLUMN'] = merged_df.loc[different_rows_mask, self.final_column_name]
 
         return table
@@ -71,7 +127,7 @@ class MergeSimilarDetails:
         Set of all the columns that need to be dropped from df when all similar columns
         have been addressed.
         '''
-        merged_df = self._get_merged_df()
+        merged_df = self._get_merged_df(self._merge_row_callback)
         merged_df.loc[final_col.index, self.final_column_name] = final_col
 
         drop_cols = set(self.similar_columns)
@@ -93,28 +149,46 @@ class MergeSimilarDetails:
         between the similar columns.
         '''
         def check_if_row_values_equal(row: pd.Series):
-            unique_vals = row[self.similar_columns].unique()
+            unique_vals = row[self.selected_columns].unique()
             return len(unique_vals) > 1
 
         return self.aligned_df.apply(check_if_row_values_equal, axis=1)
 
-    def _get_merged_df(self) -> pd.DataFrame:
+    def _default_merge_lambda(self, row):
+        values:list[any] = row.tolist()
+        values.remove(row[self.alignment_col])
+
+        common_val = row[self.final_column_name]
+        max_count = 0
+
+        if not (common_val is None or (type(common_val) in [int, float] and math.isnan(common_val))):
+            max_count = 1
+
+        for val in values:
+            if val is None or (type(val) in [int, float] and math.isnan(val)):
+                continue
+
+            rel_count = values.count(val)
+
+            if rel_count > max_count:
+                max_count = rel_count
+                common_val = val
+
+        return common_val
+
+    def _get_merged_df(self, method: Callable[[np.ndarray], any]) -> pd.DataFrame:
         '''
         Returns the merged alignment dataframe if the similar column names were
         combined together.
+
+        method:
+            The lambda function to apply to each row of the dataframe in order to get
+            the preview of the final merged column.
         '''
-        final_column_data = []
+        merged_df = self.aligned_df.loc[:, self.selected_columns + [self.alignment_col]].copy(deep=True)
+        merged_df[self.final_column_name] = merged_df.apply(method, axis=1)
 
-        for column in self.similar_columns:
-            data = self.aligned_df.loc[:, [self.alignment_col, column]].copy(deep=True)
-            data.rename({"{column}": self.final_column_name}, inplace=True)
-            final_column_data.append(data)
-
-        merged_df: pd.DataFrame = final_column_data.pop()
-        for remaining_data in final_column_data:
-            merged_df = pd.merge(merged_df, remaining_data, on=self.alignment_col)
-
-        return merged_df
+        return merged_df.loc[:, [self.alignment_col, self.final_column_name]]
 
 class MergeSimilarManager:
     '''
