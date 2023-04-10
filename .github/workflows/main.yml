@@ -76,7 +76,7 @@ jobs:
       #----------------------------------------------
       #  -----     Create .env file             -----
       #----------------------------------------------
-      - name: Create .evn file
+      - name: Create .env file
         run: |
           touch .env
           echo BROWSER=firefox >> .env
