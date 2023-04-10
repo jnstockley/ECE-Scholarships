@@ -93,3 +93,15 @@ def test_import_files_with_no_final_alignment_name(page: Page):
     page.get_by_role("button", name="submit").click()
 
     expect(page.get_by_text("Error: please specify your final combined alignment column name")).to_be_visible()
+
+@pytest.mark.usefixtures("import_similar_column_page")
+def test_merge_similar_columns_script_editor(page: Page):
+    '''
+    As a user so that I can specify my own merge technique with a high level of control,
+    I'd like to be able to write my own merge function for the similar columns in Python.
+    '''
+    expect(page.get_by_role("button", name="Create Custom Merge Script (ADVANCED)")).to_be_visible()
+
+    page.get_by_role("button", name="Create Custom Merge Script (ADVANCED)").click()
+
+    expect(page.get_by_text("Make changes to the function")).to_be_visible()
