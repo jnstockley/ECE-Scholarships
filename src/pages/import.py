@@ -23,11 +23,12 @@ aligned_dataframe : pd.Dataframe
     The combined dataframe along a single alignment column.
 '''
 import streamlit as st
+from src.managers.import_data.similar_columns import MergeSimilarDetails
 from src.utils.html import centered_text
 from src.utils import merge
 from src.sessions.import_session_manager import ImportSessionManager, View
 from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
-from src.managers.import_data.similar_columns import MergeSimilarDetails
+from src.components.import_data.script_editor import render_script_expander
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)
@@ -54,10 +55,6 @@ def display_file_upload():
 
         SESSION.import_sheets(files)
         SESSION.set_view(View.ALIGNMENT_COLUMNS)
-
-# def display_scholarship_import():
-#     st.title("Import Scholarships")
-#     st.write("Add files to be imported. This should be of the form ECE_SCHOLARSHIPS_SPRING_2023")
 
 def display_alignment_column_form():
     '''
@@ -172,19 +169,41 @@ def display_merge_form(similar_details: MergeSimilarDetails):
                      f" values for the similar columns listed. That means {int(percent_different)}% of rows have different values for these similar columns.")
 
     merge_form.write('---')
-    merge_form.write('*Note:* You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
+    with merge_form.expander('Help me!'):
+        st.write('You can make changes to the FINAL COLUMN values by double clicking on a cell and entering the new preferred value! '
                     + 'Any values you set in this column will be the values used if you select to merge all similar columns.')
-    edited_df = merge_form.experimental_data_editor(similar_details.get_comparison_table())
+
+    all_columns = similar_details.aligned_df.copy(deep=True).drop(columns=[similar_details.alignment_col]).columns
+
+    # Select columns input
+    select_columns_container = merge_form.container()
+    selected_columns = select_columns_container.multiselect('Select Columns to Merge', all_columns, similar_details.selected_columns)
+    selected_columns_update = select_columns_container.form_submit_button('Update')
+
+    # DF showing old columns and alignment column and then a column labeled "FINAL COLUMN" previewing how the data will actually look.
+    edited_final_col = merge_form.experimental_data_editor(similar_details.get_comparison_table())
+
+    render_script_expander(merge_form, similar_details)
+
     final_column_name = merge_form.text_input('Final column name:', value=similar_details.final_column_name)
 
-    merge_button = merge_form.form_submit_button('merge')
-    skip_button = merge_form.form_submit_button('skip')
+    merge_col, skip_col, _blank = merge_form.columns([2,2,10])
+    with merge_col:
+        merge_button = st.form_submit_button('merge')
+    with skip_col:
+        skip_button = st.form_submit_button('skip')
 
     if skip_button:
         SESSION.similar.dont_merge_columns()
     elif merge_button:
         SESSION.similar.get_column_group().set_final_column_name(final_column_name)
-        SESSION.similar.merge_columns(edited_df['FINAL COLUMN'])
+        SESSION.similar.merge_columns(edited_final_col)
+    elif selected_columns_update:
+        if len(selected_columns) <= 1:
+            select_columns_container.write("Please select atleast two columns to merge. If you don't want to merge any columns, you can press skip at the bottom of the form.")
+            return
+
+        similar_details.set_selected_columns(selected_columns)
 
 def display_done_view():
     '''
