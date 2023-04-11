@@ -14,7 +14,7 @@ def test_import_page(page: Page):
     As a user I should be able to find and navigate to
     the import data page.
     '''
-    page.goto("http://localhost:9000")
+    page.goto("http://localhost:9000", wait_until='domcontentloaded')
     import_data_link = page.get_by_role("link", name="Import Data")
 
     expect(import_data_link).to_have_text('Import Data')

@@ -73,7 +73,7 @@ def test_delete_button(page: Page):
 
 def test_edit_scholarship(page: Page):
     '''
-    As a user so that edit preexisting scholarships, 
+    As a user so that edit preexisting scholarships,
     I would like to be able to go through a series of steps to edit a scholarship
     '''
     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
@@ -190,4 +190,3 @@ def test_import_page(page: Page):
 #     import_existing_btn.click()
 
 #     expect(page.get_by_text("No file selected!")).to_be_visible()
-    

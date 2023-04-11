@@ -12,8 +12,14 @@ from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, G
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-# Default settings for Streamlit page
+from src.utils.html import redirect
+from src.utils.sharepoint import logged_in
+
+# Default setting for Streamlit page
 st.set_page_config(layout="wide")
+
+if not logged_in():
+    redirect("/Log In")
 
 # Importing data
 global STUDENTS
