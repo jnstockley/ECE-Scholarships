@@ -11,7 +11,7 @@ from src.utils.scholarship_management import read_rows, write_rows, edit_row, gr
 # and group help is the help message when hovering over the ? on a group field.
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
-                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile']
+                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
 GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
