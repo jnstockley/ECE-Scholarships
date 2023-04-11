@@ -32,6 +32,18 @@ def test_create_button(page: Page):
 
     expect(page.get_by_text("If certain requirements are N/A, leave them at 0.")).to_be_visible()
 
+# def test_requirement_groupings(page: Page):
+#     '''
+#     As a user I should be able to add requirement groupings to a scholarship
+#     '''
+#     page.goto("http://localhost:9000/Scholarship%20Management")
+#     page.get_by_role("button", name="Create New Scholarship").click()
+#     group_one_btn = page.get_by_role("button", name="Add a Requirement Grouping")
+#     group_one_btn.click()
+#     group_two_btn = page.get_by_role("button", name="Add a second Requirement Grouping")
+#     group_two_btn.click()
+#     group_three_btn = page.get_by_role("button", name="Add a third Requirement Grouping")
+#     group_three_btn.click()
 
 def test_edit_button(page: Page):
     '''
@@ -132,3 +144,50 @@ def test_edit_scholarship(page: Page):
 #     create_sch_btn.click()
 
 #     expect(page.get_by_text("Please make sure all the fields are filled out.")).to_be_visible()
+
+def test_import_page(page: Page):
+    '''
+    As a user I should be able to see the import data section
+    of scholarship management
+    '''
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+
+    import_heading = page.get_by_role("heading", name="Import Scholarships").get_by_text("Import Scholarships")
+
+    expect(import_heading).to_have_text('Import Scholarships')
+
+# def test_browse_button(page: Page):
+#     '''
+#     As a user I should be able to create a new scholarship.
+#     '''
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+#     browse_btn = page.get_by_role("button", name="Browse files")
+
+#     expect(browse_btn).to_have_text('Browse files')
+
+# def test_import_new_button(page: Page):
+#     '''
+#     As a user I should be able to create a new scholarship.
+#     '''
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+#     import_new_btn = page.get_by_role("button", name="Import Scholarships as New")
+
+#     #expect(import_new_btn).to_have_text('Import Scholarships as New')
+
+#     import_new_btn.click()
+
+#     expect(page.get_by_text("No file selected!")).to_be_visible()
+
+# def test_import_existing_button(page: Page):
+#     '''
+#     As a user I should be able to create a new scholarship.
+#     '''
+#     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
+#     import_existing_btn = page.get_by_role("button", name="Import Scholarships to Existing")
+
+#     #expect(import_existing_btn).to_have_text('Import Scholarships to Existing')
+
+#     import_existing_btn.click()
+
+#     expect(page.get_by_text("No file selected!")).to_be_visible()
+    
