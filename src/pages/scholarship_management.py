@@ -9,6 +9,7 @@ from src.utils.scholarship_management import read_rows, write_rows, edit_row, gr
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
+SCH_COLUMNS = ['ACT Math', 'ACT English', 'Random1']
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                     'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
@@ -17,6 +18,15 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
 scholarships = read_rows('tests/data/scholarships.xlsx')
+
+def display_create_dynamic():
+    st.title('Create a New Scholarship')
+    dyn_columns = st.multiselect("Choose Relevant Columns to this scholarship", options=SCH_COLUMNS, help='Placeholder')
+    col_values = {}
+    for val in dyn_columns:
+        chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
+        col_values[val] = chosenVal
+    print(col_values)
 
 def display_create():
     '''
@@ -214,6 +224,8 @@ st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
 with st.container():
+    if button('Create New Dynamic Scholarship', key='Create New Dynamic Scholarship'):
+        display_create_dynamic()
     if button('Create New Scholarship', key='Create New Scholarship'):
         display_create()
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
