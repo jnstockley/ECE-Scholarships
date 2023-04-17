@@ -7,6 +7,9 @@ import pandas as pd
 from src.utils.html import centered_text
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
+if 'n_groups' not in st.session_state:
+    st.session_state.n_groups = 1
+
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
 SCH_COLUMNS = ['ACT Math', 'ACT English', 'Random1']
@@ -19,6 +22,7 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
 
 scholarships = read_rows('tests/data/scholarships.xlsx')
 
+
 def display_create_dynamic():
     st.title('Create a New Scholarship')
     dyn_columns = st.multiselect("Choose Relevant Columns to this scholarship", options=SCH_COLUMNS, help='Placeholder')
@@ -26,7 +30,14 @@ def display_create_dynamic():
     for val in dyn_columns:
         chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
         col_values[val] = chosenVal
+    group_count = 0
+    if st.button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
+        st.session_state.n_groups += 1
+        st.experimental_rerun()
+    for i in range(st.session_state.n_groups):
+        group = st.multiselect("Choose Group " + str(i), options=GROUP_OPTIONS, help=GROUP_HELP)
     print(col_values)
+
 
 def display_create():
     '''
