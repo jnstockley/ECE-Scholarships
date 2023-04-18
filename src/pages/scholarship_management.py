@@ -10,7 +10,13 @@ from src.utils.scholarship_management import read_rows, write_rows, edit_row, gr
 if 'n_groups' not in st.session_state:
     st.session_state.n_groups = 0
 
-scholarships = read_rows('tests/data/scholarships.xlsx')
+# This try except clause fixes an error that would previously cause it to fail if the file did not exist
+# now it will just create an empty file.
+try:
+    scholarships = read_rows('tests/data/scholarships.xlsx')
+except:
+    write_rows(pd.DataFrame({}), 'tests/data/scholarships.xlsx', 'Scholarships')
+    scholarships = read_rows('tests/data/scholarships.xlsx')
 
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
@@ -31,6 +37,7 @@ def equalize_dictionary_columns(columns, dict):
     for val in columns:
         if val not in dict:
             dict[val] = None
+    #This is not a necessary return statement but is kept for understanding
     return dict
 
 def display_create_dynamic():
@@ -56,7 +63,9 @@ def display_create_dynamic():
     for i in range(st.session_state.n_groups):
         group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
-    print(equalize_dictionary_columns(SCH_COLUMNS, col_values))
+    equalize_dictionary_columns(SCH_COLUMNS, col_values)
+    series = pd.Series(col_values)
+    print(series)
 
 
 def display_create():
