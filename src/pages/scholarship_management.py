@@ -8,11 +8,14 @@ from src.utils.html import centered_text
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 if 'n_groups' not in st.session_state:
-    st.session_state.n_groups = 1
+    st.session_state.n_groups = 0
+
+scholarships = read_rows('tests/data/scholarships.xlsx')
+
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
-SCH_COLUMNS = ['ACT Math', 'ACT English', 'Random1']
+SCH_COLUMNS = scholarships.columns
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                     'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
@@ -20,22 +23,27 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
-scholarships = read_rows('tests/data/scholarships.xlsx')
-
 
 def display_create_dynamic():
     st.title('Create a New Scholarship')
-    dyn_columns = st.multiselect("Choose Relevant Columns to this scholarship", options=SCH_COLUMNS, help='Placeholder')
+    name = st.text_input("Scholarship Name", max_chars=500, placeholder="Enter Scholarship Name")
+    total = st.text_input("Total amount of Scholarships", max_chars=8, placeholder="Enter Numerical Amount")
+    value = st.text_input('The value of each individual Scholarship', max_chars=8, placeholder="Enter Numerical Amount")
+    dyn_columns = st.multiselect("Choose Relevant Criteria to this Scholarship", options=SCH_COLUMNS, help='''Every criteria you select
+                                 will create a new enter field for you to put the relevant value in.''')
     col_values = {}
     for val in dyn_columns:
-        chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
+        # #NOTE: options needs to be changed once real values are read in.
+        # chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
+        # I think text_input might work better as they can just type in their number rather than needing to find the range
+        chosenVal = st.text_input('Enter the minimum ' + val + ' requirement')
         col_values[val] = chosenVal
-    group_count = 0
     if st.button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
         st.session_state.n_groups += 1
         st.experimental_rerun()
     for i in range(st.session_state.n_groups):
-        group = st.multiselect("Choose Group " + str(i), options=GROUP_OPTIONS, help=GROUP_HELP)
+        group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
+        col_values["Group" + str(i+1)] = group
     print(col_values)
 
 
@@ -235,10 +243,10 @@ st.title("Scholarship Management")
 st.write("Select an Action from Below")
 
 with st.container():
-    if button('Create New Dynamic Scholarship', key='Create New Dynamic Scholarship'):
+    if button('Create New Scholarship', key='Create New Dynamic Scholarship'):
         display_create_dynamic()
-    if button('Create New Scholarship', key='Create New Scholarship'):
-        display_create()
+    # if button('Create New Scholarship', key='Create New Scholarship'):
+    #     display_create()
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
         display_edit()
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
