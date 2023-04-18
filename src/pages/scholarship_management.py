@@ -23,15 +23,27 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
+def equalize_dictionary_columns(columns, dict):
+    '''
+    This function takes a list of columns and a dictionary and if there are any columns
+    that are not present in the dictionary as a key it adds them and gives them the value of None
+    '''
+    for val in columns:
+        if val not in dict:
+            dict[val] = None
+    return dict
 
 def display_create_dynamic():
     st.title('Create a New Scholarship')
+    col_values = {}
     name = st.text_input("Scholarship Name", max_chars=500, placeholder="Enter Scholarship Name")
     total = st.text_input("Total amount of Scholarships", max_chars=8, placeholder="Enter Numerical Amount")
     value = st.text_input('The value of each individual Scholarship', max_chars=8, placeholder="Enter Numerical Amount")
+    col_values['Name'] = name
+    col_values['Total Amount'] = total
+    col_values['Value'] = value
     dyn_columns = st.multiselect("Choose Relevant Criteria to this Scholarship", options=SCH_COLUMNS, help='''Every criteria you select
                                  will create a new enter field for you to put the relevant value in.''')
-    col_values = {}
     for val in dyn_columns:
         # #NOTE: options needs to be changed once real values are read in.
         # chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
@@ -44,7 +56,7 @@ def display_create_dynamic():
     for i in range(st.session_state.n_groups):
         group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
-    print(col_values)
+    print(equalize_dictionary_columns(SCH_COLUMNS, col_values))
 
 
 def display_create():
