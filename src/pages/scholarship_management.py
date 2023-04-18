@@ -63,9 +63,17 @@ def display_create_dynamic():
     for i in range(st.session_state.n_groups):
         group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
-    equalize_dictionary_columns(SCH_COLUMNS, col_values)
-    series = pd.Series(col_values)
-    print(series)
+    if st.button('Create Scholarship', key='Create Scholarship'):
+        # These fields should not be able to be blank
+        if name == "" or total == "" or value == "":
+            st.write("Please make sure all the fields are filled out.")
+        else:
+            equalize_dictionary_columns(SCH_COLUMNS, col_values)
+            # pd.Series creates a Panda object that can be appended to the scholarships dataframe.
+            scholarship = pd.Series(col_values, name = scholarships.shape[0])
+            new_scholarships = scholarships.append(scholarship)
+            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+            st.write(name + " has been successfully created.")
 
 
 def display_create():
