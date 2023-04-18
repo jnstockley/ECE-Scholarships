@@ -3,7 +3,7 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
 
 class ScholarshipManagementTest(unittest.TestCase):
     '''
@@ -131,6 +131,20 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert fail_columns == 5
         assert invalid_columns == ['Bad Column', 'Random Column']
         assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
+    
+    def test_equalize_dictionary_columns_no_change(self):
+        '''
+        Verify that when the dictionary has all of the necessary values
+        it does not change at all
+        '''
+        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+                'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
+                'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 'SAT Combined': '1350', 
+                'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
+        copy = dict_columns.copy()
+        equalize_dictionary_columns(self.columns, dict_columns)
+        
+        assert dict_columns == copy
 
 if __name__ == '__main__':
     unittest.main()
