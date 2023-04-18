@@ -159,6 +159,19 @@ class ScholarshipManagementTest(unittest.TestCase):
         
         assert 'SAT Combined' in dict_columns
         assert dict_columns['SAT Combined'] == None
+
+    def test_equalize_dictionary_columns_extra_column(self):
+        '''
+        Verify that if there is an extra column in the dictionary it is not removed
+        '''
+        dict_columns = {'Extra Column': 'Random', 'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+                'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
+                'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 'SAT Combined': '1350', 
+                'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
+        equalize_dictionary_columns(self.columns, dict_columns)
+
+        assert 'Extra Column' in dict_columns
+        assert dict_columns['Extra Column'] == 'Random'
         
 
 if __name__ == '__main__':
