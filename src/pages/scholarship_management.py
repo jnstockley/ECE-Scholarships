@@ -5,7 +5,7 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
 
 if 'n_groups' not in st.session_state:
     st.session_state.n_groups = 0
@@ -29,17 +29,8 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
-def equalize_dictionary_columns(columns, dict):
-    '''
-    This function takes a list of columns and a dictionary and if there are any columns
-    that are not present in the dictionary as a key it adds them and gives them the value of None
-    '''
-    for val in columns:
-        if val not in dict:
-            dict[val] = None
-    #This is not a necessary return statement but is kept for understanding
-    return dict
 
+#NOTE: NEED TO GO THROUGH AND MAKE SURE THAT I CHECK THE COLUMNS OF THE SCHOLARSHIP TO MAKE SURE THAT THE PREVIOUS VALUES GET A VALUE ADDED TO IT IF THEY DONT HAVE IT ALREADY.
 def display_create_dynamic():
     st.title('Create a New Scholarship')
     col_values = {}
