@@ -146,5 +146,20 @@ class ScholarshipManagementTest(unittest.TestCase):
         
         assert dict_columns == copy
 
+    def test_equalize_dictionary_columns_missing_column(self):
+        '''
+        Verify that it adds the column into the dictionary with a value  of 
+        none if it is missing from it
+        '''
+        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+                'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
+                'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 
+                'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
+        equalize_dictionary_columns(self.columns, dict_columns)
+        
+        assert 'SAT Combined' in dict_columns
+        assert dict_columns['SAT Combined'] == None
+        
+
 if __name__ == '__main__':
     unittest.main()
