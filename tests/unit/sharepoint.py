@@ -1,3 +1,6 @@
+"""
+Tests for SharePoint functions
+"""
 import os
 import unittest
 
@@ -8,7 +11,11 @@ from office365.sharepoint.client_context import ClientContext
 from src.utils.sharepoint import get_files, download, upload
 
 
+
 class SharepointTest(unittest.TestCase):
+    """
+    Unit test for SharePoint
+    """
 
     def setUp(self) -> None:
         """
@@ -41,11 +48,17 @@ class SharepointTest(unittest.TestCase):
         assert "/Team 2/test.xlsx" in files
 
     def test_download(self):
+        """
+        Test for `download`
+        """
         downloaded = download('/Team 2/test.xlsx', f'{os.getcwd()}/.app_data/', self.creds)
 
         assert downloaded
 
     def test_upload(self):
+        """
+        Test for `upload`
+        """
         uploaded = upload(f'{os.getcwd()}/tests/data/test.xlsx', '/Team 2/Test Directory', self.creds)
 
         assert uploaded
