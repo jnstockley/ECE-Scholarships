@@ -64,6 +64,8 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
             cookies = manager.get_all()
         except DuplicateWidgetID:
             pass
+        except RecursionError:
+            return False
         # Work around for caching not working with cookie manager
         if cookies == {}:
             return logged_in(manager)
