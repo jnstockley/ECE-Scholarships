@@ -34,8 +34,6 @@ def test_download_valid_file(page: Page):
 
     page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
 
-    time.sleep(15)
-
     file_download_dropdown = page.locator('//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div[1]/div/div[1]/div/div/div/div[1]')
 
     expect(file_download_dropdown).to_have_text("Select File")
@@ -46,16 +44,39 @@ def test_download_valid_file(page: Page):
 
     file.click()
 
+    file_name = file.text_content()
+
     download_button = page.get_by_role("button", name="Download File")
 
     expect(download_button).to_have_text("Download File")
 
     download_button.click()
 
-    # time.sleep(7)
+    success_message = page.locator('//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div[1]/div/div[3]')
 
-    success_message = page.get_by_text("Downloaded", exact=False)
+    expect(success_message).to_have_text(f"Downloaded {file_name}")
 
-    print(success_message.text_content())
 
-    expect(success_message).to_have_text(f"Downloaded {file.text_content()}")
+def test_download_invalid_file(page: Page):
+    page.goto("http://localhost:9000", wait_until='domcontentloaded')
+
+    time.sleep(2)
+
+    login(page)
+
+    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+
+    file_download_dropdown = page.locator(
+        '//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div[1]/div/div[1]/div/div/div/div[1]')
+
+    expect(file_download_dropdown).to_have_text("Select File")
+
+    download_button = page.get_by_role("button", name="Download File")
+
+    expect(download_button).to_have_text("Download File")
+
+    download_button.click()
+
+    error_message = page.locator('//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[5]/div[1]/div/div[3]/div/div')
+
+    expect(error_message).to_have_text("Invalid File Selected")
