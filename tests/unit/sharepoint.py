@@ -5,7 +5,7 @@ from dotenv import dotenv_values
 from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 
-from src.utils.sharepoint import get_files, download
+from src.utils.sharepoint import get_files, download, upload
 
 
 class SharepointTest(unittest.TestCase):
@@ -24,19 +24,18 @@ class SharepointTest(unittest.TestCase):
         hawk_id_password = config["HAWK_ID_PASSWORD"]
 
         # Valid Sharepoint URL
-        sharepoint_url = config["SHAREPOINT_URL"]
+        sharepoint_url = "https://iowa.sharepoint.com/sites/SEP2023-Team2/" # config["SHAREPOINT_URL"]
 
         self.creds: ClientContext = ClientContext(sharepoint_url).with_credentials(UserCredential(hawk_id,
                                                                                                   hawk_id_password))
+
+        self.web = self.creds.web.get().execute_query()
 
     def test_get_files(self):
         """
         Test for `get_files`
         """
-
         files = get_files(self.creds)
-
-        print(files)
 
         assert len(files) >= 4
         assert "/Team 2/test.xlsx" in files
@@ -47,7 +46,9 @@ class SharepointTest(unittest.TestCase):
         assert downloaded
 
     def test_upload(self):
-        pass
+        uploaded = upload(f'{os.getcwd()}/tests/data/test.xlsx', '/Team 2/Test Directory', self.creds)
+
+        assert uploaded
 
 
 if __name__ == "__main__":
