@@ -21,7 +21,7 @@ except:
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
-SCH_COLUMNS = scholarships.columns
+SCH_COLUMNS = scholarships.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                     'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
@@ -30,7 +30,6 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
 
-#NOTE: NEED TO GO THROUGH AND MAKE SURE THAT I CHECK THE COLUMNS OF THE SCHOLARSHIP TO MAKE SURE THAT THE PREVIOUS VALUES GET A VALUE ADDED TO IT IF THEY DONT HAVE IT ALREADY.
 def display_create_dynamic():
     st.title('Create a New Scholarship')
     col_values = {}
@@ -62,7 +61,13 @@ def display_create_dynamic():
             equalize_dictionary_columns(SCH_COLUMNS, col_values)
             # pd.Series creates a Panda object that can be appended to the scholarships dataframe.
             scholarship = pd.Series(col_values, name = scholarships.shape[0])
-            new_scholarships = scholarships.append(scholarship)
+            new_scholarships = pd.DataFrame({})
+            for i in range(scholarships.shape[0]):
+                dict_sch = scholarships.loc[i].to_dict()
+                equalize_dictionary_columns(SCH_COLUMNS, dict_sch)
+                updated_sch = pd.Series(dict_sch, name = i)
+                new_scholarships = new_scholarships.append(updated_sch)
+            new_scholarships = new_scholarships.append(scholarship)
             write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
             st.write(name + " has been successfully created.")
 
@@ -265,8 +270,7 @@ st.write("Select an Action from Below")
 with st.container():
     if button('Create New Scholarship', key='Create New Dynamic Scholarship'):
         display_create_dynamic()
-    # if button('Create New Scholarship', key='Create New Scholarship'):
-    #     display_create()
+        # display_create()
     elif button('Edit Existing Scholarship', key='Edit Existing Scholarship'):
         display_edit()
     elif button('Delete Existing Scholarship', key='Delete Existing Scholarship'):
