@@ -1,6 +1,7 @@
 '''
 Information Graph Rendering
 '''
+"""
 import math
 import streamlit as st
 import pandas as pd
@@ -52,3 +53,4 @@ st.markdown("Student Metrics")
 st.sidebar.markdown("Student Metrics")
 df = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=15)
 build_metrics_page(df)
+#"""
