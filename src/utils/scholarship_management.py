@@ -70,13 +70,13 @@ def check_columns_equal(old_columns, new_columns):
 
     return fail_columns, invalid_columns, missing_columns
 
-def equalize_dictionary_columns(columns, dict):
+def equalize_dictionary_columns(columns, dict_to_change):
     '''
     This function takes a list of columns and a dictionary and if there are any columns
     that are not present in the dictionary as a key it adds them and gives them the value of None
     '''
     for val in columns:
-        if val not in dict:
-            dict[val] = None
+        if val not in dict_to_change:
+            dict_to_change[val] = None
     # This is not a necessary return statement but is kept for understanding
-    return dict
+    return dict_to_change

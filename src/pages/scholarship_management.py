@@ -16,12 +16,12 @@ if 'n_groups' not in st.session_state:
 # now it will just create an empty file.
 try:
     scholarships = read_rows('tests/data/scholarships.xlsx')
-except:
+except FileNotFoundError:
     write_rows(pd.DataFrame({}), 'tests/data/scholarships.xlsx', 'Scholarships')
     scholarships = read_rows('tests/data/scholarships.xlsx')
 
 
-# Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors, 
+# Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors,
 # group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
 # NOTE: SCH_COLUMNS needs to be changed to grab the columns from the imported data so its actually dynamic
@@ -55,8 +55,8 @@ def display_create_dynamic():
         # #NOTE: If we use select_slider and not text_input, options needs to be found through the values currently in the imported data
         # chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
         # I think text_input might work better as they can just type in their number rather than needing to find the range
-        chosenVal = st.text_input('Enter the minimum ' + val + ' requirement')
-        col_values[val] = chosenVal
+        chosen_val = st.text_input('Enter the minimum ' + val + ' requirement')
+        col_values[val] = chosen_val
     # Every time the button is pressed we increment the group count and rerun the script
     if st.button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
         st.session_state.n_groups += 1
