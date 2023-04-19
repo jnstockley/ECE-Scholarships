@@ -131,19 +131,19 @@ class ScholarshipManagementTest(unittest.TestCase):
         assert fail_columns == 5
         assert invalid_columns == ['Bad Column', 'Random Column']
         assert missing_columns == ['Value', 'SAT Combined', 'Group Two']
-    
+
     def test_equalize_dictionary_columns_no_change(self):
         '''
         Verify that when the dictionary has all of the necessary values
         it does not change at all
         '''
-        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300',
                 'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
                 'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 'SAT Combined': '1350', 
                 'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
         copy = dict_columns.copy()
         equalize_dictionary_columns(self.columns, dict_columns)
-        
+
         assert dict_columns == copy
 
     def test_equalize_dictionary_columns_missing_column(self):
@@ -151,12 +151,12 @@ class ScholarshipManagementTest(unittest.TestCase):
         Verify that it adds the column into the dictionary with a value  of 
         none if it is missing from it
         '''
-        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+        dict_columns = {'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300',
                 'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
                 'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 
                 'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
         equalize_dictionary_columns(self.columns, dict_columns)
-        
+
         assert 'SAT Combined' in dict_columns
         assert dict_columns['SAT Combined'] == None
 
@@ -164,7 +164,7 @@ class ScholarshipManagementTest(unittest.TestCase):
         '''
         Verify that if there is an extra column in the dictionary it is not removed
         '''
-        dict_columns = {'Extra Column': 'Random', 'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300', 
+        dict_columns = {'Extra Column': 'Random', 'Name': 'Test', 'Total Amount': '100', 'Value': '1000', 'RAI': '300',
                 'Admit Score': '300', 'Major': 'CSE', 'ACT Math': '28', 'ACT English': '26',
                 'ACT Composite': '27', 'SAT Math': '750', 'SAT Reading': '600', 'SAT Combined': '1350', 
                 'GPA': '3.5', 'HS Percentile': '95', 'Group One': '[]', 'Group Two': '[]', 'Group Three': '[]'}
@@ -172,7 +172,7 @@ class ScholarshipManagementTest(unittest.TestCase):
 
         assert 'Extra Column' in dict_columns
         assert dict_columns['Extra Column'] == 'Random'
-        
+
 
 if __name__ == '__main__':
     unittest.main()
