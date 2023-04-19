@@ -7,6 +7,8 @@ import pandas as pd
 from src.utils.html import centered_text
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
 
+# This is for determining how many groups have been added to a scholarship
+# Needed because of experimental_rerun() call to allow as many groups as they want
 if 'n_groups' not in st.session_state:
     st.session_state.n_groups = 0
 
@@ -19,8 +21,10 @@ except:
     scholarships = read_rows('tests/data/scholarships.xlsx')
 
 
-# Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
+# Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors, 
+# group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
+# NOTE: SCH_COLUMNS needs to be changed to grab the columns from the imported data so its actually dynamic
 SCH_COLUMNS = scholarships.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
@@ -31,25 +35,33 @@ GROUP_HELP="""A requirement grouping groups the selected requirements so only on
 
 
 def display_create_dynamic():
+    '''
+    This function displays all of the associated view/actions for creating a scholarship
+    with dynamic columns and adding it to the scholarship file.
+    '''
     st.title('Create a New Scholarship')
     col_values = {}
+    # These 3 fields are always a necessity
     name = st.text_input("Scholarship Name", max_chars=500, placeholder="Enter Scholarship Name")
     total = st.text_input("Total amount of Scholarships", max_chars=8, placeholder="Enter Numerical Amount")
     value = st.text_input('The value of each individual Scholarship', max_chars=8, placeholder="Enter Numerical Amount")
     col_values['Name'] = name
     col_values['Total Amount'] = total
     col_values['Value'] = value
+    # Every time a value is selected in the criteria multiselect it gets a display
     dyn_columns = st.multiselect("Choose Relevant Criteria to this Scholarship", options=SCH_COLUMNS, help='''Every criteria you select
                                  will create a new enter field for you to put the relevant value in.''')
     for val in dyn_columns:
-        # #NOTE: options needs to be changed once real values are read in.
+        # #NOTE: If we use select_slider and not text_input, options needs to be found through the values currently in the imported data
         # chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
         # I think text_input might work better as they can just type in their number rather than needing to find the range
         chosenVal = st.text_input('Enter the minimum ' + val + ' requirement')
         col_values[val] = chosenVal
+    # Every time the button is pressed we increment the group count and rerun the script
     if st.button('Add a Requirement Grouping', key='Add a Requirement Grouping'):
         st.session_state.n_groups += 1
         st.experimental_rerun()
+    # Load as many groups equal to their button presses
     for i in range(st.session_state.n_groups):
         group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
@@ -58,15 +70,20 @@ def display_create_dynamic():
         if name == "" or total == "" or value == "":
             st.write("Please make sure all the fields are filled out.")
         else:
+            #col_values needs to have any missing columns set to None so it can be added
             equalize_dictionary_columns(SCH_COLUMNS, col_values)
             # pd.Series creates a Panda object that can be appended to the scholarships dataframe.
             scholarship = pd.Series(col_values, name = scholarships.shape[0])
+            # We need to go through all the previous scholarships and make sure if a column was added after
+            # they were added, we add that column to the scholarship and initialize it as None
             new_scholarships = pd.DataFrame({})
             for i in range(scholarships.shape[0]):
                 dict_sch = scholarships.loc[i].to_dict()
                 equalize_dictionary_columns(SCH_COLUMNS, dict_sch)
                 updated_sch = pd.Series(dict_sch, name = i)
+                # Append the new version of the scholarship (might be the same if no new columns) to our new dataframe
                 new_scholarships = new_scholarships.append(updated_sch)
+            # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
             write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
             st.write(name + " has been successfully created.")
