@@ -111,12 +111,22 @@ def display_edit_dynamic():
                                         will create a field with the current value prepopulated. If there is currently no value,
                                         it will render with no value in it.''')
             for col in dyn_columns:
-                # This is so that nan is not displayed in the fields when there is no value and it is instead blank
-                if not pd.isnull(values[col]):
-                    chosen_val = st.text_input('Edit ' + col, value=values[col])
+                # Groups need a multiselect so they are checked for by name as they are hardset to have "Group" at the beginning.
+                # Its necessary to check if the value is nan as it will error if you try to pass nan into default
+                if col[0:5] == "Group" and not pd.isnull(values[col]):
+                    chosen_val = st.multiselect('Edit ' + col, options=GROUP_OPTIONS, default=groups_string_to_list(values[col]), help=GROUP_HELP)
+                    chosen_val = str(chosen_val)
+                elif col[0:5] == "Group":
+                    chosen_val = st.multiselect('Edit ' + col, options=GROUP_OPTIONS, help=GROUP_HELP)
+                    chosen_val = str(chosen_val)
+                # This case handles all other values that aren't groups
                 else:
-                    chosen_val = st.text_input('Edit ' + col)
-                # Edit the row with the new value
+                # This is so that nan is not displayed in the fields when there is no value and it is instead blank
+                    if not pd.isnull(values[col]):
+                        chosen_val = st.text_input('Edit ' + col, value=values[col])
+                    else:
+                        chosen_val = st.text_input('Edit ' + col)
+                    # Edit the row with the new value
                 edit_row(scholarships, index, [(col, chosen_val)])
             if st.button('Finalize Changes', key='Finalize Changes'):
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
