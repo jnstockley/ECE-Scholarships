@@ -61,6 +61,20 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
     fig, axis = plt.subplots()
     var_xs = var_df[x_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
     var_ys = var_df[y_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
+    weighted_bins = np.zeros((len(var_xs),3))
+    for i in var_xs.index:
+        found = False
+        for j in range(weighted_bins.shape[0]):
+            if found:
+                continue
+            if weighted_bins[j][0] == 0 or (weighted_bins[j][0] == var_xs[i] and weighted_bins[j][1] == var_ys[i]):
+                weighted_bins[j][0] = var_xs[i]
+                weighted_bins[j][1] = var_ys[i]
+                weighted_bins[j][2] += 1
+                found = True
+    print(weighted_bins)
+
+
     plt.scatter(var_xs, var_ys)
     if highlights is not None:
         hxs = var_df.iloc[highlights][x_axis]
