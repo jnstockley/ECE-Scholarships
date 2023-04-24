@@ -72,10 +72,8 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
                 weighted_bins[j][1] = var_ys[i]
                 weighted_bins[j][2] += 1
                 found = True
-    print(weighted_bins)
     weighted_bins = weighted_bins[~np.all(weighted_bins == 0, axis=1)]
-    print(weighted_bins)
-    plt.scatter(var_xs, var_ys)
+    plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
     if highlights is not None:
         hxs = var_df.iloc[highlights][x_axis]
         hys = var_df.iloc[highlights][y_axis]
