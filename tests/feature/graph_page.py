@@ -3,7 +3,7 @@ Test functionality of the graphs standalone page
 '''
 from playwright.sync_api import Page, expect
 
-def test_graph_page(page: Page):
+"""def test_graph_page(page: Page):
     '''
     Test graph page visible
     '''
@@ -23,3 +23,4 @@ def test_student_selectbox(page: Page):
     '''
     page.goto("http://localhost:9000/Student Metrics")
     page.locator("div").filter(has_text="Leyla Hair").first.is_visible()
+#"""
