@@ -3,11 +3,11 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
+from utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 class ScholarshipManagementTest(unittest.TestCase):
     '''
-    Unit Tests for src.utils.scholarship_management
+    Unit Tests for utils.scholarship_management
     '''
     def setUp(self):
         self.scholarships = {'Name': ['Test Scholarship'], 'Total Amount': ['1000'], 'Value': ['2000'], 'RAI': ['315'],

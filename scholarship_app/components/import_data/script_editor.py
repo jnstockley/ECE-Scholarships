@@ -4,7 +4,7 @@ Script editor component used for the import page merge similar columns form.
 from streamlit_ace import st_ace
 import streamlit as st
 
-from src.managers.import_data.similar_columns import StatusMessage
+from managers.import_data.similar_columns import StatusMessage
 
 SCRIPT_DEFAULT_TEXT = """def merge(row):
     '''

@@ -4,8 +4,8 @@ scholarship managment page render
 import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
-from src.utils.html import centered_text
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
+from utils.html import centered_text
+from utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 # Global variables; majors contains all the majors, group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.

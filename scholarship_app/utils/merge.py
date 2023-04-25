@@ -3,7 +3,7 @@ Several merging functions needed for combining dataframes.
 '''
 import pandas as pd
 from fuzzywuzzy import fuzz
-from src.models.imported_sheet import ImportedSheet
+from models.imported_sheet import ImportedSheet
 
 def merge_with_alignment_columns(alignment_col_name: str, alignment_columns: list[str], new_alignment_col: pd.Series, sheets: list[ImportedSheet]) -> pd.DataFrame:
     '''

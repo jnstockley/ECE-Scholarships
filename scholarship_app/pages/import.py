@@ -23,12 +23,12 @@ aligned_dataframe : pd.Dataframe
     The combined dataframe along a single alignment column.
 '''
 import streamlit as st
-from src.managers.import_data.similar_columns import MergeSimilarDetails
-from src.utils.html import centered_text
-from src.utils import merge
-from src.sessions.import_session_manager import ImportSessionManager, View
-from src.managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
-from src.components.import_data.script_editor import render_script_expander
+from managers.import_data.similar_columns import MergeSimilarDetails
+from utils.html import centered_text
+from utils import merge
+from sessions.import_session_manager import ImportSessionManager, View
+from managers.import_data.alignment_settings import SelectAlignment, AlignmentManager
+from components.import_data.script_editor import render_script_expander
 
 # HELPERS AND FLOW MANAGEMENT
 SESSION = ImportSessionManager(st.session_state)

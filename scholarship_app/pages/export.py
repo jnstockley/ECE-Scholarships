@@ -2,8 +2,8 @@
 Export data page
 '''
 import streamlit as st
-from src.sessions.session_manager import SessionManager
-from src.utils.output import get_output_dir
+from sessions.session_manager import SessionManager
+from utils.output import get_output_dir
 
 SESSION = SessionManager(st.session_state, "single")
 

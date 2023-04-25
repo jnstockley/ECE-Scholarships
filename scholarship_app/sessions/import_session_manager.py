@@ -4,10 +4,10 @@ easier.
 '''
 from enum import Enum
 from streamlit.runtime.state import SessionStateProxy
-from src.sessions.session_manager import SessionManager
-from src.models.imported_sheet import ImportedSheet
-from src.managers.import_data.alignment_settings import AlignmentInfo
-from src.managers.import_data.similar_columns import MergeSimilarManager
+from sessions.session_manager import SessionManager
+from models.imported_sheet import ImportedSheet
+from managers.import_data.alignment_settings import AlignmentInfo
+from managers.import_data.similar_columns import MergeSimilarManager
 
 class Session(Enum):
     '''

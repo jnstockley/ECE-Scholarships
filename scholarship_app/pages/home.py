@@ -12,8 +12,8 @@ from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, G
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from src.utils.html import redirect
-from src.utils.sharepoint import logged_in
+from utils.html import redirect
+from utils.sharepoint import logged_in
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")

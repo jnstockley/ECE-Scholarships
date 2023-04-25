@@ -7,7 +7,7 @@ from typing import Callable
 import pandas as pd
 import numpy as np
 import streamlit as st
-from src.utils import merge
+from utils import merge
 
 # Desired similarity score
 SIMILARITY_SCORE = 60
