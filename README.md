@@ -1,6 +1,8 @@
 # Scholarship Applicant Review Utility
 A web application built with streamlit to streamline the College of Engineering's committee which assigns scholarships to applicants.
 
+**Note:** Many of the script commands you find throughout this README use the tool `poethepoet`, this can quickly be installed by running `pip install poethepoet`
+
 ## Running the Application
 To run the full application experience (including launcher)
 ```
