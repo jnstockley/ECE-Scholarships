@@ -4,8 +4,8 @@ Main application entry point.
 import pathlib
 import flet as ft
 
-import streamlit.web.bootstrap as bootstrap
-import launcher.app.home
+from streamlit.web import bootstrap
+from scholarship_app.launcher.app import home
 
 HERE = pathlib.Path(__file__).parent
 
@@ -16,10 +16,10 @@ def app():
     ft.app(target=home)
 
     bootstrap.run(
-        str(HERE.joinpath("app.py")),
+        str(HERE.joinpath("router.py")),
         command_line=None,
-        args=list(),
-        flag_options=dict(),
+        args=[],
+        flag_options={},
     )
 
 

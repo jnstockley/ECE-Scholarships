@@ -3,7 +3,7 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from utils import merge
+from scholarship_app.utils import merge
 
 class MergingDataframesTest(unittest.TestCase):
     '''

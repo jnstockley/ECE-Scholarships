@@ -2,8 +2,8 @@
 Export data page
 '''
 import streamlit as st
-from sessions.session_manager import SessionManager
-from utils.output import get_output_dir
+from scholarship_app.sessions.session_manager import SessionManager
+from scholarship_app.utils.output import get_output_dir
 
 SESSION = SessionManager(st.session_state, "single")
 

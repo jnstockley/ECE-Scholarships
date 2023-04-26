@@ -3,7 +3,7 @@ Utilities for merging dfs
 '''
 import unittest
 import pandas as pd
-from utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
+from scholarship_app.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal
 
 class ScholarshipManagementTest(unittest.TestCase):
     '''

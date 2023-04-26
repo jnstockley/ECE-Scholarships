@@ -5,8 +5,8 @@ import time
 
 import streamlit as st
 
-from utils.sharepoint import get_manager, logged_in
-from utils.html import redirect
+from scholarship_app.utils.sharepoint import get_manager, logged_in
+from scholarship_app.utils.html import redirect
 
 
 def login_form_func():

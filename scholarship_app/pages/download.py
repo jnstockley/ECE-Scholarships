@@ -6,8 +6,8 @@ import time
 
 import streamlit as st
 
-from utils.html import redirect
-from utils.sharepoint import login, get_files, download, logged_in
+from scholarship_app.utils.html import redirect
+from scholarship_app.utils.sharepoint import login, get_files, download, logged_in
 
 
 def files_dropdown():

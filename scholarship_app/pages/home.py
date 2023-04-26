@@ -1,9 +1,6 @@
 '''
 Home: Primary page for viewing student data, leaving reviews, and exporting selections
 '''
-
-# Importing packages
-# Packages used in code
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -12,8 +9,8 @@ from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, G
 import matplotlib.pyplot as plt
 from matplotlib import cm
 
-from utils.html import redirect
-from utils.sharepoint import logged_in
+from scholarship_app.utils.html import redirect
+from scholarship_app.utils.sharepoint import logged_in
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")

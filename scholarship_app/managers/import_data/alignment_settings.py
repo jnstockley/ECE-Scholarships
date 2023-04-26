@@ -3,8 +3,8 @@ General objects for the alignment column UI logic.
 '''
 import dataclasses
 import pandas as pd
-from utils import merge
-from models.imported_sheet import ImportedSheet
+from scholarship_app.utils import merge
+from scholarship_app.models.imported_sheet import ImportedSheet
 
 class SelectAlignment:
     '''

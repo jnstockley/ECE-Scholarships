@@ -7,8 +7,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 
-
-
 def create_fig(data, data_title, highlight=None):
     '''
     Function to create pyplot figure based on input data,
