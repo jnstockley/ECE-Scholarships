@@ -6,6 +6,12 @@ authors = ["Brandon Egger <brandonegger64@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 
+[tool.poe.tasks]
+run = "poetry run streamlit run scholarship_app/app.py"
+test-e2e = "sh scripts/playwright.sh"
+test-unit = "sh scripts/pyunit.sh"
+test = "sh scripts/test.sh"
+
 [tool.poetry.dependencies]
 python = "^3.10"
 streamlit = "^1.17.0"
