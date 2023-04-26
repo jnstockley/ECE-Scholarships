@@ -30,6 +30,7 @@ python-dotenv = "^1.0.0"
 python-levenshtein = "^0.20.9"
 xlwt = "^1.3.0"
 streamlit-ace = "^0.1.1"
+flet = "^0.5.2"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.1"
