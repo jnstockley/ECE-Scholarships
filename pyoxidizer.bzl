@@ -30,14 +30,20 @@ def make_exe():
 
     return exe
 
-
 def make_install(exe):
     files = FileManifest()
     files.add_python_resource(".", exe)
     files.install("dist", replace=True)
 
-    return files
+    bundle_builder = MacOsApplicationBundleBuilder('uiowa-scholarship-tool')
+    bundle_builder.add_manifest(files)
+    bundle_builder.set_info_plist_required_keys('scholarship', 'edu.uiowa.engineering.scholarship_app', '1.0', 'usat', 'uiowa-scholarship-tool')
+    bundle_builder.build("dist")
+    bundle_builder.write_to_directory("dist")
 
+    apple_binary = AppleUniversalBinary('scholarship')
+
+    return files
 
 register_target("exe", make_exe)
 register_target(
