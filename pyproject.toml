@@ -7,7 +7,7 @@ license = "MIT"
 readme = "README.md"
 
 [tool.poe.tasks]
-run = "poetry run streamlit run scholarship_app/app.py"
+run-server = "poetry run streamlit run scholarship_app/router.py"
 test-e2e = "sh scripts/playwright.sh"
 test-unit = "sh scripts/pyunit.sh"
 test = "sh scripts/test.sh"
