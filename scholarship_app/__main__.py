@@ -13,13 +13,25 @@
 # limitations under the License.
 
 import pathlib
+import flet as ft
 
 import streamlit.web.bootstrap as bootstrap
 
 HERE = pathlib.Path(__file__).parent
 
+def flet_app(page: ft.Page):
+    def add_clicked(_e):
+        page.add(ft.Checkbox(label=new_task.value))
+        new_task.value = ""
+        page.update()
+
+    new_task = ft.TextField(hint_text="Whats needs to be done?")
+
+    page.add(new_task, ft.FloatingActionButton(icon=ft.icons.ADD, on_click=add_clicked))
 
 def app():
+    ft.app(target=flet_app)
+
     bootstrap.run(
         str(HERE.joinpath("app.py")),
         command_line=None,
