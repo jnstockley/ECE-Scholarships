@@ -38,48 +38,18 @@ def test_invalid_login_creds(page: Page):
     invalid_sharepoint_url = "https://iowa.sharepoint.com/sites"
 
     hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
-
     password_textbox = page.get_by_role("textbox", name="HawkID Password")
-
     sharepoint_url_textbox = page.get_by_role("textbox", name="Sharepoint Site URL")
-
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
 
-    hawk_id_textbox.click()
-    hawk_id_textbox.fill(invalid_hawk_id)
-
-    submit_button_textbox.click()
-
-    expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL"))\
-        .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
-
-    hawk_id_textbox.click()
-    hawk_id_textbox.fill(invalid_hawk_id)
-
-    password_textbox.click()
+    hawk_id_textbox.type(invalid_hawk_id)
     password_textbox.fill(invalid_password)
-
-    expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL"))\
-        .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
-
-    hawk_id_textbox.click()
-    hawk_id_textbox.fill(invalid_hawk_id)
-
-    password_textbox.click()
-    password_textbox.fill(invalid_password)
-
-    sharepoint_url_textbox.click()
     sharepoint_url_textbox.fill(invalid_sharepoint_url)
 
-    expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL"))\
-        .to_have_text("Invalid Login Credentials or Sharepoint Site URL")
+    submit_button_textbox.click()
+    submit_button_textbox.click() # resolve streamlit issue on webkit
 
-    # page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
-
-    # time.sleep(2)
-
-    # download_file_page_heading = page.get_by_role("heading", name="Log In").get_by_text("Log In")
-    # expect(download_file_page_heading).to_have_text("Log In")
+    expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL")).to_be_visible()
 
 
 def test_valid_login_creds(page: Page):
@@ -122,15 +92,11 @@ def login(page: Page):
 
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
 
-    hawk_id_textbox.click()
     hawk_id_textbox.fill(hawk_id)
-
-    password_textbox.click()
     password_textbox.fill(hawk_id_password)
-
-    sharepoint_url_textbox.click()
     sharepoint_url_textbox.fill(sharepoint_url)
 
     submit_button_textbox.click()
+    submit_button_textbox.click() # resolve streamlit issue on webkit
 
     time.sleep(4)

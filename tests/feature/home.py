@@ -1,7 +1,6 @@
 """
 Tests that the home page exists, and respects user sign in
 """
-
 from playwright.sync_api import Page, expect
 
 from tests.feature.login import login
@@ -25,7 +24,6 @@ def test_home_page_not_logged_in(page: Page):
 
     page_title = page.get_by_role("heading")
     expect(page_title).to_have_text("Log In")
-
 
 def test_home_page_logged_in(page: Page):
     """
