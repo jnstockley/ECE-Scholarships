@@ -7,6 +7,8 @@ import re
 import pytest
 from playwright.sync_api import Page, expect
 
+from tests.feature.utils.loading import wait_for_streamlit_loading_complete
+
 ABSOLUTE_PATH = os.path.dirname(__file__)
 SAMPLE_FILE_PATHS = [os.path.join(ABSOLUTE_PATH, '../../data/ece_scholarship_applicants.xlsx'), os.path.join(ABSOLUTE_PATH, '../../data/ece_school_applicants.xlsx')]
 
@@ -61,6 +63,7 @@ def handle_similar_columns(page: Page, press_option:str = "skip"):
     remaining_count = int(remaining_label.inner_text().replace(" remaining...", ""))
     # Keep clicking skip until we have reached the end
     for i in range(remaining_count + 1, -1, -1):
+        wait_for_streamlit_loading_complete(page)
         page.get_by_role("button", name=press_option).click()
         if not i == 0:
             # Click the upcomming remaining index as a quick method to tell when streamlit has finished re-rendering the page
