@@ -12,6 +12,7 @@ import numpy as np
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import time
 
 from src.utils.html import redirect
 from src.utils.sharepoint import logged_in, download, upload, login
@@ -26,28 +27,37 @@ cookie = logged_in()
 if not cookie:
    redirect("/Log In")
 
-with st.spinner("Loading Data from Sharepoint..."):
+@st.cache_data
+def download_data():
+
+    with st.spinner("Loading Data from Sharepoint..."):
+        
+        creds = login(cookie)
+
+        hawk_id = cookie.get('cred')['hawk-id']
+
+        download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
+        download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
+        try:
+            download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
+        except:
+            new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
+            new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
+            upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
+ 
+        return creds, hawk_id
     
-    creds = login(cookie)
+creds, hawk_id = download_data()
 
-    hawk_id = cookie.get('cred')['hawk-id']
+ # Importing data
+students = pd.read_excel("./data/Master_Sheet.xlsx")
+scholarships = pd.read_excel("./data/Scholarships.xlsx")
+user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
 
-    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
-    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
-    try:
-        download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
-    except:
-        new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-        new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
+# Creating main dataframe
+students.insert(0, 'Select All', None)
 
-    # Importing data
-    students = pd.read_excel("./data/Master_Sheet.xlsx")
-    scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
-
-    # Creating main dataframe
-    students.insert(0, 'Select All', None)
+st.write(user_recommendations)
 
 # Helper functions for JavaScript
 js = JsCode("""
@@ -149,7 +159,8 @@ def submit_recommendations(user_recommendations, recommended_scholarship, rating
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
     user_recommendations = user_recommendations.append(new_recommendations)
-    user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False) # Need to change this to upload to sharepoint
+    user_recommendations.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
+    upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
     return True, None
 
 
@@ -170,6 +181,8 @@ with st.container():
                     submit_recommendation = st.form_submit_button("Submit Recommendation")
                     if submit_recommendation:
                         result, errorMessage = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
+                        with st.spinner('Uploading Reviews'):
+                            time.sleep(3)
                         if result is True:
                             st.success("Successfuly submitted recommendations!")
                         else:
