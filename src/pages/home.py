@@ -82,6 +82,28 @@ js = JsCode("""
      });    
  }
  """)
+jscode = JsCode("""
+            function(params) {
+                if (params.data.review === 'yes') {
+                    return {
+                        'color': 'white',
+                        'backgroundColor': 'green'
+                    }
+                }
+                if (params.data.review === 'no') {
+                    return {
+                        'color': 'white',
+                        'backgroundColor': 'red'
+                    }
+                }
+                if (params.data.review === 'maybe') {
+                    return {
+                        'color': 'white',
+                        'backgroundColor': 'yellow'
+                    }
+                }
+            };
+            """)
 CLEARJS = '''<script>
      ((e) => {
         const iframe = window.parent.document.querySelectorAll('[title="st_aggrid.agGrid"]')[0] || null;
@@ -134,6 +156,7 @@ gd.configure_grid_options(onFirstDataRendered=js)
 gd.configure_column("Describe any relevant life experience related to engineering. ",
                     onCellClicked=JsCode("function(params) { alert(params.node.data['Describe any relevant life experience related to engineering. ']); };"))
 gridoptions = gd.build()
+gridoptions['getRowStyle'] = jscode
 
 # Option to add custom css if want to change styling, right now using default theme
 custom_css = {}
