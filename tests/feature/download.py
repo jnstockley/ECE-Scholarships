@@ -1,19 +1,15 @@
 """
 Feature test for downloading files from SharePoint
 """
-import time
-
+import pytest
 from playwright.sync_api import Page, expect
 
-from tests.feature import hawk_id_login
 
-
+@pytest.mark.usefixtures("login_user")
 def test_download_page(page: Page):
     """
     Tests that the download page exists, and has the correct title
     """
-    hawk_id_login(page)
-
     download_page_link = page.get_by_role("link", name="Download File")
 
     expect(download_page_link).to_have_text("Download File")
@@ -24,12 +20,11 @@ def test_download_page(page: Page):
     expect(download_page_heading).to_have_text("Download A File")
 
 
+@pytest.mark.usefixtures("login_user")
 def test_download_valid_file(page: Page):
     """
     Tests downloading a valid file from SharePoint
     """
-    hawk_id_login(page)
-
     page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
 
     page.wait_for_load_state("networkidle")
@@ -60,12 +55,11 @@ def test_download_valid_file(page: Page):
     expect(success_message).to_be_visible()
 
 
+@pytest.mark.usefixtures("login_user")
 def test_download_invalid_file(page: Page):
     """
     Tests downloading a valid file from SharePoint
     """
-    hawk_id_login(page)
-
     page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
 
     page.wait_for_load_state("networkidle")
