@@ -193,13 +193,22 @@ with st.container():
                     rating = st.selectbox("Would you recommend these students for this scholarship?", ['Yes', 'No', 'Maybe'])
                     additional_feedback = st.text_area("Enter any additional feedback on students")
                     submit_recommendation = st.form_submit_button("Submit Recommendation")
+                    if 'review_success' in st.session_state:
+                        if st.session_state.review_success == 'success':
+                            st.success("Successfuly submitted recommendations!")
+                        if st.session_state.review_success == 'error':
+                            st.error(st.session_state.review_result)
                     if submit_recommendation:
                         success, result = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
                         if success is True:
                             st.session_state.user_recommendations = result
-                            st.success("Successfuly submitted recommendations!")
+                            st.session_state.review_success = 'success'
+                            st.experimental_rerun()
                         else:
-                            st.error(result)
+                            st.session_state.review_success = 'error'
+                            st.session_state.review_result = result
+                            st.experimental_rerun()
+
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Students"):
