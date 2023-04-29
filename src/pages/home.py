@@ -44,6 +44,8 @@ with st.spinner("Loading Data from Sharepoint..."):
     # Creating main dataframe
     students.insert(0, 'Select All', None)
 
+st.write(cookie.get("cred")["hawk-id"])
+
 # Helper functions for JavaScript
 js = JsCode("""
  function(event) {
