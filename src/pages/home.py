@@ -39,7 +39,7 @@ with st.spinner("Loading Data from Sharepoint..."):
     except:
         new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
         new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', creds)
+        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), f'/data/{hawk_id}_Reviews.xlsx', creds)
 
     # Importing data
     students = pd.read_excel("./data/Master_Sheet.xlsx")
