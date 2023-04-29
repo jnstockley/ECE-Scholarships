@@ -4,6 +4,7 @@ Login Feature Test
 import pytest
 from playwright.sync_api import Page, expect
 
+
 def test_login_page(page: Page):
     """
     Tests that the login page exists, and has the correct title
@@ -46,6 +47,7 @@ def test_invalid_login_creds(page: Page):
     submit_button_textbox.click(delay=500)
 
     expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL")).to_be_visible()
+
 
 @pytest.mark.usefixtures("login_user")
 def test_valid_login_creds(page: Page):
