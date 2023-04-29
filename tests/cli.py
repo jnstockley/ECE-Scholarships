@@ -14,7 +14,7 @@ if 'BROWSER' not in CONFIG:
 
 CMD = {
     'STREAMLIT_RUN': 'streamlit run main.py --client.showErrorDetails false --server.port 9000 --server.headless true',
-    'PLAYWRIGHT': f"pytest ./tests/feature/*s.py --browser {CONFIG['BROWSER']} --tracing retain-on-failure",
+    'PLAYWRIGHT': f"pytest ./tests/feature/*.py --browser {CONFIG['BROWSER']} --tracing retain-on-failure",
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'
 }
