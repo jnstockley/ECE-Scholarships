@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in, download, upload, login, get_manager
+from src.utils.sharepoint import logged_in, download, upload, login
 from src.utils.scholarship_management import edit_row
 
 # Default setting for Streamlit page
@@ -97,7 +97,7 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
 
 
 # Filter selection (Will want to implement this once we have example filters)
-current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], scholarships["Name"].values))
+current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
 # Configuring options for table functionality
 gd = GridOptionsBuilder.from_dataframe(students)
@@ -161,16 +161,19 @@ with st.container():
     # Submitting recommendations for scholarhsips
     with col1:
         with st.expander("Review Selected Students"):
-            with st.form("recommendation_form"):
-                recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", scholarships.Name)
-                additional_feedback = st.text_area("Enter any additional feedback on students")
-                submit_recommendation = st.form_submit_button("Submit Recommendation")
-                if submit_recommendation:
-                    result, errorMessage = submit_recommendations(recommended_scholarship, additional_feedback)
-                    if result is True:
-                        st.success("Successfuly submitted recommendations!")
-                    else:
-                        st.error(errorMessage)
+            if current_scholarship == "None":
+                st.error('Must Select a Scholarship to Review For')
+            else: 
+                with st.form("recommendation_form"):
+                    st.write(f'Review for Scholarship: {current_scholarship}')
+                    additional_feedback = st.text_area("Enter any additional feedback on students")
+                    submit_recommendation = st.form_submit_button("Submit Recommendation")
+                    if submit_recommendation:
+                        result, errorMessage = submit_recommendations(current_scholarship, additional_feedback)
+                        if result is True:
+                            st.success("Successfuly submitted recommendations!")
+                        else:
+                            st.error(errorMessage)
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Students"):
