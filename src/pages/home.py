@@ -4,6 +4,7 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 
 # Importing packages
 # Packages used in code
+import os
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -13,24 +14,35 @@ import matplotlib.pyplot as plt
 from matplotlib import cm
 
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in
+from src.utils.sharepoint import logged_in, download, upload, login, get_manager
+from src.utils.scholarship_management import edit_row
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
 
-if not logged_in():
-    redirect("/Log In")
+# Log in protecting the home page
+cookie = logged_in()
 
-# Importing data
-global STUDENTS
-global SCHOLARSHIPS
-global USER_RECOMMENDATIONS
-STUDENTS = pd.read_excel("./tests/data/ece_scholarship_applicants.xlsx", nrows=100)
-SCHOLARSHIPS = pd.read_excel("./tests/data/scholarships.xlsx")
-USER_RECOMMENDATIONS = pd.read_excel("./tests/data/Test_User_Reviews.xlsx")
+if not cookie:
+   redirect("/Log In")
 
-# Creating main dataframe
-STUDENTS.insert(0, 'Select All', None)
+with st.spinner("Loading Data from Sharepoint..."):
+    
+    creds = login(cookie)
+
+    download('/Team 2/Test Directory/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
+    download('/Team 2/Test Directory/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
+    #download(f'/Team 2/Test Directory/{}_reviews.xlsx', f"{os.getcwd()}/data/", creds)
+
+    # Importing data
+    # copy what Jack's download is doing
+    # and then point these to the data folder that gets created
+    students = pd.read_excel("./data/Master_Sheet.xlsx")
+    scholarships = pd.read_excel("./data/Scholarships.xlsx")
+    #user_reccomendations = pd.read_excel("./data/Test_User_Reviews.xlsx")
+
+    # Creating main dataframe
+    students.insert(0, 'Select All', None)
 
 # Helper functions for JavaScript
 js = JsCode("""
@@ -80,10 +92,10 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
 
 
 # Filter selection (Will want to implement this once we have example filters)
-current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], SCHOLARSHIPS["Name"].values))
+current_filter = st.selectbox("Which scholarship criteria woudld you like to filter by?", np.append(["None"], scholarships["Name"].values))
 
 # Configuring options for table functionality
-gd = GridOptionsBuilder.from_dataframe(STUDENTS)
+gd = GridOptionsBuilder.from_dataframe(students)
 gd.configure_pagination(enabled=True) #Add pagination
 gd.configure_side_bar() #Add a sidebar
 gd.configure_default_column(editable=False, groupable=True)
@@ -99,7 +111,7 @@ custom_css = {}
 
 # Building the table
 grid_table = AgGrid(
-    STUDENTS,
+    students,
     gridOptions=gridoptions,
     theme='balham',
     custom_css=custom_css,
@@ -121,20 +133,19 @@ if st.button("Clear Selection"):
 # Helper function used for processing the scholarship recommendations
 def submit_recommendations(recommended_scholarship_input, additional_feedback_input):
     """Solving pylint error"""
-    global USER_RECOMMENDATIONS
     if len(grid_table["selected_rows"]) == 0:
         return False, "Must select students to recommend"
     sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
     new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
     for uid in sel_uids:
         new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship_input, "Additional Feedback": additional_feedback_input}
-        if len(USER_RECOMMENDATIONS.loc[(USER_RECOMMENDATIONS['UID'] == uid) & (USER_RECOMMENDATIONS['Scholarship'] == recommended_scholarship)]) > 0:
+        if len(user_reccomendations.loc[(user_reccomendations['UID'] == uid) & (user_reccomendations['Scholarship'] == recommended_scholarship)]) > 0:
             return False, str("Already recommended student " + str(uid) + " for this scholarship")
         # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
-    USER_RECOMMENDATIONS = USER_RECOMMENDATIONS.append(new_recommendations)
-    USER_RECOMMENDATIONS.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
+    user_reccomendations = user_reccomendations.append(new_recommendations)
+    user_reccomendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
     return True, None
 
 
@@ -146,7 +157,7 @@ with st.container():
     with col1:
         with st.expander("Review Selected Students"):
             with st.form("recommendation_form"):
-                recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", SCHOLARSHIPS.Name)
+                recommended_scholarship = st.selectbox("Select Scholarship to Recommend Students For:", scholarships.Name)
                 additional_feedback = st.text_area("Enter any additional feedback on students")
                 submit_recommendation = st.form_submit_button("Submit Recommendation")
                 if submit_recommendation:
@@ -159,7 +170,7 @@ with st.container():
     with col2:
         with st.expander("See Distribution of Students"):
             with st.container():
-                numeric_cols = STUDENTS.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+                numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
                 numeric_cols = numeric_cols.loc[numeric_cols == True]
                 numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
                 numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
@@ -167,6 +178,6 @@ with st.container():
                 fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
                 sel_rows = grid_table["selected_rows"]
                 sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
+                dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
