@@ -3,7 +3,7 @@ Scholarship management tests
 """
 from playwright.sync_api import Page, expect
 
-from tests.feature import login
+from tests.feature import hawk_id_login
 
 
 # TESTS:
@@ -12,7 +12,7 @@ def test_scholarship_page(page: Page):
     As a user I should be able to find and navigate to
     the scholarship management page
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000")
     scholarship_link = page.get_by_role("link", name="Scholarship Management")
@@ -32,7 +32,7 @@ def test_create_button(page: Page):
     """
     As a user I should be able to create a new scholarship.
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000/Scholarship%20Management")
     create_btn = page.get_by_role("button", name="Create New Scholarship")
@@ -48,7 +48,7 @@ def test_edit_button(page: Page):
     """
     As a user I should be able to edit a preexisting scholarship.
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000/Scholarship%20Management")
     edit_btn = page.get_by_role("button", name="Edit Existing Scholarship")
@@ -64,7 +64,7 @@ def test_delete_button(page: Page):
     """
     As a user I should be able to delete a preexisting scholarship.
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000/Scholarship%20Management")
     delete_btn = page.get_by_role("button", name="Delete Existing Scholarship")
@@ -81,7 +81,7 @@ def test_edit_scholarship(page: Page):
     As a user so that edit preexisting scholarships,
     I would like to be able to go through a series of steps to edit a scholarship
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 
@@ -97,7 +97,7 @@ def test_import_page(page: Page):
     As a user I should be able to see the import data section
     of scholarship management
     """
-    login(page)
+    hawk_id_login(page)
 
     page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
 

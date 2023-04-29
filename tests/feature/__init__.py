@@ -7,11 +7,10 @@ from dotenv import dotenv_values
 from playwright.sync_api import Page
 
 
-def login(page: Page):
+def hawk_id_login(page: Page):
     """
     Login Function
     """
-
     config = dotenv_values(".env")
 
     # Valid Hawk ID
@@ -47,7 +46,6 @@ def login(page: Page):
     sharepoint_url_textbox.fill(sharepoint_url)
 
     submit_button_textbox.click()
-    # submit_button_textbox.click()
 
     page.wait_for_load_state("networkidle")
 
