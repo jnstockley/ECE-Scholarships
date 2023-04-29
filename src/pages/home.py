@@ -30,9 +30,11 @@ with st.spinner("Loading Data from Sharepoint..."):
     
     creds = login(cookie)
 
+    hawk_id = cookie.get('cred')['hawk-id']
+
     download('/Team 2/Test Directory/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
     download('/Team 2/Test Directory/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
-    #download(f'/Team 2/Test Directory/{}_reviews.xlsx', f"{os.getcwd()}/data/", creds)
+    download(f'/Team 2/Test Directory/{hawk_id}_reviews.xlsx', f"{os.getcwd()}/data/", creds)
 
     # Importing data
     # copy what Jack's download is doing
@@ -43,8 +45,6 @@ with st.spinner("Loading Data from Sharepoint..."):
 
     # Creating main dataframe
     students.insert(0, 'Select All', None)
-
-st.write(cookie.get("cred")["hawk-id"])
 
 # Helper functions for JavaScript
 js = JsCode("""
