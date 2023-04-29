@@ -10,6 +10,10 @@ def test_download_page(page: Page):
     """
     Tests that the download page exists, and has the correct title
     """
+    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+
+    page.wait_for_load_state("networkidle")
+
     download_page_link = page.get_by_role("link", name="Download File")
 
     expect(download_page_link).to_have_text("Download File")
@@ -30,17 +34,12 @@ def test_download_valid_file(page: Page):
     page.wait_for_load_state("networkidle")
 
     file_download_dropdown = page.get_by_text("Select File")
-    # page.locator('//*[@id="root"]/div[1]/div[1]/div/div/div/section[2]/div[1]/div[1]/div/div[3]/div[1]/div/div[1]/div/div/div/div[1]')
-
-    # expect(file_download_dropdown).to_have_text("Select File")
 
     file_download_dropdown.click()
 
     file = page.locator('//*[@id="bui8__anchor"]/div/div')
 
     file.click()
-
-    # file_name = file.text_content()
 
     download_button = page.get_by_role("button", name="Download File")
 
