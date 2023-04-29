@@ -17,11 +17,13 @@ def login_user(page: Page) -> Page:
     """
     Logins in a valid user account to the test session.
     """
-    page.goto("http://localhost:9000")
+    page.goto("http://localhost:9000", wait_until='domcontentloaded')
 
     page.wait_for_load_state("networkidle")
 
-    page.goto("http://localhost:9000/Log%20In")
+    page.goto("http://localhost:9000/Log%20In", wait_until='domcontentloaded')
+
+    page.wait_for_load_state("networkidle")
 
     hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
 
@@ -39,6 +41,6 @@ def login_user(page: Page) -> Page:
     # submit_button_textbox.click() # resolve streamlit issue on webkit
 
     page.wait_for_load_state("networkidle")
-    time.sleep(4)
+    # time.sleep(4)
 
     return page

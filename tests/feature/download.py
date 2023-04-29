@@ -20,6 +20,8 @@ def test_download_page(page: Page):
 
     download_page_link.click()
 
+    page.wait_for_load_state("networkidle")
+
     download_page_heading = page.get_by_role("heading", name="Download A File")
     expect(download_page_heading).to_have_text("Download A File")
 
@@ -37,9 +39,13 @@ def test_download_valid_file(page: Page):
 
     file_download_dropdown.click()
 
+    page.wait_for_load_state("networkidle")
+
     file = page.locator('//*[@id="bui8__anchor"]/div/div')
 
     file.click()
+
+    page.wait_for_load_state("networkidle")
 
     download_button = page.get_by_role("button", name="Download File")
 
