@@ -37,14 +37,14 @@ with st.spinner("Loading Data from Sharepoint..."):
     try:
         download(f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
     except:
-        new_file = pd.DataFrame()
+        new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
         new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
         upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', creds)
 
     # Importing data
     students = pd.read_excel("./data/Master_Sheet.xlsx")
     scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    user_reccomendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
+    user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
 
     # Creating main dataframe
     students.insert(0, 'Select All', None)
@@ -136,21 +136,20 @@ if st.button("Clear Selection"):
 # sel_rows = grid_table["selected_rows"]
 
 # Helper function used for processing the scholarship recommendations
-def submit_recommendations(recommended_scholarship_input, additional_feedback_input):
-    """Solving pylint error"""
+def submit_recommendations(user_recommendations, recommended_scholarship, rating, additional_feedback):
     if len(grid_table["selected_rows"]) == 0:
         return False, "Must select students to recommend"
     sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
-    new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Additional Feedback'])
+    new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
     for uid in sel_uids:
-        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship_input, "Additional Feedback": additional_feedback_input}
-        if len(user_reccomendations.loc[(user_reccomendations['UID'] == uid) & (user_reccomendations['Scholarship'] == recommended_scholarship)]) > 0:
-            return False, str("Already recommended student " + str(uid) + " for this scholarship")
+        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Rating": rating, "Additional Feedback": additional_feedback}
+        if len(user_recommendations.loc[(user_recommendations['UID'] == uid) & (user_recommendations['Scholarship'] == recommended_scholarship)]) > 0:
+            return False, str("Already reviewed student " + str(uid) + " for this scholarship")
         # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
-    user_reccomendations = user_reccomendations.append(new_recommendations)
-    user_reccomendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False)
+    user_recommendations = user_recommendations.append(new_recommendations)
+    user_recommendations.to_excel('./tests/data/Test_User_Reviews.xlsx', index = False) # Need to change this to upload to sharepoint
     return True, None
 
 
@@ -166,10 +165,11 @@ with st.container():
             else: 
                 with st.form("recommendation_form"):
                     st.write(f'Review for Scholarship: {current_scholarship}')
+                    rating = st.selectbox("Would you recommend these students for this scholarship?", ['Yes', 'No', 'Maybe'])
                     additional_feedback = st.text_area("Enter any additional feedback on students")
                     submit_recommendation = st.form_submit_button("Submit Recommendation")
                     if submit_recommendation:
-                        result, errorMessage = submit_recommendations(current_scholarship, additional_feedback)
+                        result, errorMessage = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
                         if result is True:
                             st.success("Successfuly submitted recommendations!")
                         else:
