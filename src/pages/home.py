@@ -32,14 +32,14 @@ with st.spinner("Loading Data from Sharepoint..."):
 
     hawk_id = cookie.get('cred')['hawk-id']
 
-    download('/Team 2/Test Directory/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
-    download('/Team 2/Test Directory/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
+    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
+    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
     try:
-        download(f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
+        download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
     except:
         new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
         new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), f'/data/{hawk_id}_Reviews.xlsx', creds)
+        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
 
     # Importing data
     students = pd.read_excel("./data/Master_Sheet.xlsx")
