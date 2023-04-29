@@ -52,8 +52,6 @@ creds, hawk_id = download_data()
 if 'students' not in st.session_state:
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
     students = st.session_state.students
-    # Creating main dataframe
-    students.insert(0, 'Select All', None)
 else: 
     students = st.session_state.students
 
@@ -68,10 +66,6 @@ if 'user_recommendations' not in st.session_state:
     user_recommendations = st.session_state.user_recommendations
 else: 
     user_recommendations = st.session_state.user_recommendations
-
-
-
-st.write(user_recommendations)
 
 # Helper functions for JavaScript
 js = JsCode("""
@@ -145,8 +139,28 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
 # Filter selection (Will want to implement this once we have example filters)
 current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
+current_data = students
+if current_scholarship != "None": 
+    # Filter with it and add reviews
+    current_data_reviews = []
+    for index, row in current_data.iterrows():
+        student_recommendation = user_recommendations.loc[(user_recommendations['UID'] == row['UID']) & (user_recommendations['Scholarship'] == current_scholarship)]
+        if len(student_recommendation) > 0:
+            current_data_reviews.append(student_recommendation['Rating'].iloc[0])
+        else:
+            current_data_reviews.append('N/A')
+    st.write(current_data_reviews)
+        # if uid is same and scholarship is same we add the review, otherwise add N/A
+    #current_data.assign(Review=)
+
+    
+# Might need this later, can't tell how its already there unless session state storage .insert(0, 'Select All', None)
+
+# Apply the filter of scholarship and merge the reviews
+
+
 # Configuring options for table functionality
-gd = GridOptionsBuilder.from_dataframe(students)
+gd = GridOptionsBuilder.from_dataframe(current_data)
 gd.configure_pagination(enabled=True) #Add pagination
 gd.configure_side_bar() #Add a sidebar
 gd.configure_default_column(editable=False, groupable=True)
@@ -163,7 +177,7 @@ custom_css = {}
 
 # Building the table
 grid_table = AgGrid(
-    students,
+    current_data,
     gridOptions=gridoptions,
     theme='balham',
     custom_css=custom_css,
