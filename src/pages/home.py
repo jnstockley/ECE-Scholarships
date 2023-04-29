@@ -34,11 +34,14 @@ with st.spinner("Loading Data from Sharepoint..."):
 
     download('/Team 2/Test Directory/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
     download('/Team 2/Test Directory/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
-    download(f'/Team 2/Test Directory/{hawk_id}_reviews.xlsx', f"{os.getcwd()}/data/", creds)
+    try:
+        download(f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
+    except:
+        new_file = pd.DataFrame()
+        new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
+        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), f'/Team 2/Test Directory/{hawk_id}_Reviews.xlsx', creds)
 
     # Importing data
-    # copy what Jack's download is doing
-    # and then point these to the data folder that gets created
     students = pd.read_excel("./data/Master_Sheet.xlsx")
     scholarships = pd.read_excel("./data/Scholarships.xlsx")
     #user_reccomendations = pd.read_excel("./data/Test_User_Reviews.xlsx")
