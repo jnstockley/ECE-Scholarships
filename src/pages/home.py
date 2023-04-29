@@ -12,7 +12,6 @@ import numpy as np
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
 import matplotlib.pyplot as plt
 from matplotlib import cm
-import time
 
 from src.utils.html import redirect
 from src.utils.sharepoint import logged_in, download, upload, login
@@ -49,13 +48,28 @@ def download_data():
     
 creds, hawk_id = download_data()
 
- # Importing data
-students = pd.read_excel("./data/Master_Sheet.xlsx")
-scholarships = pd.read_excel("./data/Scholarships.xlsx")
-user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
+# Importing data
+if 'students' not in st.session_state:
+    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
+    students = st.session_state.students
+    # Creating main dataframe
+    students.insert(0, 'Select All', None)
+else: 
+    students = st.session_state.students
 
-# Creating main dataframe
-students.insert(0, 'Select All', None)
+if 'scholarships' not in st.session_state:
+    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
+    scholarships = st.session_state.scholarships
+else: 
+    scholarships = st.session_state.scholarships
+
+if 'user_recommendations' not in st.session_state: 
+    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
+    user_recommendations = st.session_state.user_recommendations
+else: 
+    user_recommendations = st.session_state.user_recommendations
+
+
 
 st.write(user_recommendations)
 
@@ -161,7 +175,7 @@ def submit_recommendations(user_recommendations, recommended_scholarship, rating
     user_recommendations = user_recommendations.append(new_recommendations)
     user_recommendations.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
     upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
-    return True, None
+    return True, user_recommendations
 
 
 # Actions for user to take on main data frame
@@ -180,13 +194,12 @@ with st.container():
                     additional_feedback = st.text_area("Enter any additional feedback on students")
                     submit_recommendation = st.form_submit_button("Submit Recommendation")
                     if submit_recommendation:
-                        result, errorMessage = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
-                        with st.spinner('Uploading Reviews'):
-                            time.sleep(3)
-                        if result is True:
+                        success, result = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
+                        if success is True:
+                            st.session_state.user_recommendations = result
                             st.success("Successfuly submitted recommendations!")
                         else:
-                            st.error(errorMessage)
+                            st.error(result)
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Students"):
