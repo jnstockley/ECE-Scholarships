@@ -1,7 +1,6 @@
 """
 Fixtures for handling the logged-in user.
 """
-import time
 import pytest
 from dotenv import dotenv_values
 from playwright.sync_api import Page
