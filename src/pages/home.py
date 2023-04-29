@@ -44,7 +44,7 @@ with st.spinner("Loading Data from Sharepoint..."):
     # Importing data
     students = pd.read_excel("./data/Master_Sheet.xlsx")
     scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    #user_reccomendations = pd.read_excel("./data/Test_User_Reviews.xlsx")
+    user_reccomendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
 
     # Creating main dataframe
     students.insert(0, 'Select All', None)
