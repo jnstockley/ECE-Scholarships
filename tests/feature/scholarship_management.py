@@ -12,8 +12,7 @@ def test_scholarship_page(page: Page):
     As a user I should be able to find and navigate to
     the scholarship management page
     """
-
-    page.goto("http://localhost:9000")
+    page.goto("http://localhost:9000", wait_until='domcontentloaded')
     scholarship_link = page.get_by_role("link", name="Scholarship Management")
 
     expect(scholarship_link).to_have_text('Scholarship Management')
@@ -32,7 +31,7 @@ def test_create_button(page: Page):
     """
     As a user I should be able to create a new scholarship.
     """
-    page.goto("http://localhost:9000/Scholarship%20Management")
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     create_btn = page.get_by_role("button", name="Create New Scholarship")
 
     expect(create_btn).to_have_text('Create New Scholarship')
@@ -47,7 +46,7 @@ def test_edit_button(page: Page):
     """
     As a user I should be able to edit a preexisting scholarship.
     """
-    page.goto("http://localhost:9000/Scholarship%20Management")
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     edit_btn = page.get_by_role("button", name="Edit Existing Scholarship")
 
     expect(edit_btn).to_have_text('Edit Existing Scholarship')
@@ -62,7 +61,7 @@ def test_delete_button(page: Page):
     """
     As a user I should be able to delete a preexisting scholarship.
     """
-    page.goto("http://localhost:9000/Scholarship%20Management")
+    page.goto("http://localhost:9000/Scholarship%20Management", wait_until='domcontentloaded')
     delete_btn = page.get_by_role("button", name="Delete Existing Scholarship")
 
     expect(delete_btn).to_have_text('Delete Existing Scholarship')
