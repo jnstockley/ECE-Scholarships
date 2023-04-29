@@ -78,19 +78,19 @@ js = JsCode("""
  """)
 jscode = JsCode("""
             function(params) {
-                if (params.data.review === 'yes') {
+                if (params.data.Review === 'Yes') {
                     return {
                         'color': 'white',
-                        'backgroundColor': 'green'
+                        'backgroundColor': 'lightGreen'
                     }
                 }
-                if (params.data.review === 'no') {
+                if (params.data.Review === 'No') {
                     return {
                         'color': 'white',
                         'backgroundColor': 'red'
                     }
                 }
-                if (params.data.review === 'maybe') {
+                if (params.data.Review === 'Maybe') {
                     return {
                         'color': 'white',
                         'backgroundColor': 'yellow'
@@ -140,7 +140,7 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
 current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
 current_data = students
-if current_scholarship != "None": 
+if current_scholarship != "None":
     # Filter with it and add reviews
     current_data_reviews = []
     for index, row in current_data.iterrows():
@@ -149,8 +149,16 @@ if current_scholarship != "None":
             current_data_reviews.append(student_recommendation['Rating'].iloc[0])
         else:
             current_data_reviews.append('N/A')
-    st.write(current_data_reviews)
-        # if uid is same and scholarship is same we add the review, otherwise add N/A
+    current_data['Review'] = current_data_reviews #[".assign(Review=current_data_reviews)"]
+
+    # for groups
+        # for column names
+
+    # read the scholarships file as a pandas dataframe
+    # find the row that corresponds to the current scholarship
+    # go through the values in that row
+
+    # if uid is same and scholarship is same we add the review, otherwise add N/A
     #current_data.assign(Review=)
 
     
