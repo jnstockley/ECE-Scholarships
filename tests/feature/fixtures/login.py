@@ -1,6 +1,8 @@
 """
 Fixtures for handling the logged-in user.
 """
+import time
+
 import pytest
 from dotenv import dotenv_values
 from playwright.sync_api import Page
@@ -40,6 +42,6 @@ def login_user(page: Page) -> Page:
     # submit_button_textbox.click() # resolve streamlit issue on webkit
 
     page.wait_for_load_state("networkidle")
-    # time.sleep(4)
+    time.sleep(4)
 
     return page
