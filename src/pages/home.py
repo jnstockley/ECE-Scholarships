@@ -166,7 +166,6 @@ else:
 
 # Apply the filter of scholarship and merge the reviews
 
-
 # Configuring options for table functionality
 gd = GridOptionsBuilder.from_dataframe(current_data)
 gd.configure_pagination(enabled=True) #Add pagination
@@ -196,9 +195,18 @@ grid_table = AgGrid(
 )
 
 # Displaying statistics about main data frame
-st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
-if st.button("Clear Selection"):
-    components.html(CLEARJS)
+with st.container():
+    col1, col2, col3 = st.columns(3)
+    with col1: 
+        st.markdown("Key: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#00B985'>Yes</span>**"
+                    + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#EA0101'>No</span>**"
+                    + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#D6D600'>Maybe</span>**", unsafe_allow_html=True)
+    with col2: 
+        st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
+    with col3: 
+        if st.button("Clear Selection"):
+            components.html(CLEARJS)
+
 
 
 # How to access selected rows for use in methods like reviewing
