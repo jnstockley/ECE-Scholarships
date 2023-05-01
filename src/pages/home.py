@@ -29,22 +29,20 @@ if not cookie:
 @st.cache_data
 def download_data():
 
-    with st.spinner("Loading Data from Sharepoint..."):
-        
-        creds = login(cookie)
+    creds = login(cookie)
 
-        hawk_id = cookie.get('cred')['hawk-id']
+    hawk_id = cookie.get('cred')['hawk-id']
 
-        download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
-        download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
-        try:
-            download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
-        except:
-            new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-            new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-            upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
- 
-        return creds, hawk_id
+    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
+    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
+    try:
+        download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
+    except:
+        new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
+        new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
+        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
+
+    return creds, hawk_id
     
 creds, hawk_id = download_data()
 
@@ -81,7 +79,7 @@ jscode = JsCode("""
                 if (params.data.Review === 'Yes') {
                     return {
                         'color': 'white',
-                        'backgroundColor': 'lightGreen'
+                        'backgroundColor': 'green'
                     }
                 }
                 if (params.data.Review === 'No') {
@@ -150,6 +148,8 @@ if current_scholarship != "None":
         else:
             current_data_reviews.append('N/A')
     current_data['Review'] = current_data_reviews #[".assign(Review=current_data_reviews)"]
+else:
+    current_data['Review'] = 'N/A'
 
     # for groups
         # for column names
