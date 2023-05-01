@@ -79,19 +79,19 @@ jscode = JsCode("""
                 if (params.data.Review === 'Yes') {
                     return {
                         'color': 'white',
-                        'backgroundColor': 'green'
+                        'backgroundColor': '#017252'
                     }
                 }
                 if (params.data.Review === 'No') {
                     return {
                         'color': 'white',
-                        'backgroundColor': 'red'
+                        'backgroundColor': '#8E0303'
                     }
                 }
                 if (params.data.Review === 'Maybe') {
                     return {
                         'color': 'white',
-                        'backgroundColor': 'yellow'
+                        'backgroundColor': '#A2A200'
                     }
                 }
             };
