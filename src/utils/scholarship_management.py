@@ -13,7 +13,6 @@ from src.utils.sharepoint import download, upload
 def read_rows(file_path, creds: ClientContext):
     """
     Reads Excel spreadsheet and returns the rows
-    NOTE: needs to be changed for sharepoint
     """
     download(f'/{file_path}', os.path.dirname(file_path), creds)
     excel = pd.read_excel(file_path)
@@ -23,7 +22,6 @@ def read_rows(file_path, creds: ClientContext):
 def write_rows(dataframe, file_path, sheet_name, creds: ClientContext):
     """
     Writes the rows of a dataframe to the file_path with sheet_name
-    NOTE: needs to be changed for sharepoint
     """
     upload(file_path, f'/{os.path.dirname(file_path)}', creds)
     dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
