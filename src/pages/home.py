@@ -42,6 +42,8 @@ def download_data():
         new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
         upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
 
+
+
     # Initializing data
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
     st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")

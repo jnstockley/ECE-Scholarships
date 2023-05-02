@@ -31,11 +31,14 @@ def download_data():
 
     files = get_files(creds)
 
+    st.write(files)
+
     for file in files: 
         if file == "Select File":
             continue
         else:
-            download(file, f"{os.getcwd()}/data/", creds)
+            if '/data/' in file:
+                download(file, f"{os.getcwd()}/data/", creds)
     
     # Initialize data: 
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
@@ -44,13 +47,10 @@ def download_data():
     result = []
     for filename in os.listdir(directory):
         f = os.path.join(directory, filename)
-        st.write("f:")
-        st.write(f)
         if os.path.isfile(f):
             if 'Reviews.xlsx' in f: 
                 result.append(pd.read_excel(f))
     st.session_state.all_recommendations = result
-
 
     return creds, hawk_id
     
@@ -67,17 +67,41 @@ all_recommendations = st.session_state.all_recommendations
 
 # Start of display
 st.header("Export Scholarship Winners")
-
-
-
-st.write(result)
-
-#st.write(all_recommendations)
+st.write(all_recommendations)
 
 # Filter selection (Will want to implement this once we have example filters)
 current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
-# Need to download all of the recommendations and store them in a list
+current_data = students.copy()
+current_data.insert(0, 'Vote Score', None)
+
+st.write(current_data.iloc[0]['UID'])
+st.write(all_recommendations[0].iloc[0]['UID'])
+st.write(all_recommendations[0].iloc[0]['Scholarship'])
+st.write(current_scholarship)
+
+# Calculating the vote score across recommendations
+for student_index, student in current_data.iterrows():
+    for recommender in all_recommendations:
+        for recommendation_index, recommendation in recommender.iterrows():
+            if recommendation['UID'] == student['UID'] and recommendation['Scholarship'] == current_scholarship:
+                if current_data.at[student_index, 'Vote Score'] == None:
+                    current_data.at[student_index, 'Vote Score'] = 0
+                if recommendation['Rating'] == "Yes":
+                    current_data.at[student_index, 'Vote Score'] = current_data.at[student_index, 'Vote Score'] + 1
+                elif recommendation['Rating'] == "No":
+                    current_data.at[student_index, 'Vote Score'] = current_data.at[student_index, 'Vote Score'] - 1
+                elif recommendation['Rating'] == "Maybe":
+                    current_data.at[student_index, 'Vote Score'] = current_data.at[student_index, 'Vote Score']
+
+st.write(current_data)
+
+current_data = current_data[current_data['Vote Score'].notna()]
+current_data.drop(current_data.loc[current_data['Vote Score'] < 0].index, inplace = True)
+
+current_data = current_data.sort_values(by=['Vote Score'], ascending=False)
+
+st.write(current_data)
 # Loop through each dataframe in the list
 # Need to match up scholarship and student id than add the value's of yes no and maybe
 # Initialize as none, so maybe will put them on there, then filter out ones that are none or negative
