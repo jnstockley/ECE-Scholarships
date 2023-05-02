@@ -7,26 +7,25 @@ from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text, redirect
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
-from src.utils.sharepoint import logged_in, login, download
+from src.utils.sharepoint import logged_in, login
 
 cookie = logged_in()
 
 if not cookie:
     redirect("/Log%20In")
 
-creds = login(cookie)
-
-
 @st.cache_data
 def download_data():
     # Initializing data
+    creds = login(cookie)
     st.session_state.master_sheet = read_rows('data/Master_Sheet.xlsx', creds)
     try:
         st.session_state.scholarships = read_rows('data/Scholarships.xlsx', creds)
     except FileNotFoundError:
         write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', creds)
         st.session_state.scholarships = pd.DataFrame({})
-download_data()
+    return creds
+creds = download_data()
 
 scholarships = st.session_state.scholarships
 
