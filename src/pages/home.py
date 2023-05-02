@@ -15,7 +15,7 @@ from matplotlib import cm
 
 from src.utils.html import redirect
 from src.utils.sharepoint import logged_in, download, upload, login
-from src.utils.scholarship_management import edit_row
+from src.utils.scholarship_management import edit_row, groups_string_to_list
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -137,7 +137,7 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
 # Filter selection (Will want to implement this once we have example filters)
 current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
-current_data = students
+current_data = students.copy()
 if current_scholarship != "None":
     # Filter with it and add reviews
     current_data_reviews = []
@@ -148,21 +148,55 @@ if current_scholarship != "None":
         else:
             current_data_reviews.append('N/A')
     current_data['Review'] = current_data_reviews #[".assign(Review=current_data_reviews)"]
-else:
-    current_data['Review'] = 'N/A'
 
-    # for groups
-        # for column names
+    # This is where we want to filter
 
-    # read the scholarships file as a pandas dataframe
-    # find the row that corresponds to the current scholarship
-    # go through the values in that row
+    criteria = scholarships.loc[scholarships['Name'] == current_scholarship]
+    criteria_index = scholarships
 
-    # if uid is same and scholarship is same we add the review, otherwise add N/A
-    #current_data.assign(Review=)
+    groups_columns = []
+    criteria_no_groups = []
+    for column in criteria.columns.tolist():
+        if column[0:5] == "Group":
+            groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
+        elif column not in ['Name', 'Total Amount', 'Value']:
+            criteria_no_groups.append(column)
 
-    
-# Might need this later, can't tell how its already there unless session state storage .insert(0, 'Select All', None)
+    for criterion in criteria_no_groups:
+        # is the criteria in the data?
+        if criterion in current_data.columns.tolist():
+            try: 
+                value = float(criteria[criterion])
+                in_group = False
+                for group in groups_columns:
+                    if criterion in group:
+                        in_group = True
+                        met_criteria = False
+                        for index, student in current_data.iterrows():
+                            for group_c in group: 
+                                if student[group_c] >= value:
+                                    met_criteria = True
+                            if met_criteria == False: 
+                                current_data.drop(index)
+                if in_group == False:
+                    current_data.drop(current_data.loc[current_data[criterion] < value].index, inplace = True)
+            except ValueError: 
+                value = criteria[criterion]
+                in_group = False
+                for group in groups_columns:
+                    if criterion in group:
+                        in_group = True
+                        met_criteria = False
+                        for index, student in current_data.iterrows():
+                            for group_c in group: 
+                                if student[group_c] >= value:
+                                    met_criteria = True
+                            if met_criteria == False: 
+                                current_data.drop(index)
+                if in_group == False:
+                    current_data.drop(current_data.loc[current_data[criterion] != value].index, inplace = True)
+
+current_data.insert(0, 'Select All', None)
 
 # Apply the filter of scholarship and merge the reviews
 
@@ -196,14 +230,18 @@ grid_table = AgGrid(
 
 # Displaying statistics about main data frame
 with st.container():
-    col1, col2, col3 = st.columns(3)
+    col1, col2, col3, col4, col5 = st.columns(5)
     with col1: 
         st.markdown("Key: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#00B985'>Yes</span>**"
                     + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#EA0101'>No</span>**"
                     + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#D6D600'>Maybe</span>**", unsafe_allow_html=True)
     with col2: 
-        st.write("Number of students selected: ", len([student["Name"] for student in grid_table["selected_rows"]]))
-    with col3: 
+        st.write("Number of Students: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected: ", len([student["Name"] for student in grid_table["selected_rows"]]), unsafe_allow_html=True)
+    with col3:
+        st.write("Eligible for Selected Scholarship: ", len(current_data))
+    with col4:
+        st.write("Ineligible for Selected Scholarship: ", len(students) - len(current_data))
+    with col5: 
         if st.button("Clear Selection"):
             components.html(CLEARJS)
 
