@@ -2,16 +2,11 @@
 # Packages used in code
 import os
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
-from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
-import matplotlib.pyplot as plt
-from matplotlib import cm
 
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in, download, upload, login, get_files
-from src.utils.scholarship_management import groups_string_to_list
+from src.utils.sharepoint import logged_in, download, login, get_files
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -102,8 +97,17 @@ current_data.drop(current_data.loc[current_data['Vote Score'] < 0].index, inplac
 current_data = current_data.sort_values(by=['Vote Score'], ascending=False)
 
 st.write(current_data)
-# Loop through each dataframe in the list
-# Need to match up scholarship and student id than add the value's of yes no and maybe
-# Initialize as none, so maybe will put them on there, then filter out ones that are none or negative
-# Then just sort by that column
-# Then have number import and button to export
+
+with st.container(): 
+    col1, col2, col3 = st.columns(3)
+
+    with col1: 
+        if st.button("Export All Vote Getters for Scholarship"):
+            current_data.to_excel('./data/Scholarship_Winners.xlsx')
+            st.success('Exported data to /data! as Scholarship_Winners.xlsx')
+    with col2: 
+        value = st.number_input('Number to export', min_value=0, step=1, label_visibility='collapsed')
+    with col3: 
+         if st.button(f"Export Top {value} Vote Getters for Scholarship"):
+            current_data.iloc[:value].to_excel('./data/Scholarship_Winners.xlsx')
+            st.success('Exported data to /data as Scholarship_Winners.xlsx')

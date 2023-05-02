@@ -313,6 +313,6 @@ with st.container():
                 dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
-            grid_table['data'].to_excel('./data/exported_data.xlsx')
-            st.success('Exported data to /data!')
+            grid_table['data'].to_excel('./data/Exported_Data.xlsx')
+            st.success('Exported data to /data as Exported_Data.xlsx')
 
