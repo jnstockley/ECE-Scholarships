@@ -1,11 +1,20 @@
-'''
-scholarship managment page render
-'''
+"""
+scholarship management page render
+"""
 import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
-from src.utils.html import centered_text
+from src.utils.html import centered_text, redirect
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
+from src.utils.sharepoint import logged_in, login
+
+cookie = logged_in()
+
+if not cookie:
+    redirect("/Log%20In")
+
+creds = login(cookie)
+
 
 # This is for determining how many groups have been added to a scholarship
 # Needed because of experimental_rerun() call to allow as many groups as they want
@@ -15,10 +24,10 @@ if 'n_groups' not in st.session_state:
 # This try except clause fixes an error that would previously cause it to fail if the file did not exist
 # now it will just create an empty file.
 try:
-    scholarships = read_rows('tests/data/scholarships.xlsx')
+    scholarships = read_rows('tests/data/scholarships.xlsx', creds)
 except FileNotFoundError:
-    write_rows(pd.DataFrame({}), 'tests/data/scholarships.xlsx', 'Scholarships')
-    scholarships = read_rows('tests/data/scholarships.xlsx')
+    write_rows(pd.DataFrame({}), 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+    scholarships = read_rows('tests/data/scholarships.xlsx', creds)
 
 
 # Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors,
@@ -28,8 +37,8 @@ except FileNotFoundError:
 SCH_COLUMNS = scholarships.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
-                    'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile'] 
-GROUP_HELP="""A requirement grouping groups the selected requirements so only one is required.
+                 'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile']
+GROUP_HELP = """A requirement grouping groups the selected requirements so only one is required.
             i.e. ACT Composite, SAT Combined, HS Percentile all being selected requires only the 
             minimum requirement of ACT Composite, SAT Combined, or HS Percentile."""
 
@@ -65,6 +74,7 @@ def display_create_dynamic():
     for i in range(st.session_state.n_groups):
         group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
+
     if st.button('Create Scholarship', key='Create Scholarship'):
         # These fields should not be able to be blank
         if name == "" or total == "" or value == "":
@@ -85,7 +95,7 @@ def display_create_dynamic():
                 new_scholarships = new_scholarships.append(updated_sch)
             # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
-            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
             st.write(name + " has been successfully created.")
 
 def display_edit_dynamic():
@@ -94,7 +104,7 @@ def display_edit_dynamic():
     and overwriting the old version with the new version in the scholarship file.
     '''
     edit_sch = st.selectbox("Select the scholarship to edit", options=scholarships['Name'])
-    if button('Edit This Scholarship', key = 'Edit This Scholarship'):
+    if button('Edit This Scholarship', key='Edit This Scholarship'):
         # Don't let them try to edit nothing.
         if edit_sch is None:
             st.write('There is no scholarship selected')
@@ -130,16 +140,17 @@ def display_edit_dynamic():
                 edit_row(scholarships, index, [(col, chosen_val)])
             if st.button('Finalize Changes', key='Finalize Changes'):
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
-                write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+                write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
                 st.write(edit_sch + " has been successfully edited.")
 
+
 def display_delete():
-    '''
-    This function displays all of the associated view/actions for deleting a scholarship
+    """
+    This function displays all the associated view/actions for deleting a scholarship
     and removing it from the scholarship file.
-    '''
+    """
     delete_sch = st.selectbox("Select the scholarship to delete", options=scholarships['Name'])
-    if button ('Delete This Scholarship', key='Delete This Scholarship'):
+    if button('Delete This Scholarship', key='Delete This Scholarship'):
         # Don't let them try to delete nothing.
         if delete_sch is None:
             st.write('There is no scholarship selected')
@@ -153,33 +164,38 @@ def display_delete():
                     if values['Name'] == delete_sch:
                         index = ind
                         break
-                # In this case, drop takes the row index and drops the associated row, returning a new dataframe without it.
+                # In this case, drop takes the row index and drops the associated row, returning a new dataframe
+                # without it.
                 new_scholarships = scholarships.drop(index=index)
-                # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file, so that is done here.
-                write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+                # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file,
+                # so that is done here.
+                write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
                 st.write(delete_sch + ' has been successfully deleted.')
 
+
 def display_import():
-    '''
-    This function displays all of the associated view/actions for importing scholarships
+    """
+    This function displays all the associated view/actions for importing scholarships
     from outside files and either overwriting or adding to the previous scholarships file
-    '''
+    """
     st.title("Import Scholarships")
     form = st.form(key="scholarship_import_form")
     file = form.file_uploader('Scholarship Source:', accept_multiple_files=True, type=[
-                               'xlsx', 'csv', 'tsv'])
+        'xlsx', 'csv', 'tsv'])
     form.markdown(centered_text(
         '<em>supports both excel and csv format</em>'), unsafe_allow_html=True)
 
-    submit_new = form.form_submit_button('Import Scholarships as New', help="""Warning: Please make sure column names and values are consistent
-                                                                            with the values of a normally created scholarship through the application
-                                                                            or else unintended errors can happen.""")
-    submit_add = form.form_submit_button('Import Scholarships to Existing', help="""Warning: Please make sure column names and values are consistent
-                                                                            with the values of a normally created scholarship through the application
-                                                                            or else unintended errors can happen.""")
+    submit_new = form.form_submit_button('Import Scholarships as New', help="""Warning: Please make sure column names
+    and values are consistent with the values of a normally created scholarship through the application or else 
+    unintended errors can happen.""")
+    submit_add = form.form_submit_button('Import Scholarships to Existing', help="""Warning: Please make sure column
+    names and values are consistent with the values of a normally created scholarship through the application or else 
+    unintended errors can happen.""")
 
-    columns = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English','ACT Composite',
-               'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two', 'Group Three']
+    columns = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
+               'ACT Composite',
+               'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two',
+               'Group Three']
 
     if submit_new:
         # Handle imported files.
@@ -191,7 +207,7 @@ def display_import():
             st.write('Only select one file.')
             return
 
-        new_scholarships = read_rows(file[0])
+        new_scholarships = read_rows(file[0], creds)
         # Validation checking to make sure that all the columns are the same
         new_columns = new_scholarships.columns
         fail_columns, invalid_columns, missing_columns = check_columns_equal(columns, new_columns)
@@ -201,7 +217,7 @@ def display_import():
             st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
-            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
@@ -209,13 +225,13 @@ def display_import():
         if not file:
             st.write('No files selected!')
             return
-        # This is not necessary technically but it could be confusing since it is necessary for new
+        # This is not necessary technically, but it could be confusing since it is necessary for new
         # The ability to add in more than one at a time is possible, but really not a priority or necessary.
         if len(file) > 1:
             st.write('Only select one file.')
             return
 
-        add_scholarships = read_rows(file[0])
+        add_scholarships = read_rows(file[0], creds)
         old_scholarships = scholarships
         # Validation checking to make sure that all the columns are the same
         add_columns = add_scholarships.columns
@@ -228,8 +244,9 @@ def display_import():
         if fail_columns == 0:
             for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
-            write_rows(old_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships')
+            write_rows(old_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
+
 
 st.title("Scholarship Management")
 st.write("Select an Action from Below")
