@@ -26,8 +26,6 @@ def download_data():
 
     files = get_files(creds)
 
-    st.write(files)
-
     for file in files: 
         if file == "Select File":
             continue
@@ -62,18 +60,12 @@ all_recommendations = st.session_state.all_recommendations
 
 # Start of display
 st.header("Export Scholarship Winners")
-st.write(all_recommendations)
 
 # Filter selection (Will want to implement this once we have example filters)
 current_scholarship = st.selectbox("Which scholarship would you like to consider?", np.append(["None"], scholarships["Name"].values))
 
 current_data = students.copy()
 current_data.insert(0, 'Vote Score', None)
-
-st.write(current_data.iloc[0]['UID'])
-st.write(all_recommendations[0].iloc[0]['UID'])
-st.write(all_recommendations[0].iloc[0]['Scholarship'])
-st.write(current_scholarship)
 
 # Calculating the vote score across recommendations
 for student_index, student in current_data.iterrows():
@@ -89,12 +81,13 @@ for student_index, student in current_data.iterrows():
                 elif recommendation['Rating'] == "Maybe":
                     current_data.at[student_index, 'Vote Score'] = current_data.at[student_index, 'Vote Score']
 
-st.write(current_data)
-
+# Dropping students that received no reviews or a negative vote Score
 current_data = current_data[current_data['Vote Score'].notna()]
 current_data.drop(current_data.loc[current_data['Vote Score'] < 0].index, inplace = True)
-
 current_data = current_data.sort_values(by=['Vote Score'], ascending=False)
+
+if current_scholarship == "None":
+    st.error("Select a Scholarship")
 
 st.write(current_data)
 
