@@ -82,6 +82,8 @@ def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, weight_bins=True, h
             bin[-1] = 10
     plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
     if highlights is not None and highlight_select == 'Selected Students':
+        highlights = [h for h in highlights if h is not None]
+        print(highlights)
         hxs = var_df.iloc[highlights][x_axis]
         hys = var_df.iloc[highlights][y_axis]
         colors = iter(cm.rainbow(np.linspace(0, 1, len(hys)+1)))
