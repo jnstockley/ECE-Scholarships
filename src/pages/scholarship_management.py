@@ -228,9 +228,11 @@ def display_import():
         if len(file) > 1:
             st.write('Only select one file.')
             return
+        # Get the file path and read it from the excel
         file_path = pd.read_excel(file[0])
         add_scholarships = file_path.head()
 
+        # Need to make sure all the scholarships we are adding conform to the columns
         new_scholarships = pd.DataFrame({})
         for i in range(add_scholarships.shape[0]):
             dict_sch = add_scholarships.loc[i].to_dict()
@@ -239,10 +241,11 @@ def display_import():
             # Append the new version of the scholarship (might be the same if no new columns) to our new dataframe
             new_scholarships = new_scholarships.append(updated_sch)
 
+        # Need to append each new scholarship to our scholarships
         for _, row in new_scholarships.iterrows():
             st.session_state.scholarships = st.session_state.scholarships.append(row)
-            write_rows(st.session_state.scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
-            st.write(file[0].name + " has been successfully added to the existing scholarships.")
+        write_rows(st.session_state.scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+        st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 
 st.title("Scholarship Management")
