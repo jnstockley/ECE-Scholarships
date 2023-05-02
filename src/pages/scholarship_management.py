@@ -5,7 +5,7 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text, redirect
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
+from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, equalize_dictionary_columns
 from src.utils.sharepoint import logged_in, login
 
 cookie = logged_in()
