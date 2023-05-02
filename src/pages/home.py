@@ -34,19 +34,19 @@ def download_data():
     hawk_id_to_return = cookie.get('cred')['hawk-id']
 
     # Downloading needed data
-    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
-    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds)
+    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds_to_return)
+    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds_to_return)
     try:
-        download(f'/data/{hawk_id}_Reviews.xlsx', f"{os.getcwd()}/data/", creds)
+        download(f'/data/{hawk_id_to_return}_Reviews.xlsx', f"{os.getcwd()}/data/", creds_to_return)
     except:
         new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-        new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-        upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
+        new_file.to_excel(f'./data/{hawk_id_to_return}_Reviews.xlsx', index = False)
+        upload(os.path.abspath(f'./data/{hawk_id_to_return}_Reviews.xlsx'), '/data/', creds_to_return)
 
     # Initializing session data
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
     st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
+    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id_to_return}_Reviews.xlsx")
 
     return creds_to_return, hawk_id_to_return
 

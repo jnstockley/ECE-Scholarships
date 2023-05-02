@@ -29,12 +29,12 @@ def download_data():
     hawk_id_to_return = cookie.get('cred')['hawk-id']
 
     # Downloading needed data
-    files = get_files(creds)
+    files = get_files(creds_to_return)
     for file in files:
         if file == "Select File":
             continue
         if '/data/' in file:
-            download(file, f"{os.getcwd()}/data/", creds)
+            download(file, f"{os.getcwd()}/data/", creds_to_return)
 
     # Initializing session data
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
