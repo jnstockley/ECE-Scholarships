@@ -144,6 +144,8 @@ def download(file: str, download_location: str, cred: ClientContext) -> bool:
         download_location += "/"
     with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
         cred.web.get_file_by_server_relative_url(download_url).download(sharepoint_file).execute_query()
+    if not os.path.exists(download_location):
+        os.mkdir(download_location)
     return exists(f"{download_location}{file_name}")
 
 
