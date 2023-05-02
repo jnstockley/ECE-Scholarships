@@ -1,3 +1,7 @@
+'''
+Winners: A page for the admin to be able to export the scholarship winners after reviews have been completed
+'''
+
 # Importing packages
 import os
 import streamlit as st
@@ -12,7 +16,7 @@ st.set_page_config(layout="wide")
 # Log in protecting the page
 cookie = logged_in()
 if not cookie:
-   redirect("/Log In")
+    redirect("/Log In")
 
 # Downloading the data needed on first visit
 @st.cache_data
@@ -21,31 +25,30 @@ def download_data():
     Caching credentials and downloads so only have to do on page load
     '''
     # Gathering login credentials
-    creds = login(cookie)
-    hawk_id = cookie.get('cred')['hawk-id']
+    creds_to_return = login(cookie)
+    hawk_id_to_return = cookie.get('cred')['hawk-id']
 
     # Downloading needed data
     files = get_files(creds)
-    for file in files: 
+    for file in files:
         if file == "Select File":
             continue
-        else:
-            if '/data/' in file:
-                download(file, f"{os.getcwd()}/data/", creds)
-    
+        if '/data/' in file:
+            download(file, f"{os.getcwd()}/data/", creds)
+
     # Initializing session data
     st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
     st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
     directory = "./data"
     result = []
     for filename in os.listdir(directory):
-        f = os.path.join(directory, filename)
-        if os.path.isfile(f):
-            if 'Reviews.xlsx' in f: 
-                result.append(pd.read_excel(f))
+        file = os.path.join(directory, filename)
+        if os.path.isfile(file):
+            if 'Reviews.xlsx' in file:
+                result.append(pd.read_excel(file))
     st.session_state.all_recommendations = result
 
-    return creds, hawk_id
+    return creds_to_return, hawk_id_to_return
 
 # Setting variables for script
 creds, hawk_id = download_data()
@@ -88,21 +91,21 @@ if current_scholarship == "None":
 st.write(current_data)
 
 # Actions for user to take on current data
-with st.container(): 
+with st.container():
     col1, col2, col3 = st.columns(3)
 
     # Export all students that received a vote score >= 0
-    with col1: 
+    with col1:
         if st.button("Export All Vote Getters for Scholarship"):
             current_data.to_excel('./data/Scholarship_Winners.xlsx')
             st.success('Exported data to /data! as Scholarship_Winners.xlsx')
 
     # Choose a number of top vote scorers to export
-    with col2: 
+    with col2:
         value = st.number_input('Number to export', min_value=0, step=1, label_visibility='collapsed')
-    
-    # Export the previously chosen number of top vote scorers 
-    with col3: 
-         if st.button(f"Export Top {value} Vote Getters for Scholarship"):
+
+    # Export the previously chosen number of top vote scorers
+    with col3:
+        if st.button(f"Export Top {value} Vote Getters for Scholarship"):
             current_data.iloc[:value].to_excel('./data/Scholarship_Winners.xlsx')
             st.success('Exported data to /data as Scholarship_Winners.xlsx')

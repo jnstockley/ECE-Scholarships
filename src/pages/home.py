@@ -21,7 +21,7 @@ st.set_page_config(layout="wide")
 # Log in protecting the home page
 cookie = logged_in()
 if not cookie:
-   redirect("/Log In")
+    redirect("/Log In")
 
 # Downloading data needed on first vist
 @st.cache_data
@@ -30,8 +30,8 @@ def download_data():
     Caching credentials and downloads so only have to do on page load
     '''
     # Gathering login credentials
-    creds = login(cookie)
-    hawk_id = cookie.get('cred')['hawk-id']
+    creds_to_return = login(cookie)
+    hawk_id_to_return = cookie.get('cred')['hawk-id']
 
     # Downloading needed data
     download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
@@ -48,7 +48,7 @@ def download_data():
     st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
     st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
 
-    return creds, hawk_id
+    return creds_to_return, hawk_id_to_return
 
 # Setting variables for script
 creds, hawk_id = download_data()
@@ -127,35 +127,35 @@ if current_scholarship != "None":
             criteria_no_groups.append(column)
     for criterion in criteria_no_groups:
         if criterion in current_data.columns.tolist():
-            try: 
+            try:
                 value = float(criteria[criterion])
-                in_group = False
+                IN_GROUP = False
                 for group in groups_columns:
                     if criterion in group:
-                        in_group = True
-                        met_criteria = False
+                        IN_GROUP = True
+                        MET_CRITERIA = False
                         for index, student in current_data.iterrows():
-                            for group_c in group: 
+                            for group_c in group:
                                 if student[group_c] >= value:
-                                    met_criteria = True
-                            if met_criteria == False: 
+                                    MET_CRITERIA = True
+                            if MET_CRITERIA == False:
                                 current_data.drop(index)
-                if in_group == False:
+                if IN_GROUP == False:
                     current_data.drop(current_data.loc[current_data[criterion] < value].index, inplace = True)
-            except ValueError: 
+            except ValueError:
                 value = criteria[criterion]
-                in_group = False
+                IN_GROUP = False
                 for group in groups_columns:
                     if criterion in group:
-                        in_group = True
-                        met_criteria = False
+                        IN_GROUP = True
+                        MET_CRITERIA = False
                         for index, student in current_data.iterrows():
-                            for group_c in group: 
+                            for group_c in group:
                                 if student[group_c] >= value:
-                                    met_criteria = True
-                            if met_criteria == False: 
+                                    MET_CRITERIA = True
+                            if MET_CRITERIA == False:
                                 current_data.drop(index)
-                if in_group == False:
+                if IN_GROUP == False:
                     current_data.drop(current_data.loc[current_data[criterion] != value].index, inplace = True)
 
 # Configuring options for table functionality
@@ -188,37 +188,40 @@ grid_table = AgGrid(
 # Displaying statistics about main data frame
 with st.container():
     col1, col2, col3, col4, col5 = st.columns(5)
-    with col1: 
+    with col1:
         st.markdown("Key: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#00B985'>Yes</span>**"
                     + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#EA0101'>No</span>**"
                     + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#D6D600'>Maybe</span>**", unsafe_allow_html=True)
-    with col2: 
+    with col2:
         st.write("Number of Students: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected: ", len([student["Name"] for student in grid_table["selected_rows"]]), unsafe_allow_html=True)
     with col3:
         st.write("Eligible for Selected Scholarship: ", len(current_data))
     with col4:
         st.write("Ineligible for Selected Scholarship: ", len(students) - len(current_data))
-    with col5: 
+    with col5:
         if st.button("Clear Selection"):
             components.html(CLEARJS)
 
 # Helper function used for processing the scholarship reviews
-def submit_recommendations(user_recommendations, recommended_scholarship, rating, additional_feedback):
+def submit_recommendations(user_recommendations_input, recommended_scholarship, rating_input, additional_feedback_input):
+    '''
+    Method used to complete the review process by updating local and sharepoint data
+    '''
     if len(grid_table["selected_rows"]) == 0:
         return False, "Must select students to recommend"
     sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
     new_recommendations = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
     for uid in sel_uids:
-        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Rating": rating, "Additional Feedback": additional_feedback}
-        if len(user_recommendations.loc[(user_recommendations['UID'] == uid) & (user_recommendations['Scholarship'] == recommended_scholarship)]) > 0:
+        new_recommendation = {"UID": uid, "Scholarship": recommended_scholarship, "Rating": rating_input, "Additional Feedback": additional_feedback_input}
+        if len(user_recommendations_input.loc[(user_recommendations_input['UID'] == uid) & (user_recommendations_input['Scholarship'] == recommended_scholarship)]) > 0:
             return False, str("Already reviewed student " + str(uid) + " for this scholarship")
         # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
-    user_recommendations = user_recommendations.append(new_recommendations)
-    user_recommendations.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
+    user_recommendations_input = user_recommendations_input.append(new_recommendations)
+    user_recommendations_input.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
     upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
-    return True, user_recommendations
+    return True, user_recommendations_input
 
 # Helper function for graph
 def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
@@ -253,7 +256,7 @@ with st.container():
         with st.expander("Review Selected Students"):
             if current_scholarship == "None":
                 st.error('Must Select a Scholarship to Review For')
-            else: 
+            else:
                 with st.form("recommendation_form"):
                     st.write(f'Review for Scholarship: {current_scholarship}')
                     rating = st.selectbox("Would you recommend these students for this scholarship?", ['Yes', 'No', 'Maybe'])
