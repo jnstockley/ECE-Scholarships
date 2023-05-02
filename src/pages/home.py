@@ -54,7 +54,7 @@ CLEARJS = '''<script>
 st.title("Home")
 st.header("Review Applicants")
 
-def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
+def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, highlight_select = 'None', highlights=None):
     '''
     Function to generate dynamic graph of student data
     '''
@@ -74,7 +74,7 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
                 found = True
     weighted_bins = weighted_bins[~np.all(weighted_bins == 0, axis=1)]
     plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
-    if highlights is not None:
+    if highlights is not None and highlight_select == 'Selected Students':
         hxs = var_df.iloc[highlights][x_axis]
         hys = var_df.iloc[highlights][y_axis]
         colors = iter(cm.rainbow(np.linspace(0, 1, len(hys)+1)))
@@ -83,7 +83,8 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
             plt.scatter(var_x, var_y, color=next(colors))
         legend_names = ['Other Students']
         legend_names.extend(var_df.iloc[highlights]['Name'].values)
-        plt.legend(legend_names)
+        if show_legend:
+            plt.legend(legend_names)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
     st.pyplot(fig)
@@ -175,10 +176,12 @@ with st.container():
                 numeric_cols = numeric_cols.loc[numeric_cols == True]
                 numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
                 numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
-                fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
-                fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
+                fig_select1a = st.selectbox("Select X axis",numeric_cols.index.values)
+                fig_select1b = st.selectbox("Select Y axis",numeric_cols.index.values)
+                fig_select1c = st.selectbox("Highlight Scheme", ['None', 'Selected Students', 'Scholarship Status'])
+                show_legend = st.checkbox("Show Legend", True)
                 sel_rows = grid_table["selected_rows"]
                 sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
+                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, show_legend, fig_select1c, sel_row_indices)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
