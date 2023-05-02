@@ -24,10 +24,10 @@ if 'n_groups' not in st.session_state:
 # This try except clause fixes an error that would previously cause it to fail if the file did not exist
 # now it will just create an empty file.
 try:
-    scholarships = read_rows('tests/data/scholarships.xlsx', creds)
+    scholarships = read_rows('/data/Scholarships.xlsx', creds)
 except FileNotFoundError:
-    write_rows(pd.DataFrame({}), 'tests/data/scholarships.xlsx', 'Scholarships', creds)
-    scholarships = read_rows('tests/data/scholarships.xlsx', creds)
+    write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', creds)
+    scholarships = read_rows('/data/Scholarships.xlsx', creds)
 
 
 # Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors,
@@ -95,7 +95,7 @@ def display_create_dynamic():
                 new_scholarships = new_scholarships.append(updated_sch)
             # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
-            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+            write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(name + " has been successfully created.")
 
 def display_edit_dynamic():
@@ -140,7 +140,7 @@ def display_edit_dynamic():
                 edit_row(scholarships, index, [(col, chosen_val)])
             if st.button('Finalize Changes', key='Finalize Changes'):
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
-                write_rows(scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+                write_rows(scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
                 st.write(edit_sch + " has been successfully edited.")
 
 
@@ -169,7 +169,7 @@ def display_delete():
                 new_scholarships = scholarships.drop(index=index)
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file,
                 # so that is done here.
-                write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+                write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
                 st.write(delete_sch + ' has been successfully deleted.')
 
 
@@ -217,7 +217,7 @@ def display_import():
             st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
-            write_rows(new_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+            write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
@@ -244,7 +244,7 @@ def display_import():
         if fail_columns == 0:
             for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
-            write_rows(old_scholarships, 'tests/data/scholarships.xlsx', 'Scholarships', creds)
+            write_rows(old_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 
