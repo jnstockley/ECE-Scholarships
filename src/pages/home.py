@@ -42,28 +42,22 @@ def download_data():
         new_file.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
         upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
 
+    # Initializing data
+    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
+    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
+    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
+
     return creds, hawk_id
     
 creds, hawk_id = download_data()
 
-# Importing data
-if 'students' not in st.session_state:
-    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
-    students = st.session_state.students
-else: 
-    students = st.session_state.students
+# Setting app variables
 
-if 'scholarships' not in st.session_state:
-    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    scholarships = st.session_state.scholarships
-else: 
-    scholarships = st.session_state.scholarships
+students = st.session_state.students
 
-if 'user_recommendations' not in st.session_state: 
-    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id}_Reviews.xlsx")
-    user_recommendations = st.session_state.user_recommendations
-else: 
-    user_recommendations = st.session_state.user_recommendations
+scholarships = st.session_state.scholarships
+
+user_recommendations = st.session_state.user_recommendations
 
 # Helper functions for JavaScript
 js = JsCode("""
