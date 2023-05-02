@@ -287,8 +287,10 @@ with st.container():
                     if 'review_success' in st.session_state:
                         if st.session_state.review_success == 'success':
                             st.success("Successfuly submitted recommendations!")
+                            del st.session_state['review_success']
                         if st.session_state.review_success == 'error':
                             st.error(st.session_state.review_result)
+                            del st.session_state['review_success']
                     if submit_recommendation:
                         success, result = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
                         if success is True:
