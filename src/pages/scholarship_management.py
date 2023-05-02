@@ -1,7 +1,6 @@
 """
 scholarship management page render
 """
-import os
 import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
@@ -16,25 +15,26 @@ if not cookie:
 
 @st.cache_data
 def download_data():
+    '''
+    If we do not already have the data for the master sheet or the scholarships or
+    are not logged in, downloads the data and logs in the user.
+    '''
     # Initializing data
-    creds = login(cookie)
-    master_sheet = read_rows('data/Master_Sheet.xlsx', creds)
-    st.session_state.master_sheet = master_sheet
+    login_creds = login(cookie)
+    data_sheet = read_rows('data/Master_Sheet.xlsx', login_creds)
+    st.session_state.master_sheet = data_sheet
     try:
-        scholarships = read_rows('data/Scholarships.xlsx', creds)
-        st.session_state.scholarships = scholarships
+        scholarships_sheet = read_rows('data/Scholarships.xlsx', login_creds)
+        st.session_state.scholarships = scholarships_sheet
     except FileNotFoundError:
-        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', creds)
+        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', login_creds)
         st.session_state.scholarships = pd.DataFrame({})
-    return creds, scholarships, master_sheet
+    return login_creds, scholarships_sheet, data_sheet
 creds, scholarships, master_sheet = download_data()
 
 if 'scholarships' not in st.session_state:
     st.session_state.scholarships = scholarships
 scholarships = st.session_state.scholarships
-
-# st.session_state.scholarships = scholarships
-# scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
 # Needed because of experimental_rerun() call to allow as many groups as they want
