@@ -201,11 +201,6 @@ def display_import():
     names and values are consistent with the values of a normally created scholarship through the application or else 
     unintended errors can happen.""")
 
-    # columns = ['Name', 'Total Amount', 'Value', 'RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English',
-    #            'ACT Composite',
-    #            'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile', 'Group One', 'Group Two',
-    #            'Group Three']
-
     if submit_new:
         # Handle imported files.
         if not file:
@@ -220,6 +215,7 @@ def display_import():
         new_scholarships = file_path.head()
         # Write the new scholarships sheet to the correct area.
         write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+        st.session_state.scholarships = new_scholarships
         st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
@@ -232,21 +228,20 @@ def display_import():
         if len(file) > 1:
             st.write('Only select one file.')
             return
+        file_path = pd.read_excel(file[0])
+        add_scholarships = file_path.head()
 
-        add_scholarships = read_rows(file[0], creds)
-        old_scholarships = scholarships
-        # Validation checking to make sure that all the columns are the same
-        add_columns = add_scholarships.columns
-        fail_columns, invalid_columns, missing_columns = check_columns_equal(columns, add_columns)
-        for col in invalid_columns:
-            st.write(col + " column is not a valid column.")
-        for col in missing_columns:
-            st.write(col + " column is missing.")
-        # Succeed if there are no failures
-        if fail_columns == 0:
-            for _, row in add_scholarships.iterrows():
-                old_scholarships = old_scholarships.append(row)
-            write_rows(old_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+        new_scholarships = pd.DataFrame({})
+        for i in range(add_scholarships.shape[0]):
+            dict_sch = add_scholarships.loc[i].to_dict()
+            equalize_dictionary_columns(SCH_COLUMNS, dict_sch)
+            updated_sch = pd.Series(dict_sch, name = i)
+            # Append the new version of the scholarship (might be the same if no new columns) to our new dataframe
+            new_scholarships = new_scholarships.append(updated_sch)
+
+        for _, row in new_scholarships.iterrows():
+            st.session_state.scholarships = st.session_state.scholarships.append(row)
+            write_rows(st.session_state.scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 
