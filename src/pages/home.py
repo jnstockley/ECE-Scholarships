@@ -193,7 +193,7 @@ with st.container():
                 if fig_select1c == 'Selected Students':
                     sel_rows = grid_table["selected_rows"]
                     SEL_ROW_INDICES = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                options = [show_legend, weight_bins, fig_select1c]
-                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, options, SEL_ROW_INDICES)    # Exporting the selected students
+                option_select = [show_legend, weight_bins, fig_select1c]
+                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
