@@ -287,10 +287,10 @@ with st.container():
                     if 'review_success' in st.session_state:
                         if st.session_state.review_success == 'success':
                             st.success("Successfuly submitted recommendations!")
-                            del st.session_state['review_success']
+                            st.session_state['review_success'] = None
                         if st.session_state.review_success == 'error':
                             st.error(st.session_state.review_result)
-                            del st.session_state['review_success']
+                            st.session_state['review_success'] = None
                     if submit_recommendation:
                         success, result = submit_recommendations(user_recommendations, current_scholarship, rating, additional_feedback)
                         if success is True:
@@ -305,15 +305,19 @@ with st.container():
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Students"):
-            with st.container():
-                numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
-                numeric_cols = numeric_cols.loc[numeric_cols == True]
-                numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
-                numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
-                fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
-                fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
-                sel_rows = grid_table["selected_rows"]
-                sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
+            st.write("Ashelyn's Stuff")
+            # with st.container():
+            #     numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+            #     numeric_cols = numeric_cols.loc[numeric_cols == True]
+            #     numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+            #     numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
+            #     fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
+            #     fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
+            #     sel_rows = grid_table["selected_rows"]
+            #     sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+            #     dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
     with col3:
-        st.button("Export Selected Students")
+        if st.button("Export Current Table"):
+            grid_table['data'].to_excel('./data/exported_data.xlsx')
+            st.success('Exported data to /data!')
+
