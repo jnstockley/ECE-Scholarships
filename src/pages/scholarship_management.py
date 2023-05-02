@@ -16,35 +16,29 @@ if not cookie:
 
 creds = login(cookie)
 
+
 @st.cache_data
 def download_data():
-    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
-
     # Initializing data
-    st.session_state.master_sheet = pd.read_excel("./data/Master_Sheet.xlsx")
-
+    st.session_state.master_sheet = read_rows('data/Master_Sheet.xlsx', creds)
+    try:
+        st.session_state.scholarships = read_rows('data/Scholarships.xlsx', creds)
+    except FileNotFoundError:
+        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', creds)
+        st.session_state.scholarships = pd.DataFrame({})
 download_data()
 
-
+scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
 # Needed because of experimental_rerun() call to allow as many groups as they want
 if 'n_groups' not in st.session_state:
     st.session_state.n_groups = 0
 
-# This try except clause fixes an error that would previously cause it to fail if the file did not exist
-# now it will just create an empty file.
-try:
-    scholarships = read_rows('/data/Scholarships.xlsx', creds)
-except FileNotFoundError:
-    write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', creds)
-    scholarships = read_rows('/data/Scholarships.xlsx', creds)
-
 
 # Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors,
 # group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
-# NOTE: SCH_COLUMNS needs to be changed to grab the columns from the imported data so its actually dynamic
 SCH_COLUMNS = st.session_state.master_sheet.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
@@ -72,9 +66,6 @@ def display_create_dynamic():
     dyn_columns = st.multiselect("Choose Relevant Criteria to this Scholarship", options=SCH_COLUMNS, help='''Every criteria you select
                                  will create a new enter field for you to put the relevant value in.''')
     for val in dyn_columns:
-        # #NOTE: If we use select_slider and not text_input, options needs to be found through the values currently in the imported data
-        # chosenVal = st.select_slider('Select the minimum ' + val + ' requirement', options=range(0,37))
-        # I think text_input might work better as they can just type in their number rather than needing to find the range
         chosen_val = st.text_input('Enter the minimum ' + val + ' requirement')
         col_values[val] = chosen_val
     # Every time the button is pressed we increment the group count and rerun the script
@@ -107,6 +98,7 @@ def display_create_dynamic():
             # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
             write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
+            scholarships = new_scholarships
             st.write(name + " has been successfully created.")
 
 def display_edit_dynamic():
@@ -181,6 +173,7 @@ def display_delete():
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file,
                 # so that is done here.
                 write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
+                scholarships = new_scholarships
                 st.write(delete_sch + ' has been successfully deleted.')
 
 
