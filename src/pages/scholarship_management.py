@@ -1,12 +1,13 @@
 """
 scholarship management page render
 """
+import os
 import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text, redirect
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, check_columns_equal, equalize_dictionary_columns
-from src.utils.sharepoint import logged_in, login
+from src.utils.sharepoint import logged_in, login, download
 
 cookie = logged_in()
 
@@ -14,6 +15,16 @@ if not cookie:
     redirect("/Log%20In")
 
 creds = login(cookie)
+
+@st.cache_data
+def download_data():
+    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds)
+
+    # Initializing data
+    st.session_state.master_sheet = pd.read_excel("./data/Master_Sheet.xlsx")
+
+download_data()
+
 
 
 # This is for determining how many groups have been added to a scholarship
@@ -34,7 +45,7 @@ except FileNotFoundError:
 # group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
 # NOTE: SCH_COLUMNS needs to be changed to grab the columns from the imported data so its actually dynamic
-SCH_COLUMNS = scholarships.columns.tolist()
+SCH_COLUMNS = st.session_state.master_sheet.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                  'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile']
