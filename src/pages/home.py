@@ -180,8 +180,14 @@ with st.container():
                 fig_select1b = st.selectbox("Select Y axis",numeric_cols.index.values)
                 fig_select1c = st.selectbox("Highlight Scheme", ['None', 'Selected Students', 'Scholarship Status'])
                 show_legend = st.checkbox("Show Legend", True)
-                sel_rows = grid_table["selected_rows"]
-                sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+                if fig_select1c == 'Selected Students':
+                    sel_rows = grid_table["selected_rows"]
+                    sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+                if fig_select1c == 'Scholarship Status':
+                    print(STUDENTS)
+                    sel_row_indices = None
+                if fig_select1c == 'None':
+                    sel_row_indices = None
                 dynamic_fig(STUDENTS, fig_select1a, fig_select1b, show_legend, fig_select1c, sel_row_indices)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
