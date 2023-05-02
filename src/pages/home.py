@@ -54,7 +54,7 @@ CLEARJS = '''<script>
 st.title("Home")
 st.header("Review Applicants")
 
-def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, highlight_select = 'None', highlights=None):
+def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, weight_bins=True, highlight_select = 'None', highlights=None):
     '''
     Function to generate dynamic graph of student data
     '''
@@ -73,6 +73,12 @@ def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, highlight_select = 
                 weighted_bins[j][2] += 1
                 found = True
     weighted_bins = weighted_bins[~np.all(weighted_bins == 0, axis=1)]
+    for bin in weighted_bins:
+        if weight_bins:
+            bin[-1] = bin[-1] - (np.min(weighted_bins[:,2])-1)
+        else:
+            bin[-1] = 1
+        print(bin)
     plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
     if highlights is not None and highlight_select == 'Selected Students':
         hxs = var_df.iloc[highlights][x_axis]
@@ -178,16 +184,14 @@ with st.container():
                 numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
                 fig_select1a = st.selectbox("Select X axis",numeric_cols.index.values)
                 fig_select1b = st.selectbox("Select Y axis",numeric_cols.index.values)
-                fig_select1c = st.selectbox("Highlight Scheme", ['None', 'Selected Students', 'Scholarship Status'])
+                fig_select1c = st.selectbox("Highlight Scheme", ['None', 'Selected Students'])#, 'Scholarship Status'
                 show_legend = st.checkbox("Show Legend", True)
+                weight_bins = st.checkbox("Weight Plot", True)
                 if fig_select1c == 'Selected Students':
                     sel_rows = grid_table["selected_rows"]
                     sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                if fig_select1c == 'Scholarship Status':
-                    print(STUDENTS)
-                    sel_row_indices = None
                 if fig_select1c == 'None':
                     sel_row_indices = None
-                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, show_legend, fig_select1c, sel_row_indices)    # Exporting the selected students
+                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, show_legend, weight_bins, fig_select1c, sel_row_indices)    # Exporting the selected students
     with col3:
         st.button("Export Selected Students")
