@@ -38,6 +38,10 @@ class SharepointTest(unittest.TestCase):
 
         self.web = self.creds.web.get().execute_query()
 
+        if not os.path.exists(f'{os.getcwd()}/.app_data/'):
+            os.mkdir(f'{os.getcwd()}/.app_data/')
+
+
     def test_get_files(self):
         """
         Test for `get_files`
