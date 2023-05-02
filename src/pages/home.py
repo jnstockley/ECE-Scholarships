@@ -78,7 +78,8 @@ def dynamic_fig(var_df, x_axis, y_axis, show_legend = False, weight_bins=True, h
             bin[-1] = bin[-1] - (np.min(weighted_bins[:,2])-1)
         else:
             bin[-1] = 1
-        print(bin)
+        if bin[-1] > 10:
+            bin[-1] = 10
     plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
     if highlights is not None and highlight_select == 'Selected Students':
         hxs = var_df.iloc[highlights][x_axis]
