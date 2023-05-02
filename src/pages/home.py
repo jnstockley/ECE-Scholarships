@@ -15,7 +15,7 @@ from matplotlib import cm
 
 from src.utils.html import redirect
 from src.utils.sharepoint import logged_in, download, upload, login
-from src.utils.scholarship_management import edit_row, groups_string_to_list
+from src.utils.scholarship_management import groups_string_to_list
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -305,17 +305,16 @@ with st.container():
     # Viewing graphs of student distributions
     with col2:
         with st.expander("See Distribution of Students"):
-            st.write("Ashelyn's Stuff")
-            # with st.container():
-            #     numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
-            #     numeric_cols = numeric_cols.loc[numeric_cols == True]
-            #     numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
-            #     numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
-            #     fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
-            #     fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
-            #     sel_rows = grid_table["selected_rows"]
-            #     sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-            #     dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
+            with st.container():
+                numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+                numeric_cols = numeric_cols.loc[numeric_cols == True]
+                numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+                numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
+                fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
+                fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
+                sel_rows = grid_table["selected_rows"]
+                sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+                dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
             grid_table['data'].to_excel('./data/exported_data.xlsx')
