@@ -20,7 +20,7 @@ if not cookie:
 
 # Downloading the data needed on first visit
 @st.cache_data
-def download_data():
+def download_winnerspage_data():
     '''
     Caching credentials and downloads so only have to do on page load
     '''
@@ -33,7 +33,7 @@ def download_data():
     for file in files:
         if file == "Select File":
             continue
-        if '/data/' in file:
+        if '/data/' in file and '/tests/' not in file:
             download(file, f"{os.getcwd()}/data/", creds_to_return)
 
     # Initializing session data
@@ -51,7 +51,7 @@ def download_data():
     return creds_to_return, hawk_id_to_return
 
 # Setting variables for script
-creds, hawk_id = download_data()
+creds, hawk_id = download_winnerspage_data()
 students = st.session_state.students
 current_data = students.copy()
 scholarships = st.session_state.scholarships

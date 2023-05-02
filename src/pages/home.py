@@ -25,7 +25,7 @@ if not cookie:
 
 # Downloading data needed on first vist
 @st.cache_data
-def download_data():
+def download_homepage_data():
     '''
     Caching credentials and downloads so only have to do on page load
     '''
@@ -51,7 +51,7 @@ def download_data():
     return creds_to_return, hawk_id_to_return
 
 # Setting variables for script
-creds, hawk_id = download_data()
+creds, hawk_id = download_homepage_data()
 students = st.session_state.students
 current_data = students.copy()
 scholarships = st.session_state.scholarships
