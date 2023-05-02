@@ -18,16 +18,24 @@ if not cookie:
 def download_data():
     # Initializing data
     creds = login(cookie)
-    st.session_state.master_sheet = read_rows('data/Master_Sheet.xlsx', creds)
+    master_sheet = read_rows('data/Master_Sheet.xlsx', creds)
+    st.session_state.master_sheet = master_sheet
     try:
-        st.session_state.scholarships = read_rows('data/Scholarships.xlsx', creds)
+        scholarships = read_rows('data/Scholarships.xlsx', creds)
+        st.session_state.scholarships = scholarships
     except FileNotFoundError:
         write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', creds)
         st.session_state.scholarships = pd.DataFrame({})
-    return creds
-creds = download_data()
+    return creds, scholarships, master_sheet
+creds, scholarships, master_sheet = download_data()
 
+if 'scholarships' not in st.session_state:
+    st.session_state.scholarships = scholarships
 scholarships = st.session_state.scholarships
+print(scholarships)
+
+# st.session_state.scholarships = scholarships
+# scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
 # Needed because of experimental_rerun() call to allow as many groups as they want
@@ -38,7 +46,7 @@ if 'n_groups' not in st.session_state:
 # Global variables; SCH_COLUMNS contains all the columns that can be in a scholarship, majors contains all the majors,
 # group options is all the column names that can be selected for a group
 # and group help is the help message when hovering over the ? on a group field.
-SCH_COLUMNS = st.session_state.master_sheet.columns.tolist()
+SCH_COLUMNS = master_sheet.columns.tolist()
 MAJORS = ['Computer Science and Engineering', 'Electrical Engineering', 'All']
 GROUP_OPTIONS = ['RAI', 'Admit Score', 'Major', 'ACT Math', 'ACT English', 'ACT Composite',
                  'SAT Math', 'SAT Reading', 'SAT Combined', 'GPA', 'HS Percentile']
@@ -96,8 +104,8 @@ def display_create_dynamic():
                 new_scholarships = new_scholarships.append(updated_sch)
             # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
-            write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
-            scholarships = new_scholarships
+            write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+            st.session_state.scholarships = new_scholarships
             st.write(name + " has been successfully created.")
 
 def display_edit_dynamic():
@@ -142,7 +150,7 @@ def display_edit_dynamic():
                 edit_row(scholarships, index, [(col, chosen_val)])
             if st.button('Finalize Changes', key='Finalize Changes'):
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
-                write_rows(scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
+                write_rows(scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
                 st.write(edit_sch + " has been successfully edited.")
 
 
@@ -151,7 +159,7 @@ def display_delete():
     This function displays all the associated view/actions for deleting a scholarship
     and removing it from the scholarship file.
     """
-    delete_sch = st.selectbox("Select the scholarship to delete", options=scholarships['Name'])
+    delete_sch = st.selectbox("Select the scholarship to delete", options=st.session_state.scholarships['Name'])
     if button('Delete This Scholarship', key='Delete This Scholarship'):
         # Don't let them try to delete nothing.
         if delete_sch is None:
@@ -161,18 +169,18 @@ def display_delete():
             # Extra layers of decisions to make sure they want to do this.
             if st.button('Finalize Deletion', key='Finalize Deletion'):
                 # index is the row index of the scholarship we are deleting.
-                for ind in range(0, scholarships.shape[0]):
-                    values = scholarships.iloc[ind]
+                for ind in range(0, st.session_state.scholarships.shape[0]):
+                    values = st.session_state.scholarships.iloc[ind]
                     if values['Name'] == delete_sch:
                         index = ind
                         break
                 # In this case, drop takes the row index and drops the associated row, returning a new dataframe
                 # without it.
-                new_scholarships = scholarships.drop(index=index)
+                new_scholarships = st.session_state.scholarships.drop(index=index)
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file,
                 # so that is done here.
-                write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
-                scholarships = new_scholarships
+                write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+                st.session_state.scholarships = new_scholarships
                 st.write(delete_sch + ' has been successfully deleted.')
 
 
@@ -220,7 +228,7 @@ def display_import():
             st.write(col + " column is missing.")
         # Succeed if there are no failures
         if fail_columns == 0:
-            write_rows(new_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
+            write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
     if submit_add:
@@ -247,7 +255,7 @@ def display_import():
         if fail_columns == 0:
             for _, row in add_scholarships.iterrows():
                 old_scholarships = old_scholarships.append(row)
-            write_rows(old_scholarships, '/data/Scholarships.xlsx', 'Scholarships', creds)
+            write_rows(old_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
             st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 

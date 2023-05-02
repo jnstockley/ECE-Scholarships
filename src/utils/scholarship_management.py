@@ -23,8 +23,8 @@ def write_rows(dataframe, file_path, sheet_name, creds: ClientContext):
     """
     Writes the rows of a dataframe to the file_path with sheet_name
     """
-    upload(file_path, f'/{os.path.dirname(file_path)}', creds)
     dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    upload(file_path, f'/{os.path.dirname(file_path)}', creds)
 
 
 def edit_row(dataframe, row_index, column_names_and_values):
