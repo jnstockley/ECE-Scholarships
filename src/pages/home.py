@@ -23,7 +23,7 @@ if not SHAREPOINT.is_signed_in():
     redirect("/Log In")
 
 # Downloading data needed on first vist
-#@st.cache_data
+@st.cache_data
 def download_homepage_data():
     '''
     Caching credentials and downloads so only have to do on page load
@@ -39,16 +39,14 @@ def download_homepage_data():
         SHAREPOINT.upload(os.path.abspath(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), '/data/')
 
     # Initializing session data
-    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
-    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    st.session_state.user_recommendations = pd.read_excel(f"./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx")
+    students = pd.read_excel("./data/Master_Sheet.xlsx")
+    scholarships = pd.read_excel("./data/Scholarships.xlsx")
+    user_recommendations = pd.read_excel(f"./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx")
+    return students, scholarships, user_recommendations
 
 # Setting variables for script
-download_homepage_data()
-students = st.session_state.students
+students, scholarships, user_recommendations = download_homepage_data()
 current_data = students.copy()
-scholarships = st.session_state.scholarships
-user_recommendations = st.session_state.user_recommendations
 
 # JavaScript functions for styling table
 js = JsCode("""

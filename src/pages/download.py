@@ -9,16 +9,16 @@ import streamlit as st
 from src.utils.html import redirect
 from src.managers.sharepoint.sharepoint_session import SharepointSession
 
+SHARE_POINT = SharepointSession(st.session_state)
+if not SHARE_POINT.is_signed_in():
+    redirect("/Log In")
+
 def files_dropdown():
     """
     Sets up the file dropdown, makes sure user is signed in
     """
 
     st.header("Download A File")
-
-    SHARE_POINT = SharepointSession(st.session_state)
-    if not SHARE_POINT.is_signed_in():
-        redirect("/Log In")
 
     with st.spinner("Loading Sharepoint Files..."):
         files = SHARE_POINT.get_files()
