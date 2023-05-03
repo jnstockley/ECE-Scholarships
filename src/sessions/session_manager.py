@@ -74,3 +74,10 @@ class SessionManager:
                 raise TypeError(f'Trying to set session_key={key} of type {cur_type} to invalid type {new_type}\nSession state types shall not deviate!')
 
         self._session[key] = value
+
+    def _unset(self, key: str):
+        '''
+        Unsets a session value
+        '''
+        if self.has(key):
+            del self._session[key]
