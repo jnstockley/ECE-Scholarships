@@ -22,31 +22,28 @@ SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
-# Downloading data needed on first vist
-@st.cache_data
-def download_homepage_data():
-    '''
-    Caching credentials and downloads so only have to do on page load
-    '''
-    # Downloading needed data
+# Setting variables for script
+if 'students' not in st.session_state:
     SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+    st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+students = st.session_state_students
+current_data = students.copy()
+
+if 'scholarships' not in st.session_state:
     SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+    st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+scholarships = st.session_state_scholarships
+
+if 'user_recommendations' not in st.session_state:
     try:
         SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', "/data/")
     except:
         new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
         new_file.to_excel(get_appdata_path(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), index = False)
         SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
+    st.session_state.user_recommendations = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
+user_recommendations = st.session_state.user_recommendations
 
-    # Initializing session data
-    students_data = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
-    scholarships_data = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
-    user_recommendations_data = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
-    return students_data, scholarships_data, user_recommendations_data
-
-# Setting variables for script
-students, scholarships, user_recommendations = download_homepage_data()
-current_data = students.copy()
 
 # JavaScript functions for styling table
 js = JsCode("""
