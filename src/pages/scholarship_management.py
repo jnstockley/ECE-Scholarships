@@ -21,7 +21,8 @@ with st.spinner('Downloading Data'):
     master_sheet = st.session_state.master_sheet
     if 'scholarships' not in st.session_state:
         try:
-            SCHOLARSHIPS_SHEET = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+            SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+            SCHOLARSHIPS_SHEET = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
         except FileNotFoundError:
             write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
             SCHOLARSHIPS_SHEET = pd.DataFrame({})
