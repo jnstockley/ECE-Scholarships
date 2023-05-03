@@ -14,7 +14,7 @@ if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
 # Setting variables for script
-with st.spinner('Downloading Data'):
+with st.spinner('Downloading Data...'):
     if 'master_sheet' not in st.session_state:
         SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
         st.session_state.master_sheet = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
