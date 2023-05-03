@@ -23,8 +23,8 @@ def write_rows(dataframe, file_path, sheet_name, creds: ClientContext):
     """
     Writes the rows of a dataframe to the file_path with sheet_name
     """
-    upload(file_path, f'/{os.path.dirname(file_path)}', creds)
     dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
+    upload(file_path, f'/{os.path.dirname(file_path)}', creds)
 
 
 def edit_row(dataframe, row_index, column_names_and_values):
@@ -79,3 +79,14 @@ def check_columns_equal(old_columns, new_columns):
             missing_columns.append(col)
 
     return fail_columns, invalid_columns, missing_columns
+
+def equalize_dictionary_columns(columns, dict_to_change):
+    '''
+    This function takes a list of columns and a dictionary and if there are any columns
+    that are not present in the dictionary as a key it adds them and gives them the value of None
+    '''
+    for val in columns:
+        if val not in dict_to_change:
+            dict_to_change[val] = None
+    # This is not a necessary return statement but is kept for understanding
+    return dict_to_change
