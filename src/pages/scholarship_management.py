@@ -12,26 +12,18 @@ SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
-@st.cache_data
-def download_data():
-    '''
-    If we do not already have the data for the master sheet or the scholarships or
-    are not logged in, downloads the data and logs in the user.
-    '''
-    # Initializing data
-    data_sheet = read_rows('/data/Master_Sheet.xlsx', SHAREPOINT)
-    st.session_state.master_sheet = data_sheet
+# Setting variables for script
+if 'master_sheet' not in st.session_state: 
+    SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+    st.session_state.master_sheet = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+master_sheet = st.session_state.master_sheet
+if 'scholarships' not in st.session_state:
     try:
-        scholarships_sheet = read_rows('/data/Scholarships.xlsx', SHAREPOINT)
-        st.session_state.scholarships = scholarships_sheet
+        scholarships_sheet = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
     except FileNotFoundError:
         write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
-        st.session_state.scholarships = pd.DataFrame({})
-    return scholarships_sheet, data_sheet
-scholarships, master_sheet = download_data()
-
-if 'scholarships' not in st.session_state:
-    st.session_state.scholarships = scholarships
+        scholarships_sheet = pd.DataFrame({})
+    st.session_state.scholarships = scholarships_sheet
 scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
