@@ -21,7 +21,6 @@ from streamlit.errors import DuplicateWidgetID
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 HAWKID_REGEX = re.compile(r"[a-zA-Z][a-zA-Z0-9]{2,}@uiowa.edu")
-
 PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$")
 
 SITE_URL_REGEX = re.compile(r"https://iowa.sharepoint.com/sites/.+")
