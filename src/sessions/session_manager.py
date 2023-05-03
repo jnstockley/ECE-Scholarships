@@ -3,6 +3,7 @@ SessionManagerp
 '''
 from enum import Enum
 import pandas as pd
+import streamlit as st
 from streamlit.runtime.state import SessionStateProxy
 
 class GlobalSession(Enum):
