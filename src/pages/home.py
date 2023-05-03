@@ -307,7 +307,12 @@ with st.container():
             with st.container():
                 numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
                 numeric_cols = numeric_cols.loc[numeric_cols == True]
-                numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+                for label in ['UID','Duplicate','Categorized At']:
+                    try:
+                        numeric_cols = numeric_cols.drop(labels=[label],axis='index')
+                    except:
+                        print('column not found:',label)
+                #numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
                 numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
                 fig_select1a = st.selectbox("Select X axis",numeric_cols.index.values)
                 fig_select1b = st.selectbox("Select Y axis",numeric_cols.index.values)
@@ -319,7 +324,7 @@ with st.container():
                     sel_rows = grid_table["selected_rows"]
                     SEL_ROW_INDICES = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
                 option_select = [show_legend, weight_bins, fig_select1c]
-                dynamic_fig(STUDENTS, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
+                dynamic_fig(students, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
             grid_table['data'].to_excel('./data/Exported_Data.xlsx')
