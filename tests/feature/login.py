@@ -39,9 +39,6 @@ def test_invalid_login_creds(page: Page):
     # Invalid Password
     invalid_password = "1234"
 
-    # Invalid Sharepoint URL
-    invalid_sharepoint_url = "https://iowa.sharepoint.com/sites"
-
     hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
     password_textbox = page.get_by_role("textbox", name="HawkID Password")
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
