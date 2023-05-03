@@ -10,7 +10,7 @@ show_pages(
         Page("src/pages/home.py", "Home"),
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
         Page("src/pages/winners.py", "Export Winners"),
-        Page("src/pages/login.py", "Log In"),
+        Page("src/pages/account.py", "Account"),
         Page("src/pages/download.py", "Download File"),
         Page("src/pages/import.py", "Import Data"),
         Page("src/pages/export.py", "Export Data"),

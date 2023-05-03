@@ -35,13 +35,15 @@ def download_winnerspage_data():
     # Initializing session data
     students_data = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
     scholarships_data = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
-    directory = "./.app_data"
+    directory = ".app_data/data"
 
     result = []
     for filename in os.listdir(directory):
         file = os.path.join(directory, filename)
+        print(filename)
         if os.path.isfile(file):
             if 'Reviews.xlsx' in file:
+                print(file)
                 result.append(pd.read_excel(file))
 
     all_recommendations_data = result
