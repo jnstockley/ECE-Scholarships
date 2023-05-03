@@ -4,6 +4,7 @@ Objects for importing the sharepoint user session and interfacing with sharepoin
 from enum import Enum
 from streamlit.runtime.state import SessionStateProxy
 from src.sessions.session_manager import SessionManager
+from office365.runtime.client_request_exception import ClientRequestException
 from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 
@@ -23,14 +24,19 @@ class SharepointSession(SessionManager):
     Attributes
     ----------
     client : ClientContent | None
+        Main sharepoint client config reference
+    sharepoint_url : str
+        Sharepoint configured URL (with no trailing /)
     '''
     def __init__(self, session: SessionStateProxy):
         super().__init__(session, "default")
 
+        self.sharepoint_url = SHAREPOINT_URL.strip("/")
+
         self.client = None
         if self.has(Session.CREDENTIALS):
             hawk_id, password = self._retrieve_credentials()
-            self.login(hawk_id, password)
+            self._login_no_verify(hawk_id, password)
 
     def is_signed_in(self) -> bool:
         '''
@@ -53,7 +59,27 @@ class SharepointSession(SessionManager):
         self.client = ClientContext(SHAREPOINT_URL).with_credentials(UserCredential(hawk_id, password))
 
         self._set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
-        return True
+
+        # Verify the client was properly configured with test request
+        try:
+            web = self.client.web.get().execute_query()
+        except IndexError:
+            return False
+        except ClientRequestException:
+            return False
+
+        if f"{web.url}/".strip("/") == self.sharepoint_url:
+            return True
+
+        return False
+
+    def _login_no_verify(self, hawk_id: str, password: str):
+        '''
+        Same behavior as login but assumes hawk_id and password are already valid.
+        '''
+        self.client = ClientContext(SHAREPOINT_URL).with_credentials(UserCredential(hawk_id, password))
+
+        self._set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
 
     def _retrieve_credentials(self):
         '''

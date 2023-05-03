@@ -29,7 +29,7 @@ def login_form():
     login_button = login_form.form_submit_button("Log in to Sharepoint Site")
 
     if login_button:
-        SHAREPOINT.login(hawk_id, password)
+        result = SHAREPOINT.login(hawk_id, password)
 
         # cred = {"hawk-id": hawk_id, "password": password, "site-url": site_url}
         # if logged_in(cookie_manager, cred):
@@ -37,7 +37,7 @@ def login_form():
         #     cookie_manager.set("cred", cred)
         #     redirect("/Download%20File")
         #     return
-        if SHAREPOINT.is_signed_in():
+        if result:
             #redirect("/Download%20File")
             st.experimental_rerun()
             return
