@@ -18,9 +18,7 @@ from src.utils.scholarship_management import groups_string_to_list
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
 
-# Log in protecting the home page
 SHAREPOINT = SharepointSession(st.session_state)
-#SHAREPOINT.set_redirect("/")
 if not SHAREPOINT.is_signed_in():
     redirect("/Log In")
 

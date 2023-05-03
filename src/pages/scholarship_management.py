@@ -5,13 +5,12 @@ import streamlit as st
 from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text, redirect
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, equalize_dictionary_columns
-from src.utils.sharepoint import logged_in, login
 
-cookie = logged_in()
-
-if not cookie:
-    redirect("/Log%20In")
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
+    redirect("/Log In")
 
 @st.cache_data
 def download_data():
@@ -20,17 +19,16 @@ def download_data():
     are not logged in, downloads the data and logs in the user.
     '''
     # Initializing data
-    login_creds = login(cookie)
-    data_sheet = read_rows('data/Master_Sheet.xlsx', login_creds)
+    data_sheet = read_rows('data/Master_Sheet.xlsx', SHAREPOINT)
     st.session_state.master_sheet = data_sheet
     try:
-        scholarships_sheet = read_rows('data/Scholarships.xlsx', login_creds)
+        scholarships_sheet = read_rows('data/Scholarships.xlsx', SHAREPOINT)
         st.session_state.scholarships = scholarships_sheet
     except FileNotFoundError:
-        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', login_creds)
+        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
         st.session_state.scholarships = pd.DataFrame({})
-    return login_creds, scholarships_sheet, data_sheet
-creds, scholarships, master_sheet = download_data()
+    return scholarships_sheet, data_sheet
+scholarships, master_sheet = download_data()
 
 if 'scholarships' not in st.session_state:
     st.session_state.scholarships = scholarships
@@ -103,7 +101,7 @@ def display_create_dynamic():
                 new_scholarships = new_scholarships.append(updated_sch)
             # Append the newly created scholarship to the new dataframe and write it to the file
             new_scholarships = new_scholarships.append(scholarship)
-            write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+            write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
             st.session_state.scholarships = new_scholarships
             st.write(name + " has been successfully created.")
 
@@ -149,7 +147,7 @@ def display_edit_dynamic():
                 edit_row(scholarships, index, [(col, chosen_val)])
             if st.button('Finalize Changes', key='Finalize Changes'):
                 # We changed the values in our scholarships dataframe, but have not updated the actual file, so that is done here
-                write_rows(scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+                write_rows(scholarships, 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
                 st.write(edit_sch + " has been successfully edited.")
 
 
@@ -178,7 +176,7 @@ def display_delete():
                 new_scholarships = st.session_state.scholarships.drop(index=index)
                 # We deleted the scholarship in our scholarships dataframe, but have not updated the actual file,
                 # so that is done here.
-                write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+                write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
                 st.session_state.scholarships = new_scholarships
                 st.write(delete_sch + ' has been successfully deleted.')
 
@@ -214,7 +212,7 @@ def display_import():
         file_path = pd.read_excel(file[0])
         new_scholarships = file_path.head()
         # Write the new scholarships sheet to the correct area.
-        write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+        write_rows(new_scholarships, 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
         st.session_state.scholarships = new_scholarships
         st.write(file[0].name + " has been successfully imported as your new scholarships.")
 
@@ -244,7 +242,7 @@ def display_import():
         # Need to append each new scholarship to our scholarships
         for _, row in new_scholarships.iterrows():
             st.session_state.scholarships = st.session_state.scholarships.append(row)
-        write_rows(st.session_state.scholarships, 'data/Scholarships.xlsx', 'Scholarships', creds)
+        write_rows(st.session_state.scholarships, 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
         st.write(file[0].name + " has been successfully added to the existing scholarships.")
 
 

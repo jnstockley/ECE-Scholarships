@@ -7,8 +7,7 @@ import time
 import streamlit as st
 
 from src.utils.html import redirect
-from src.utils.sharepoint import login, get_files, download, logged_in
-
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 def files_dropdown():
     """
@@ -17,17 +16,12 @@ def files_dropdown():
 
     st.header("Download A File")
 
-    cookie = logged_in()
-
-    if not cookie:
-        redirect("/Log%20In")
-        return
+    SHARE_POINT = SharepointSession(st.session_state)
+    if not SHARE_POINT.is_signed_in():
+        redirect("/Log In")
 
     with st.spinner("Loading Sharepoint Files..."):
-
-        creds = login(cookie)
-
-        files = get_files(creds)
+        files = SHARE_POINT.get_files()
 
     file_selector = st.form('sharepoint-file-selector')
 
@@ -35,7 +29,7 @@ def files_dropdown():
 
     if file_selector.form_submit_button("Download File"):
         if file != "Select File":
-            downloaded = download(file, f"{os.getcwd()}/data/", creds)
+            downloaded = SHARE_POINT.download(file, f"{os.getcwd()}/data/")
             if downloaded:
                 file_selector.info(f"Downloaded {file}")
                 return

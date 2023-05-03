@@ -15,6 +15,7 @@ from src.sessions.session_manager import SessionManager
 # temporary:
 SHAREPOINT_URL = "https://iowa.sharepoint.com/sites/SEP2023-Team2/"
 COOKIE_CREDENTIALS_KEY = "sharepoint-auth"
+VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 def get_cookie_manager():
     '''
@@ -106,6 +107,25 @@ class SharepointSession(SessionManager):
 
         self.client = None
         return False
+
+    def get_files(self) -> list[str]:
+        """
+        Gets a list of files on the sharepoint site
+
+        Returns
+        -------
+        List of files stored in sharepoint
+        """
+        target_folder_url = "Shared Documents"
+
+        root_folder = self.client.web.get_folder_by_server_relative_path(target_folder_url)
+
+        files = root_folder.get_files(True).execute_query()
+
+        data = ["Select File"] + [str(f.properties['ServerRelativeUrl']).split(target_folder_url)[1] for f in files if
+                                str(f.properties['ServerRelativeUrl']).endswith(VALID_EXTENSIONS)]
+
+        return data
 
     def upload(self, full_file_path: str, upload_location: str):
         """
