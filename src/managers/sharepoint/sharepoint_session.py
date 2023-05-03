@@ -70,7 +70,7 @@ class SharepointSession(SessionManager):
         Returns hawk ID if one is defined
         '''
         if self.has(Session.CREDENTIALS):
-            return self._retrieve(Session.CREDENTIALS)["username"]
+            return self.retrieve(Session.CREDENTIALS)["username"]
 
         return None
 
@@ -111,7 +111,7 @@ class SharepointSession(SessionManager):
             return False
 
         if result:
-            self._set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
+            self.set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
             return True
 
         self.client = None
@@ -208,14 +208,14 @@ class SharepointSession(SessionManager):
         Redirecting before cookie sync will cause cookie to not be saved. When using sharepoint session
         to redirect correctly use set_redirect(), which will redirect on next page re-render
         '''
-        self._set(Session.REDIRECT_AFTER_SYNC, url)
+        self.set(Session.REDIRECT_AFTER_SYNC, url)
 
     def _handle_redirect(self):
         '''
         If Session.REDIRECT_AFTER_SYNC has value, redirect to it
         '''
         if self.has(Session.REDIRECT_AFTER_SYNC):
-            redirect_to = self._retrieve(Session.REDIRECT_AFTER_SYNC)
+            redirect_to = self.retrieve(Session.REDIRECT_AFTER_SYNC)
             self._unset(Session.REDIRECT_AFTER_SYNC)
             redirect(redirect_to)
 
@@ -249,7 +249,7 @@ class SharepointSession(SessionManager):
         '''
         if self.has(Session.CREDENTIALS):
             # Cookie needs to be synced with session, presume session is known truth
-            json_str = json.dumps(self._retrieve(Session.CREDENTIALS), indent = 4)
+            json_str = json.dumps(self.retrieve(Session.CREDENTIALS), indent = 4)
             self._cookie_manager.set(COOKIE_CREDENTIALS_KEY, json_str)
 
             self._wait_for_cookie_key(COOKIE_CREDENTIALS_KEY, max_wait=5)
@@ -261,7 +261,7 @@ class SharepointSession(SessionManager):
 
         if COOKIE_CREDENTIALS_KEY in self._cookie_manager.get_all():
             cookie_value = self._cookie_manager.get(COOKIE_CREDENTIALS_KEY)
-            self._set(Session.CREDENTIALS, cookie_value)
+            self.set(Session.CREDENTIALS, cookie_value)
 
         self._handle_redirect()
         self.sync_complete = True
@@ -273,7 +273,7 @@ class SharepointSession(SessionManager):
         '''
         self.client = ClientContext(SHAREPOINT_URL).with_credentials(UserCredential(hawk_id, password))
 
-        self._set("sharepoint_auth", {"username": hawk_id, "password": password})
+        self.set("sharepoint_auth", {"username": hawk_id, "password": password})
 
     def _retrieve_credentials(self):
         '''
@@ -283,7 +283,7 @@ class SharepointSession(SessionManager):
         -------
         hawkid, password
         '''
-        creds = self._retrieve(Session.CREDENTIALS)
+        creds = self.retrieve(Session.CREDENTIALS)
         return creds["username"], creds["password"]
 
     def _wait_for_cookie_key(self, key: str, max_wait: float = 1):

@@ -51,16 +51,16 @@ class ImportSessionManager(SessionManager):
         super().__init__(session, View.IMPORT_PAGE)
 
         if self.has(Session.IMPORTED_SHEETS):
-            self.imported_sheets = self._retrieve(Session.IMPORTED_SHEETS)
+            self.imported_sheets = self.retrieve(Session.IMPORTED_SHEETS)
 
         if self.has(Session.ALIGNED_DF):
-            self.aligned_df = self._retrieve(Session.ALIGNED_DF)
+            self.aligned_df = self.retrieve(Session.ALIGNED_DF)
 
         if self.has(Session.ALIGNMENT_INFO):
-            self.alignment_info = self._retrieve(Session.ALIGNMENT_INFO)
+            self.alignment_info = self.retrieve(Session.ALIGNMENT_INFO)
 
         if self.has(Session.SIMILAR_MANAGER):
-            self.similar = self._retrieve(Session.SIMILAR_MANAGER)
+            self.similar = self.retrieve(Session.SIMILAR_MANAGER)
 
     def import_sheets(self, files: list[ImportedSheet]):
         '''
@@ -69,8 +69,8 @@ class ImportSessionManager(SessionManager):
         if len(files) == 0:
             raise IOError("No files imported!")
 
-        self._set(Session.IMPORTED_SHEETS, [ImportedSheet(file) for file in files])
-        self.imported_sheets = self._retrieve(Session.IMPORTED_SHEETS)
+        self.set(Session.IMPORTED_SHEETS, [ImportedSheet(file) for file in files])
+        self.imported_sheets = self.retrieve(Session.IMPORTED_SHEETS)
 
     def has_aligned_df(self) -> bool:
         '''
@@ -86,15 +86,15 @@ class ImportSessionManager(SessionManager):
             raise NameError('alignment_info missing from session')
 
         aligned_df = self.alignment_info.get_aligned_df()
-        self._set(Session.ALIGNED_DF, aligned_df)
-        self._set(Session.SIMILAR_MANAGER, MergeSimilarManager(self.alignment_info.info.final_column_name, aligned_df))
+        self.set(Session.ALIGNED_DF, aligned_df)
+        self.set(Session.SIMILAR_MANAGER, MergeSimilarManager(self.alignment_info.info.final_column_name, aligned_df))
         self.set_view(View.MERGE_COLUMNS)
 
     def begin_alignment(self, alignment_info: AlignmentInfo):
         '''
         Begin the alignment column flow
         '''
-        self._set(Session.ALIGNMENT_INFO, alignment_info)
+        self.set(Session.ALIGNMENT_INFO, alignment_info)
         self.set_view(View.DUPLICATE_COLUMN_HANDLER)
 
     def complete_import(self):
