@@ -113,7 +113,8 @@ if current_scholarship != "None":
     criteria_no_groups = []
     for column in criteria.columns.tolist():
         if column[0:5] == "Group":
-            groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
+            if isinstance(criteria[column].iloc[0], str) and criteria[column].iloc[0].startswith('[') and criteria[column].iloc[0].endswith(']'):
+                groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
         elif column not in ['Name', 'Total Amount', 'Value']:
             criteria_no_groups.append(column)
     for criterion in criteria_no_groups:
