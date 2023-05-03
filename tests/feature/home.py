@@ -4,6 +4,7 @@ Tests that the home page exists, and respects user sign in
 import pytest
 from playwright.sync_api import Page, expect
 
+
 @pytest.mark.usefixtures("login_user")
 def test_home_page_exists(page: Page):
     """
@@ -14,6 +15,7 @@ def test_home_page_exists(page: Page):
 
     expect(home_page_link).to_have_text("Home")
 
+
 def test_home_page_not_logged_in(page: Page):
     """
     Tests that the home page redirects to log in page if not signed in
@@ -22,6 +24,7 @@ def test_home_page_not_logged_in(page: Page):
 
     page_title = page.get_by_role("heading")
     expect(page_title).to_have_text("Log In")
+
 
 @pytest.mark.usefixtures("login_user")
 def test_home_page_logged_in(page: Page):

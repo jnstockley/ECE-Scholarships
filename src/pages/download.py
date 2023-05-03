@@ -31,7 +31,7 @@ def files_dropdown():
 
     file_selector = st.form('sharepoint-file-selector')
 
-    file = file_selector.selectbox("Select File", options=files)
+    file = file_selector.selectbox("Sharepoint Files", options=files)
 
     if file_selector.form_submit_button("Download File"):
         if file != "Select File":

@@ -30,6 +30,8 @@ def login_form_func():
     login_button = login_form.form_submit_button("Log in to Sharepoint Site")
 
     if login_button:
+        if not site_url.endswith('/'):
+            site_url = site_url + '/'
         cred = {"hawk-id": hawk_id, "password": password, "site-url": site_url}
         if logged_in(cookie_manager, cred):
             time.sleep(0.2)

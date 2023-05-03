@@ -64,6 +64,8 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
             cookies = manager.get_all()
         except DuplicateWidgetID:
             pass
+        except RecursionError:
+            return False
         # Work around for caching not working with cookie manager
         if cookies == {}:
             return logged_in(manager)
@@ -142,6 +144,8 @@ def download(file: str, download_location: str, cred: ClientContext) -> bool:
         download_location += "/"
     with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
         cred.web.get_file_by_server_relative_url(download_url).download(sharepoint_file).execute_query()
+    if not os.path.exists(download_location):
+        os.mkdir(download_location)
     return exists(f"{download_location}{file_name}")
 
 
@@ -162,8 +166,6 @@ def upload(full_file_path: str, upload_location: str, cred: ClientContext) -> bo
     upload_url = f"{site_url}{root_folder}{upload_location}"
 
     folder = cred.web.get_folder_by_server_relative_url(upload_url)
-
-    print(f"{upload_url}/{os.path.basename(full_file_path)}")
 
     with open(full_file_path, "rb") as file:
         file = folder.files.create_upload_session(file, 1000000).execute_query()
