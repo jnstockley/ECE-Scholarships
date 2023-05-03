@@ -49,7 +49,7 @@ class SharepointSession(SessionManager):
         Returns cookie manager object from streamlit extras
     '''
     def __init__(self, session: SessionStateProxy):
-        super().__init__(session, "default")
+        super().__init__(session, "auth", "default")
 
         self.sharepoint_url = SHAREPOINT_URL.strip("/")
         self._cookie_manager = get_cookie_manager()

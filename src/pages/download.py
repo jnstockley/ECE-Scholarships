@@ -8,15 +8,15 @@ import streamlit as st
 
 from src.utils.html import redirect
 from enum import Enum
-from src.sessions.session_manager import SessionManager, GlobalSession
+from src.sessions.session_manager import SessionManager
 from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 class DownloadView(Enum):
     '''
     Download page views
     '''
-    LOADING_FILES = "loading"
-    MAIN = "main"
+    LOADING_FILES = 0
+    MAIN = 1
 
 class SessionKey(Enum):
     '''
@@ -24,7 +24,7 @@ class SessionKey(Enum):
     '''
     FILES = "files"
 
-SESSION = SessionManager(st.session_state, "LOADING_FILES")
+SESSION = SessionManager(st.session_state, "download", DownloadView.LOADING_FILES)
 SHARE_POINT = SharepointSession(st.session_state)
 
 if not SHARE_POINT.is_signed_in():
@@ -38,15 +38,14 @@ def render_loading_files():
         files = SHARE_POINT.get_files()
 
     SESSION.set(SessionKey.FILES, files)
-    SESSION.set_view("MAIN")
+    SESSION.set_view(DownloadView.MAIN)
 
 def render_files_dropdown():
     """
     Sets up the file dropdown, makes sure user is signed in
     """
     if not SESSION.has(SessionKey.FILES):
-        SESSION.set_view("LOADING_FILES")
-        st.experimental_rerun()
+        SESSION.set_view(DownloadView.LOADING_FILES)
 
     files = SESSION.retrieve(SessionKey.FILES)
     file_selector = st.form('sharepoint-file-selector')
@@ -66,7 +65,7 @@ def render_files_dropdown():
 
 st.header("Download A File")
 
-if SESSION.view == "LOADING_FILES":
+if SESSION.view == DownloadView.LOADING_FILES:
     render_loading_files()
 else:
     render_files_dropdown()

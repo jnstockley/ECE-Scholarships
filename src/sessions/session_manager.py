@@ -25,12 +25,18 @@ class SessionManager:
     view : any
         Current view for pages session
     '''
-    def __init__(self, session: SessionStateProxy, default_view):
+    def __init__(self, session: SessionStateProxy, page: str, default_view):
         self._session = session
 
+        if not page in self._session:
+            self._session[page] = {}
+        
+        self._session_page = self._session[page]
+
         if not self.has(GlobalSession.VIEW):
-            self.set(GlobalSession.VIEW, default_view)
             self.view = default_view
+            self.set(GlobalSession.VIEW, self.view)
+
         else:
             self.view = self.retrieve(GlobalSession.VIEW)
 
@@ -44,17 +50,11 @@ class SessionManager:
         self.set(GlobalSession.VIEW, view)
         st.experimental_rerun()
 
-    def get_view(self):
-        '''
-        Get the current view
-        '''
-        return self.view
-
     def has(self, key: str):
         '''
         Verifies key is present in current session.
         '''
-        return key in self._session and self._session[key] is not None
+        return key in self._session_page and self._session_page[key] is not None
 
     def set_main_data_source(self, data: pd.DataFrame):
         '''
@@ -67,7 +67,7 @@ class SessionManager:
         Checks whether the st.session contains key. If not throws error
         '''
         if self.has(key):
-            return self._session[key]
+            return self._session_page[key]
 
         raise KeyError(f'Key "{key}" not found in session')
 
@@ -81,11 +81,11 @@ class SessionManager:
             if cur_type is not new_type:
                 raise TypeError(f'Trying to set session_key={key} of type {cur_type} to invalid type {new_type}\nSession state types shall not deviate!')
 
-        self._session[key] = value
+        self._session_page[key] = value
 
     def _unset(self, key: str):
         '''
         Unsets a session value
         '''
         if self.has(key):
-            del self._session[key]
+            del self._session_page[key]

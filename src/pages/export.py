@@ -5,7 +5,7 @@ import streamlit as st
 from src.sessions.session_manager import SessionManager
 from src.utils.output import get_appdata_path
 
-SESSION = SessionManager(st.session_state, "single")
+SESSION = SessionManager(st.session_state, "import", "single")
 
 st.header('Export Data')
 if not hasattr(SESSION, "data"):

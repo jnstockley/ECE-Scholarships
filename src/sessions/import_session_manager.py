@@ -48,7 +48,7 @@ class ImportSessionManager(SessionManager):
         Reference to the similar column merge manager.
     '''
     def __init__(self, session: SessionStateProxy):
-        super().__init__(session, View.IMPORT_PAGE)
+        super().__init__(session, "import", View.IMPORT_PAGE)
 
         if self.has(Session.IMPORTED_SHEETS):
             self.imported_sheets = self.retrieve(Session.IMPORTED_SHEETS)
