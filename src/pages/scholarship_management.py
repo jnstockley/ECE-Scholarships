@@ -80,7 +80,7 @@ def display_create_dynamic():
         st.experimental_rerun()
     # Load as many groups equal to their button presses
     for i in range(st.session_state.n_groups):
-        group = st.multiselect("Choose Group " + str(i+1), options=GROUP_OPTIONS, help=GROUP_HELP)
+        group = st.multiselect("Choose Group " + str(i+1), options=SCH_COLUMNS, help=GROUP_HELP)
         col_values["Group" + str(i+1)] = group
 
     if st.button('Create Scholarship', key='Create Scholarship'):
