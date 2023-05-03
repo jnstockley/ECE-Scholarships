@@ -23,24 +23,25 @@ if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
 # Setting variables for script
-if 'students' not in st.session_state:
-    SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
-    st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
-students = st.session_state_students
-current_data = students.copy()
-if 'scholarships' not in st.session_state:
-    SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
-    st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
-scholarships = st.session_state_scholarships
-if 'user_recommendations' not in st.session_state:
-    try:
-        SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', "/data/")
-    except:
-        new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-        new_file.to_excel(get_appdata_path(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), index = False)
-        SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
-    st.session_state.user_recommendations = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
-user_recommendations = st.session_state.user_recommendations
+with st.spinner('Downloading Data'):
+    if 'students' not in st.session_state:
+        SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+        st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    students = st.session_state.students
+    current_data = students.copy()
+    if 'scholarships' not in st.session_state:
+        SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+        st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+    scholarships = st.session_state.scholarships
+    if 'user_recommendations' not in st.session_state:
+        try:
+            SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', "/data/")
+        except:
+            new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
+            new_file.to_excel(get_appdata_path(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), index = False)
+            SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
+        st.session_state.user_recommendations = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
+    user_recommendations = st.session_state.user_recommendations
 
 
 # JavaScript functions for styling table
