@@ -228,10 +228,7 @@ class SharepointSession(SessionManager):
             self.sync_complete = True
             return
 
-        test = self._cookie_manager.get_all()
-        print(test)
-        if COOKIE_CREDENTIALS_KEY in test:
-            print("Found cookie but not session")
+        if COOKIE_CREDENTIALS_KEY in self._cookie_manager.get_all():
             cookie_value = self._cookie_manager.get(COOKIE_CREDENTIALS_KEY)
             self._set(Session.CREDENTIALS, cookie_value)
 

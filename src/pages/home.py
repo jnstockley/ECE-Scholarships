@@ -39,10 +39,10 @@ def download_homepage_data():
         SHAREPOINT.upload(os.path.abspath(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), '/data/')
 
     # Initializing session data
-    students = pd.read_excel("./data/Master_Sheet.xlsx")
-    scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    user_recommendations = pd.read_excel(f"./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx")
-    return students, scholarships, user_recommendations
+    students_data = pd.read_excel("./data/Master_Sheet.xlsx")
+    scholarships_data = pd.read_excel("./data/Scholarships.xlsx")
+    user_recommendations_data = pd.read_excel(f"./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx")
+    return students_data, scholarships_data, user_recommendations_data
 
 # Setting variables for script
 students, scholarships, user_recommendations = download_homepage_data()

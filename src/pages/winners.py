@@ -8,14 +8,13 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in, download, login, get_files
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
 
-# Log in protecting the page
-cookie = logged_in()
-if not cookie:
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
     redirect("/Log In")
 
 # Downloading the data needed on first visit
@@ -24,38 +23,33 @@ def download_winnerspage_data():
     '''
     Caching credentials and downloads so only have to do on page load
     '''
-    # Gathering login credentials
-    creds_to_return = login(cookie)
-    hawk_id_to_return = cookie.get('cred')['hawk-id']
-
     # Downloading needed data
-    files = get_files(creds_to_return)
+    files = SHAREPOINT.get_files()
     for file in files:
         if file == "Select File":
             continue
         if '/data/' in file and '/tests/' not in file:
-            download(file, f"{os.getcwd()}/data/", creds_to_return)
+            SHAREPOINT.download(file, f"{os.getcwd()}/data/")
 
     # Initializing session data
-    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
-    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
+    students_data = pd.read_excel("./data/Master_Sheet.xlsx")
+    scholarships_data = pd.read_excel("./data/Scholarships.xlsx")
     directory = "./data"
+
     result = []
     for filename in os.listdir(directory):
         file = os.path.join(directory, filename)
         if os.path.isfile(file):
             if 'Reviews.xlsx' in file:
                 result.append(pd.read_excel(file))
-    st.session_state.all_recommendations = result
 
-    return creds_to_return, hawk_id_to_return
+    all_recommendations_data = result
+
+    return students_data, scholarships_data, all_recommendations_data
 
 # Setting variables for script
-creds, hawk_id = download_winnerspage_data()
-students = st.session_state.students
+students, scholarships, all_recommendations = download_winnerspage_data()
 current_data = students.copy()
-scholarships = st.session_state.scholarships
-all_recommendations = st.session_state.all_recommendations
 
 # Start of display
 st.header("Export Scholarship Winners")

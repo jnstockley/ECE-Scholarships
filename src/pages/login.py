@@ -26,7 +26,7 @@ def login_form_render():
 
     if login_button:
         result = SHAREPOINT.login(hawk_id, password)
-        print(result)
+
         if result:
             SHAREPOINT.set_redirect("/")
             st.experimental_rerun()
