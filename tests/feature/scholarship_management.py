@@ -47,7 +47,7 @@ def test_create_button(page: Page):
 
     page.wait_for_load_state("networkidle")
 
-    expect(page.get_by_text("If certain requirements are N/A, leave them at 0.")).to_be_visible()
+    expect(page.get_by_text("Create a New Scholarship")).to_be_visible()
 
 
 @pytest.mark.usefixtures("login_user")

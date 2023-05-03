@@ -41,7 +41,8 @@ def test_download_valid_file(page: Page):
 
     page.wait_for_load_state("networkidle")
 
-    file = page.locator('//*[@id="bui8__anchor"]/div/div')
+    #file = page.locator('//*[@id="bui8__anchor"]/div/div')
+    file = page.locator('div li[role=option]').last()
 
     file.click()
 
