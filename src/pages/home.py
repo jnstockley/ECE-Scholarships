@@ -20,7 +20,7 @@ st.set_page_config(layout="wide")
 
 SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
-    redirect("/Log In")
+    redirect("/Account")
 
 # Downloading data needed on first vist
 @st.cache_data

@@ -38,7 +38,14 @@ def sign_out_form_render():
     Renders the sign out form shown when user is logged in.
     '''
     st.title("Sign Out")
-    st.write("Press sign out to log out of your sharepoint account")
+
+    signout_form = st.form('sharepoint-login-form')
+    signout_form.write("Press sign out to log out of your sharepoint account")
+
+    logout_button = signout_form.form_submit_button("Logout")
+
+    if logout_button:
+        SHAREPOINT.logout()
 
 if SHAREPOINT.is_signed_in():
     sign_out_form_render()

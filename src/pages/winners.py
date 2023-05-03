@@ -16,7 +16,7 @@ st.set_page_config(layout="wide")
 
 SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
-    redirect("/Log In")
+    redirect("/Account")
 
 # Downloading the data needed on first visit
 @st.cache_data
@@ -40,10 +40,8 @@ def download_winnerspage_data():
     result = []
     for filename in os.listdir(directory):
         file = os.path.join(directory, filename)
-        print(filename)
         if os.path.isfile(file):
             if 'Reviews.xlsx' in file:
-                print(file)
                 result.append(pd.read_excel(file))
 
     all_recommendations_data = result

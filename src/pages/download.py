@@ -11,7 +11,7 @@ from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 SHARE_POINT = SharepointSession(st.session_state)
 if not SHARE_POINT.is_signed_in():
-    redirect("/Log In")
+    redirect("/Account")
 
 def files_dropdown():
     """

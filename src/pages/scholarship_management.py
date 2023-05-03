@@ -10,7 +10,7 @@ from src.utils.scholarship_management import read_rows, write_rows, edit_row, gr
 
 SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
-    redirect("/Log In")
+    redirect("/Account")
 
 @st.cache_data
 def download_data():

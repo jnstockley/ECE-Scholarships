@@ -51,6 +51,7 @@ class SharepointSession(SessionManager):
     def __init__(self, session: SessionStateProxy):
         super().__init__(session, "default")
 
+        self.sharepoint_url = SHAREPOINT_URL.strip("/")
         self._cookie_manager = get_cookie_manager()
         self.verified = False
 
@@ -59,7 +60,6 @@ class SharepointSession(SessionManager):
         # called on init. Since form submit reinitializes script, this will get called on login.
         self._sync_session()
 
-        self.sharepoint_url = SHAREPOINT_URL.strip("/")
         self.client = None
         if self.has(Session.CREDENTIALS):
             hawk_id, password = self._retrieve_credentials()
@@ -84,6 +84,14 @@ class SharepointSession(SessionManager):
         '''
         self._wait_for_sync_complete()
         return self.client is not None
+
+    def logout(self):
+        '''
+        Log the user out of the current session and remove cookie
+        '''
+        self._unset(Session.CREDENTIALS)
+        self._cookie_manager.delete(COOKIE_CREDENTIALS_KEY)
+        time.sleep(0.5)
 
     def login(self, hawk_id: str, password: str) -> bool:
         '''
@@ -206,7 +214,7 @@ class SharepointSession(SessionManager):
         '''
         If Session.REDIRECT_AFTER_SYNC has value, redirect to it
         '''
-        if (self.has(Session.REDIRECT_AFTER_SYNC)):
+        if self.has(Session.REDIRECT_AFTER_SYNC):
             redirect_to = self._retrieve(Session.REDIRECT_AFTER_SYNC)
             self._unset(Session.REDIRECT_AFTER_SYNC)
             redirect(redirect_to)
