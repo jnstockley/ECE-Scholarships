@@ -42,7 +42,6 @@ jobs:
 
   playwright-linux:
     needs: [lint, pyunit]
-    depe
     name: test-playwright
     runs-on: ubuntu-latest
     steps:
