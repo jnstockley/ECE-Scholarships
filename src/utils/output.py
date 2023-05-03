@@ -10,7 +10,6 @@ def create_directory(path: str) -> None:
     Creates path if it doesn't exist
     '''
     if not os.path.exists(path):
-        print(path)
         os.makedirs(path)
 
 def get_appdata_path(appdata_path: str = "") -> str:
@@ -23,7 +22,10 @@ def get_appdata_path(appdata_path: str = "") -> str:
     appdata_path : str, optional
         Path of file in appdata
     '''
+    print("RECEIVED PATH:")
+    print(appdata_path)
     path = os.path.join(APP_DATA, appdata_path.strip("/"))
+    print(path)
 
     create_directory(path)
 

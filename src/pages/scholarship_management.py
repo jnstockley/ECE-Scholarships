@@ -19,13 +19,13 @@ def download_data():
     are not logged in, downloads the data and logs in the user.
     '''
     # Initializing data
-    data_sheet = read_rows('data/Master_Sheet.xlsx', SHAREPOINT)
+    data_sheet = read_rows('/data/Master_Sheet.xlsx', SHAREPOINT)
     st.session_state.master_sheet = data_sheet
     try:
-        scholarships_sheet = read_rows('data/Scholarships.xlsx', SHAREPOINT)
+        scholarships_sheet = read_rows('/data/Scholarships.xlsx', SHAREPOINT)
         st.session_state.scholarships = scholarships_sheet
     except FileNotFoundError:
-        write_rows(pd.DataFrame({}), 'data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
+        write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
         st.session_state.scholarships = pd.DataFrame({})
     return scholarships_sheet, data_sheet
 scholarships, master_sheet = download_data()
