@@ -143,12 +143,10 @@ class SharepointSession(SessionManager):
         self._verify()
 
         full_site_url: str = f"{self.client.web.url}/"
-
         site_url = full_site_url.split(".com")[1]
         root_folder = "Shared Documents"
         download_url = f"{site_url}{root_folder}{file}"
         file_name = file.split("/")[len(file.split("/")) - 1]
-
         if not download_location.endswith("/"):
             download_location += "/"
         with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
@@ -250,7 +248,7 @@ class SharepointSession(SessionManager):
             time.sleep(sleep)
             wait_time += sleep
 
-    def _wait_for_sync_complete(self, max_wait=2):
+    def _wait_for_sync_complete(self, max_wait=0.5):
         '''
         Waits until client found or max_wait seconds have passed
         '''
@@ -259,4 +257,3 @@ class SharepointSession(SessionManager):
         while not self.client and elapsed < max_wait:
             time.sleep(0.01)
             elapsed += sleep
-
