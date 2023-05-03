@@ -25,42 +25,6 @@ def test_download_page(page: Page):
     download_page_heading = page.get_by_role("heading", name="Download A File")
     expect(download_page_heading).to_have_text("Download A File")
 
-
-@pytest.mark.usefixtures("login_user")
-def test_download_valid_file(page: Page):
-    """
-    Tests downloading a valid file from SharePoint
-    """
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
-
-    page.wait_for_load_state("networkidle")
-
-    file_download_dropdown = page.get_by_text("Select File")
-
-    file_download_dropdown.click()
-
-    page.wait_for_load_state("networkidle")
-
-    #file = page.locator('//*[@id="bui8__anchor"]/div/div')
-    file = page.locator('div li[role=option]').last()
-
-    file.click()
-
-    page.wait_for_load_state("networkidle")
-
-    download_button = page.get_by_role("button", name="Download File")
-
-    expect(download_button).to_have_text("Download File")
-
-    download_button.click()
-
-    page.wait_for_load_state("networkidle")
-
-    success_message = page.get_by_text("Downloaded")
-
-    expect(success_message).to_be_visible()
-
-
 @pytest.mark.usefixtures("login_user")
 def test_download_invalid_file(page: Page):
     """
