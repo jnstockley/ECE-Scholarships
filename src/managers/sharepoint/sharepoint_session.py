@@ -54,6 +54,7 @@ class SharepointSession(SessionManager):
         self.sharepoint_url = SHAREPOINT_URL.strip("/")
         self._cookie_manager = get_cookie_manager()
         self.verified = False
+        self.hawk_id = None
 
         # This manages saving session date to cookie and cookie to session date
         # Cookie manipulation can only be done at streamlit session start which is why it is
@@ -69,10 +70,7 @@ class SharepointSession(SessionManager):
         '''
         Returns hawk ID if one is defined
         '''
-        if self.has(Session.CREDENTIALS):
-            return self.retrieve(Session.CREDENTIALS)["username"]
-
-        return None
+        return self.hawk_id
 
     def is_signed_in(self) -> bool:
         '''
@@ -111,6 +109,7 @@ class SharepointSession(SessionManager):
             return False
 
         if result:
+            self.hawk_id = hawk_id
             self.set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
             return True
 
@@ -273,6 +272,7 @@ class SharepointSession(SessionManager):
         '''
         self.client = ClientContext(SHAREPOINT_URL).with_credentials(UserCredential(hawk_id, password))
 
+        self.hawk_id = hawk_id
         self.set("sharepoint_auth", {"username": hawk_id, "password": password})
 
     def _retrieve_credentials(self):
