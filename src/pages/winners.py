@@ -19,16 +19,16 @@ if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
 # Setting variables for script
-if 'students' not in st.session_state: 
+if 'students' not in st.session_state:
     SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
     st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
 students = st.session_state.students
 current_data = students.copy()
-if 'scholarships' not in st.session_state: 
+if 'scholarships' not in st.session_state:
     SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
     st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
 scholarships = st.session_state.scholarships
-if 'all_recommendations' not in st.session_state: 
+if 'all_recommendations' not in st.session_state:
     files = SHAREPOINT.get_files()
     for file in files:
         if file == "Select File":
@@ -36,9 +36,9 @@ if 'all_recommendations' not in st.session_state:
         if '/data/' in file and 'reviews' in file and '/tests/' not in file:
             SHAREPOINT.download(file, "/data/")
     result = []
-    directory = ".app_data/data"
-    for filename in os.listdir(directory):
-        file = os.path.join(directory, filename)
+    DIRECTORY = ".app_data/data"
+    for filename in os.listdir(DIRECTORY):
+        file = os.path.join(DIRECTORY, filename)
         if os.path.isfile(file):
             if 'Reviews.xlsx' in file:
                 result.append(pd.read_excel(file))

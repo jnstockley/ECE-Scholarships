@@ -6,24 +6,25 @@ from streamlit_extras.stateful_button import button
 import pandas as pd
 from src.utils.html import centered_text, redirect
 from src.managers.sharepoint.sharepoint_session import SharepointSession
-from src.utils.scholarship_management import read_rows, write_rows, edit_row, groups_string_to_list, equalize_dictionary_columns
+from src.utils.scholarship_management import write_rows, edit_row, groups_string_to_list, equalize_dictionary_columns
+from src.utils.output import get_appdata_path
 
 SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
 # Setting variables for script
-if 'master_sheet' not in st.session_state: 
+if 'master_sheet' not in st.session_state:
     SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
     st.session_state.master_sheet = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
 master_sheet = st.session_state.master_sheet
 if 'scholarships' not in st.session_state:
     try:
-        scholarships_sheet = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+        SCHOLARSHIPS_SHEET = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
     except FileNotFoundError:
         write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
-        scholarships_sheet = pd.DataFrame({})
-    st.session_state.scholarships = scholarships_sheet
+        SCHOLARSHIPS_SHEET = pd.DataFrame({})
+    st.session_state.scholarships = SCHOLARSHIPS_SHEET
 scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
