@@ -159,7 +159,7 @@ class SharepointSession(SessionManager):
 
         full_site_url: str = f"{self.client.web.url}/"
         site_url = full_site_url.split(".com")[1]
-        root_folder = "Shared Documents"
+        root_folder = "Shared Documents/"
         upload_url = f"{site_url}{root_folder}{upload_location}"
 
         folder = self.client.web.get_folder_by_server_relative_url(upload_url)
