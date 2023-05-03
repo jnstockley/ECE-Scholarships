@@ -11,6 +11,7 @@ from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
 from src.utils.html import redirect
 from src.sessions.session_manager import SessionManager
+from src.utils.output import get_appdata_path
 
 # temporary:
 SHAREPOINT_URL = "https://iowa.sharepoint.com/sites/SEP2023-Team2/"
@@ -127,15 +128,24 @@ class SharepointSession(SessionManager):
 
         return data
 
-    def upload(self, full_file_path: str, upload_location: str):
+    def upload(self, appdata_path: str, upload_location: str):
         """
         Uploads a file to sharepoint
-        :param full_file_path: Full path to the location of the file on disk
-        :param upload_location: Location for where to upload the file to Sharepoint
-        :param cred: Sharepoint login connection
-        :return: True if the file is uploaded successfully, False otherwise
+
+        Inputs
+        ------
+        appdata_path
+            Full path to the location of the file inside appdata
+        upload_location
+            Location for where to upload the file to Sharepoint
+
+        Returns
+        -------
+            True if the file is uploaded successfully, False otherwise
         """
-        if not os.path.exists(full_file_path):
+        local_file_path = get_appdata_path(appdata_path)
+
+        if not os.path.exists(local_file_path):
             return False
 
         self._verify()
@@ -147,33 +157,43 @@ class SharepointSession(SessionManager):
 
         folder = self.client.web.get_folder_by_server_relative_url(upload_url)
 
-        with open(full_file_path, "rb") as file:
+        with open(local_file_path, "rb") as file:
             file = folder.files.create_upload_session(file, 1000000).execute_query()
 
-        return f"{upload_url}/{os.path.basename(full_file_path)}" == file.serverRelativeUrl
+        return f"{upload_url}/{os.path.basename(local_file_path)}" == file.serverRelativeUrl
 
-    def download(self, file: str, download_location: str) -> bool:
+    def download(self, sharepoint_path: str, appdata_path: str) -> bool:
         """
         Downloads a specified file from Sharepoint
-        :param file: Sharepoint file path
-        :param download_location: Location, on disk, to download the file
-        :param cred: Sharepoint login connection
-        :return: True if file downloaded successfully, False otherwise
+
+        Inputs
+        ------
+        sharepoint_path
+            Full path to the location of the file inside appdata
+        appdata_path
+            Location, on disk, to download the file
+
+        Returns
+        -------
+            True if file downloaded successfully, False otherwise
         """
         self._verify()
+
+        full_appdata_path = get_appdata_path(appdata_path)
 
         full_site_url: str = f"{self.client.web.url}/"
         site_url = full_site_url.split(".com")[1]
         root_folder = "Shared Documents"
-        download_url = f"{site_url}{root_folder}{file}"
-        file_name = file.split("/")[len(file.split("/")) - 1]
-        if not download_location.endswith("/"):
-            download_location += "/"
-        with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
+        download_url = f"{site_url}{root_folder}{sharepoint_path}"
+        file_name = sharepoint_path.split("/")[len(sharepoint_path.split("/")) - 1]
+
+        if not full_appdata_path.endswith("/"):
+            full_appdata_path += "/"
+        with open(f"{full_appdata_path}{file_name}", "wb") as sharepoint_file:
             self.client.web.get_file_by_server_relative_url(download_url).download(sharepoint_file).execute_query()
-        if not os.path.exists(download_location):
-            os.mkdir(download_location)
-        return os.path.exists(f"{download_location}{file_name}")
+        if not os.path.exists(full_appdata_path):
+            os.mkdir(full_appdata_path)
+        return os.path.exists(f"{full_appdata_path}{file_name}")
 
     def set_redirect(self, url: str):
         '''

@@ -3,7 +3,7 @@ Export data page
 '''
 import streamlit as st
 from src.sessions.session_manager import SessionManager
-from src.utils.output import get_output_dir
+from src.utils.output import get_appdata_path
 
 SESSION = SessionManager(st.session_state, "single")
 
@@ -13,9 +13,9 @@ if not hasattr(SESSION, "data"):
 else:
     st.write("Download your merged data locally")
 
-    SESSION.data.to_excel(f"{get_output_dir()}/student_data_export.xls")
+    SESSION.data.to_excel(f"{get_appdata_path()}/student_data_export.xls")
 
-    with open(f"{get_output_dir()}/student_data_export.xls", "rb") as file:
+    with open(f"{get_appdata_path()}/student_data_export.xls", "rb") as file:
         st.download_button(
                 label="Export",
                 data=file,

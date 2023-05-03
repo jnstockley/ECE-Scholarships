@@ -14,6 +14,7 @@ from matplotlib import cm
 from src.utils.html import redirect
 from src.managers.sharepoint.sharepoint_session import SharepointSession
 from src.utils.scholarship_management import groups_string_to_list
+from src.utils.output import get_appdata_path
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -29,19 +30,19 @@ def download_homepage_data():
     Caching credentials and downloads so only have to do on page load
     '''
     # Downloading needed data
-    SHAREPOINT.download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/")
-    SHAREPOINT.download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/")
+    SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+    SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
     try:
-        SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', f"{os.getcwd()}/data/")
+        SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', "/data/")
     except:
         new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-        new_file.to_excel(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', index = False)
-        SHAREPOINT.upload(os.path.abspath(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), '/data/')
+        new_file.to_excel(get_appdata_path(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), index = False)
+        SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
 
     # Initializing session data
-    students_data = pd.read_excel("./data/Master_Sheet.xlsx")
-    scholarships_data = pd.read_excel("./data/Scholarships.xlsx")
-    user_recommendations_data = pd.read_excel(f"./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx")
+    students_data = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    scholarships_data = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+    user_recommendations_data = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
     return students_data, scholarships_data, user_recommendations_data
 
 # Setting variables for script
@@ -210,8 +211,10 @@ def submit_recommendations(user_recommendations_input, recommended_scholarship, 
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
     user_recommendations_input = user_recommendations_input.append(new_recommendations)
-    user_recommendations_input.to_excel(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', index = False)
-    SHAREPOINT.upload(os.path.abspath(f'./data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), '/data/')
+    user_recommendations_input.to_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"), index = False)
+    
+    SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
+
     return True, user_recommendations_input
 
 # Helper function for graph
@@ -318,5 +321,5 @@ with st.container():
                 dynamic_fig(current_data, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
-            grid_table['data'].to_excel('./data/Exported_Data.xlsx')
+            grid_table['data'].to_excel(get_appdata_path('./data/Exported_Data.xlsx'))
             st.success('Exported data to /data as Exported_Data.xlsx')
