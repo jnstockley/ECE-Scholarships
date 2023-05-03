@@ -18,39 +18,33 @@ SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
-# Downloading the data needed on first visit
-@st.cache_data
-def download_winnerspage_data():
-    '''
-    Caching credentials and downloads so only have to do on page load
-    '''
-    # Downloading needed data
+# Setting variables for script
+if 'students' not in st.session_state: 
+    SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+    st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+students = st.session_state.students
+current_data = students.copy()
+if 'scholarships' not in st.session_state: 
+    SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+    st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+scholarships = st.session_state.scholarships
+if 'all_recommendations' not in st.session_state: 
     files = SHAREPOINT.get_files()
     for file in files:
         if file == "Select File":
             continue
-        if '/data/' in file and '/tests/' not in file:
+        if '/data/' in file and 'reviews' in file and '/tests/' not in file:
             SHAREPOINT.download(file, "/data/")
-
-    # Initializing session data
-    students_data = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
-    scholarships_data = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
-    directory = ".app_data/data"
-
     result = []
+    directory = ".app_data/data"
     for filename in os.listdir(directory):
         file = os.path.join(directory, filename)
         if os.path.isfile(file):
             if 'Reviews.xlsx' in file:
                 result.append(pd.read_excel(file))
+    st.session_state.all_recommendations = result
+all_recommendations = st.session_state.all_recommendations
 
-    all_recommendations_data = result
-
-    return students_data, scholarships_data, all_recommendations_data
-
-# Setting variables for script
-students, scholarships, all_recommendations = download_winnerspage_data()
-current_data = students.copy()
 
 # Start of display
 st.header("Export Scholarship Winners")
