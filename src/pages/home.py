@@ -305,7 +305,7 @@ with st.container():
     with col2:
         with st.expander("See Distribution of Students"):
             with st.container():
-                numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+                numeric_cols = current_data.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
                 numeric_cols = numeric_cols.loc[numeric_cols == True]
                 for label in ['UID','Duplicate','Categorized At']:
                     try:
@@ -324,7 +324,7 @@ with st.container():
                     sel_rows = grid_table["selected_rows"]
                     SEL_ROW_INDICES = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
                 option_select = [show_legend, weight_bins, fig_select1c]
-                dynamic_fig(students, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
+                dynamic_fig(current_data, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
             grid_table['data'].to_excel('./data/Exported_Data.xlsx')
