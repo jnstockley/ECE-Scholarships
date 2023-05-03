@@ -1,17 +1,13 @@
 """
 Signs the user into SharePoint
 """
-import time
-
 import streamlit as st
 
-from src.utils.sharepoint import logged_in
-from src.utils.html import redirect
 from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 SHAREPOINT = SharepointSession(st.session_state)
 
-def login_form():
+def login_form_render():
     """
     Sets up the login and connection form
     :return:
@@ -45,7 +41,7 @@ def login_form():
         login_form.error("Invalid Login Credentials or Sharepoint Site URL")
 
 
-def sign_out_form():
+def sign_out_form_render():
     st.title("Sign Out")
     st.write("Press sign out to log out of your sharepoint account")
 
@@ -53,6 +49,6 @@ def sign_out_form():
 
 
 if SHAREPOINT.is_signed_in():
-    sign_out_form()
+    sign_out_form_render()
 else:
-    login_form()
+    login_form_render()

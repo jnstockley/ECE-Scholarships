@@ -7,16 +7,10 @@ Downloads files
 """
 import os.path
 import re
-import time
 from os.path import exists
 from re import Pattern
 
-import extra_streamlit_components as stx
-from extra_streamlit_components import CookieManager
-from office365.runtime.auth.user_credential import UserCredential
-from office365.runtime.client_request_exception import ClientRequestException
 from office365.sharepoint.client_context import ClientContext
-from streamlit.errors import DuplicateWidgetID
 
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
@@ -24,14 +18,6 @@ HAWKID_REGEX = re.compile(r"[a-zA-Z][a-zA-Z0-9]{2,}@uiowa.edu")
 PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$")
 
 SITE_URL_REGEX = re.compile(r"https://iowa.sharepoint.com/sites/.+")
-
-
-def get_manager():
-    """
-    Cookie Manager    :return: , to access login creds
-    """
-    return stx.CookieManager(key="cookie-manager")
-
 
 def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
     """
@@ -41,73 +27,6 @@ def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
     :return: True if matches, otherwise none
     """
     return re.fullmatch(regex, string)
-
-
-def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | CookieManager:
-    """
-    Checks if the cookies are present, and in a valid format
-    :param manager: Optional cookie manager, use if used more than once per page
-    :param creds: Sharepoint login connection
-    :return: True if logged in, False otherwise, CookieManager only for internal user
-    """
-    if manager is None:
-        manager = get_manager()
-
-    # Work around for caching not working with cookie manager
-    time.sleep(.2)
-
-    if creds is None:
-        cookies = {}
-        # Work around for `duplicate` cookie managers
-        try:
-            cookies = manager.get_all()
-        except DuplicateWidgetID:
-            pass
-        except RecursionError:
-            return False
-        # Work around for caching not working with cookie manager
-        if cookies == {}:
-            return logged_in(manager)
-        if "cred" not in cookies:
-            return False
-        creds = manager.get("cred")
-    if isinstance(creds, dict) and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
-        return False
-    hawk_id = creds['hawk-id']
-    password = creds['password']
-    site_url = creds['site-url']
-    if regex_validation(hawk_id, HAWKID_REGEX) and regex_validation(password, PASSWORD_REGEX) \
-            and regex_validation(site_url, SITE_URL_REGEX):
-        return manager
-    return False
-
-
-def login(manager: CookieManager = None) -> ClientContext | None:
-    """
-    Makes the first connection to sharepoint and ensure the connection was successful
-    :param manager: Optional cookie manager, use if used more than once per page
-    :return: Sharepoint connection if successful, otherwise None
-    """
-    if manager is None:
-        manager = get_manager()
-
-    creds = manager.get("cred")
-
-    hawk_id = creds['hawk-id']
-    password = creds['password']
-    site_url = creds['site-url']
-
-    creds = ClientContext(site_url).with_credentials(UserCredential(hawk_id, password))
-    try:
-        web = creds.web.get().execute_query()
-    except IndexError:
-        return None
-    except ClientRequestException:
-        return None
-    if f"{web.url}/" == site_url:
-        return creds
-    return None
-
 
 def get_files(creds: ClientContext) -> list[str]:
     """
@@ -146,7 +65,6 @@ def download(file: str, download_location: str, cred: ClientContext) -> bool:
     if not os.path.exists(download_location):
         os.mkdir(download_location)
     return exists(f"{download_location}{file_name}")
-
 
 def upload(full_file_path: str, upload_location: str, cred: ClientContext) -> bool:
     """
