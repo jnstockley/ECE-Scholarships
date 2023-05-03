@@ -14,18 +14,19 @@ if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
 # Setting variables for script
-if 'master_sheet' not in st.session_state:
-    SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
-    st.session_state.master_sheet = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
-master_sheet = st.session_state.master_sheet
-if 'scholarships' not in st.session_state:
-    try:
-        SCHOLARSHIPS_SHEET = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
-    except FileNotFoundError:
-        write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
-        SCHOLARSHIPS_SHEET = pd.DataFrame({})
-    st.session_state.scholarships = SCHOLARSHIPS_SHEET
-scholarships = st.session_state.scholarships
+with st.spinner('Downloading Data'):
+    if 'master_sheet' not in st.session_state:
+        SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+        st.session_state.master_sheet = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    master_sheet = st.session_state.master_sheet
+    if 'scholarships' not in st.session_state:
+        try:
+            SCHOLARSHIPS_SHEET = SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+        except FileNotFoundError:
+            write_rows(pd.DataFrame({}), '/data/Scholarships.xlsx', 'Scholarships', SHAREPOINT)
+            SCHOLARSHIPS_SHEET = pd.DataFrame({})
+        st.session_state.scholarships = SCHOLARSHIPS_SHEET
+    scholarships = st.session_state.scholarships
 
 # This is for determining how many groups have been added to a scholarship
 # Needed because of experimental_rerun() call to allow as many groups as they want
