@@ -31,8 +31,7 @@ def login_user(page: Page) -> Page:
     hawk_id_textbox.fill(TEST_HAWK_ID)
     password_textbox.fill(TEST_HAWK_ID_PASSWORD)
 
-    submit_button_textbox.dblclick()
-    # submit_button_textbox.click() # resolve streamlit issue on webkit
+    submit_button_textbox.click()
 
     page.wait_for_load_state("networkidle")
     time.sleep(4)
