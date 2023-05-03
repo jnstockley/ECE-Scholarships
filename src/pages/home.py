@@ -224,15 +224,35 @@ def submit_recommendations(user_recommendations_input, recommended_scholarship, 
     return True, user_recommendations_input
 
 # Helper function for graph
-def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
+def dynamic_fig(var_df, x_axis, y_axis, options=None, highlights=None):
     '''
     Function to generate dynamic graph of student data
     '''
-    fig, axis = plt.subplots()
+    fig, _ = plt.subplots()
     var_xs = var_df[x_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
     var_ys = var_df[y_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
-    plt.scatter(var_xs, var_ys)
-    if highlights is not None:
+    weighted_bins = np.zeros((len(var_xs),3))
+    for i in var_xs.index:
+        found = False
+        for j in range(weighted_bins.shape[0]):
+            if found:
+                continue
+            if weighted_bins[j][0] == 0 or (weighted_bins[j][0] == var_xs[i] and weighted_bins[j][1] == var_ys[i]):
+                weighted_bins[j][0] = var_xs[i]
+                weighted_bins[j][1] = var_ys[i]
+                weighted_bins[j][2] += 1
+                found = True
+    weighted_bins = weighted_bins[~np.all(weighted_bins == 0, axis=1)]
+    for wbin in weighted_bins:
+        if options[1]:
+            wbin[-1] = wbin[-1] - (np.min(weighted_bins[:,2])-1)
+        else:
+            wbin[-1] = 1
+        if wbin[-1] > 10:
+            wbin[-1] = 10
+    plt.scatter(weighted_bins[:,0], weighted_bins[:,1], s=32*weighted_bins[:,2])
+    if highlights is not None and options[2] == 'Selected Students':
+        highlights = [h for h in highlights if h is not None]
         hxs = var_df.iloc[highlights][x_axis]
         hys = var_df.iloc[highlights][y_axis]
         colors = iter(cm.rainbow(np.linspace(0, 1, len(hys)+1)))
@@ -241,11 +261,12 @@ def dynamic_fig(var_df, x_axis, y_axis, highlights=None):
             plt.scatter(var_x, var_y, color=next(colors))
         legend_names = ['Other Students']
         legend_names.extend(var_df.iloc[highlights]['Name'].values)
-        plt.legend(legend_names)
+        if options[0]:
+            plt.legend(legend_names)
     plt.xlabel(x_axis)
     plt.ylabel(y_axis)
     st.pyplot(fig)
-    return fig, axis
+    return fig
 
 # Actions for user to take on main data frame
 with st.container():
@@ -284,17 +305,26 @@ with st.container():
     with col2:
         with st.expander("See Distribution of Students"):
             with st.container():
-                numeric_cols = students.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
+                numeric_cols = current_data.copy().apply(lambda s: pd.to_numeric(s, errors='coerce').notnull().all())
                 numeric_cols = numeric_cols.loc[numeric_cols == True]
-                numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
+                for label in ['UID','Duplicate','Categorized At']:
+                    try:
+                        numeric_cols = numeric_cols.drop(labels=[label],axis='index')
+                    except:
+                        print('column not found:',label)
+                #numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
                 numeric_cols = numeric_cols.append(pd.Series([True], index=['Upcoming Financial Need After Grants/Scholarships']))
-                fig_select1a = st.selectbox("Select X axis for graph 1",numeric_cols.index.values)
-                fig_select1b = st.selectbox("Select Y axis for graph 1",numeric_cols.index.values)
-                sel_rows = grid_table["selected_rows"]
-                sel_row_indices = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
-                dynamic_fig(students, fig_select1a, fig_select1b, sel_row_indices)
-
-    # Exporting current data table
+                fig_select1a = st.selectbox("Select X axis",numeric_cols.index.values)
+                fig_select1b = st.selectbox("Select Y axis",numeric_cols.index.values)
+                fig_select1c = st.selectbox("Highlight Scheme", ['None', 'Selected Students'])#, 'Scholarship Status'
+                show_legend = st.checkbox("Show Legend", True)
+                weight_bins = st.checkbox("Weight Plot", True)
+                SEL_ROW_INDICES = None
+                if fig_select1c == 'Selected Students':
+                    sel_rows = grid_table["selected_rows"]
+                    SEL_ROW_INDICES = [rows['_selectedRowNodeInfo']['nodeRowIndex'] for rows in sel_rows]
+                option_select = [show_legend, weight_bins, fig_select1c]
+                dynamic_fig(current_data, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
             grid_table['data'].to_excel('./data/Exported_Data.xlsx')
