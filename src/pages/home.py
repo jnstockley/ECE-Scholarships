@@ -3,7 +3,6 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 '''
 
 # Importing packages
-import os
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -212,7 +211,7 @@ def submit_recommendations(user_recommendations_input, recommended_scholarship, 
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
     user_recommendations_input = user_recommendations_input.append(new_recommendations)
     user_recommendations_input.to_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"), index = False)
-    
+
     SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
 
     return True, user_recommendations_input

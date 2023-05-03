@@ -8,6 +8,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from src.utils.html import redirect
+from src.utils.output import get_appdata_path
 from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 # Default setting for Streamlit page
@@ -29,12 +30,12 @@ def download_winnerspage_data():
         if file == "Select File":
             continue
         if '/data/' in file and '/tests/' not in file:
-            SHAREPOINT.download(file, f"{os.getcwd()}/data/")
+            SHAREPOINT.download(file, "/data/")
 
     # Initializing session data
-    students_data = pd.read_excel("./data/Master_Sheet.xlsx")
-    scholarships_data = pd.read_excel("./data/Scholarships.xlsx")
-    directory = "./data"
+    students_data = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    scholarships_data = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+    directory = "./.app_data"
 
     result = []
     for filename in os.listdir(directory):
@@ -91,7 +92,7 @@ with st.container():
     # Export all students that received a vote score >= 0
     with col1:
         if st.button("Export All Vote Getters for Scholarship"):
-            current_data.to_excel('./data/Scholarship_Winners.xlsx')
+            current_data.to_excel(get_appdata_path('/data/Scholarship_Winners.xlsx'))
             st.success('Exported data to /data! as Scholarship_Winners.xlsx')
 
     # Choose a number of top vote scorers to export
@@ -101,5 +102,5 @@ with st.container():
     # Export the previously chosen number of top vote scorers
     with col3:
         if st.button(f"Export Top {value} Vote Getters for Scholarship"):
-            current_data.iloc[:value].to_excel('./data/Scholarship_Winners.xlsx')
+            current_data.iloc[:value].to_excel(get_appdata_path('/data/Scholarship_Winners.xlsx'))
             st.success('Exported data to /data as Scholarship_Winners.xlsx')
