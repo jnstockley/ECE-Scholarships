@@ -9,6 +9,7 @@ show_pages(
     [
         Page("src/pages/home.py", "Home"),
         Page("src/pages/scholarship_management.py", "Scholarship Management"),
+        Page("src/pages/winners.py", "Export Winners"),
         Page("src/pages/login.py", "Log In"),
         Page("src/pages/download.py", "Download File"),
         Page("src/pages/student_metrics.py", "Student Metrics"),
