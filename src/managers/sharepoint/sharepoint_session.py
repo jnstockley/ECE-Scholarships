@@ -232,6 +232,9 @@ class SharepointSession(SessionManager):
         if self.verified:
             return True
 
+        if self.client is None:
+            return False
+
         web = self.client.web.get().execute_query()
 
         if not f"{web.url}/".strip("/") == self.sharepoint_url:

@@ -2,6 +2,7 @@
 SessionManager
 '''
 from enum import Enum
+import time
 import streamlit as st
 import pandas as pd
 from streamlit.runtime.state import SessionStateProxy
@@ -29,11 +30,12 @@ class SessionManager:
 
         if not self.has(GlobalSession.VIEW):
             self._set(GlobalSession.VIEW, default_view)
+            self.view = default_view
+        else:
+            self.view = self._retrieve(GlobalSession.VIEW)
 
         if self.has(GlobalSession.DATA_MAIN):
             self.data = self._retrieve(GlobalSession.DATA_MAIN)
-
-        self.view = self._retrieve(GlobalSession.VIEW)
 
     def set_view(self, view):
         '''
@@ -58,7 +60,7 @@ class SessionManager:
         '''
         Checks whether the st.session contains key. If not throws error
         '''
-        if self.has(key) and self._session[key] is not None:
+        if self.has(key):
             return self._session[key]
 
         raise KeyError(f'Key "{key}" not found in session')
