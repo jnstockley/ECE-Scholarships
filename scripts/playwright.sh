@@ -9,6 +9,15 @@ fi
 export SCRIPT_DIR=$SCRIPT_DIR
 PWD=$( pwd )
 
+FOCUS=$1
+
 cd $SCRIPT_DIR/../
-poetry run python -m tests.cli --test playwright
+
+if [ -z "$FOCUS" ]
+then
+  poetry run python -m tests.cli --test playwright
+else
+  poetry run python -m tests.cli --test playwright --focus $FOCUS
+fi
+
 cd $PWD

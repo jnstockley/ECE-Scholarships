@@ -4,7 +4,6 @@ Login Feature Test
 import pytest
 from playwright.sync_api import Page, expect
 
-
 def test_login_page(page: Page):
     """
     Tests that the login page exists, and has the correct title
