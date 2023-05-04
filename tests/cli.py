@@ -72,7 +72,7 @@ def run(focus: Annotated[Optional[str], typer.Argument(None)] = None, test: Anno
 
         try:
             subprocess.run(f"poetry run {get_playwright_cmd(focus)}", check=True, shell=True)
-        except subprocess.CalledProcessError as exception:
+        except Exception as exception:
             # test failed, kill streamlit
             os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
             raise exception
