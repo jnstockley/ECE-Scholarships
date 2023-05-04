@@ -3,7 +3,6 @@ Home: Primary page for viewing student data, leaving reviews, and exporting sele
 '''
 
 # Importing packages
-import os
 import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
@@ -12,50 +11,38 @@ import matplotlib.pyplot as plt
 from st_aggrid import JsCode, GridOptionsBuilder, AgGrid, ColumnsAutoSizeMode, GridUpdateMode
 from matplotlib import cm
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in, download, upload, login
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 from src.utils.scholarship_management import groups_string_to_list
+from src.utils.output import get_appdata_path
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
 
-# Log in protecting the home page
-cookie = logged_in()
-if not cookie:
-    redirect("/Log In")
-
-# Downloading data needed on first vist
-@st.cache_data
-def download_homepage_data():
-    '''
-    Caching credentials and downloads so only have to do on page load
-    '''
-    # Gathering login credentials
-    creds_to_return = login(cookie)
-    hawk_id_to_return = cookie.get('cred')['hawk-id']
-
-    # Downloading needed data
-    download('/data/Master_Sheet.xlsx', f"{os.getcwd()}/data/", creds_to_return)
-    download('/data/Scholarships.xlsx', f"{os.getcwd()}/data/", creds_to_return)
-    try:
-        download(f'/data/{hawk_id_to_return}_Reviews.xlsx', f"{os.getcwd()}/data/", creds_to_return)
-    except:
-        new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
-        new_file.to_excel(f'./data/{hawk_id_to_return}_Reviews.xlsx', index = False)
-        upload(os.path.abspath(f'./data/{hawk_id_to_return}_Reviews.xlsx'), '/data/', creds_to_return)
-
-    # Initializing session data
-    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
-    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    st.session_state.user_recommendations = pd.read_excel(f"./data/{hawk_id_to_return}_Reviews.xlsx")
-
-    return creds_to_return, hawk_id_to_return
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
+    redirect("/Account")
 
 # Setting variables for script
-creds, hawk_id = download_homepage_data()
-students = st.session_state.students
-current_data = students.copy()
-scholarships = st.session_state.scholarships
-user_recommendations = st.session_state.user_recommendations
+with st.spinner('Downloading Data...'):
+    if 'students' not in st.session_state:
+        SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+        st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    students = st.session_state.students
+    current_data = students.copy()
+    if 'scholarships' not in st.session_state:
+        SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+        st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+    scholarships = st.session_state.scholarships
+    if 'user_recommendations' not in st.session_state:
+        try:
+            SHAREPOINT.download(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx', "/data/")
+        except:
+            new_file = pd.DataFrame(columns= ['UID', 'Scholarship', 'Rating', 'Additional Feedback'])
+            new_file.to_excel(get_appdata_path(f'/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx'), index = False)
+            SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
+        st.session_state.user_recommendations = pd.read_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"))
+    user_recommendations = st.session_state.user_recommendations
+
 
 # JavaScript functions for styling table
 js = JsCode("""
@@ -122,7 +109,8 @@ if current_scholarship != "None":
     criteria_no_groups = []
     for column in criteria.columns.tolist():
         if column[0:5] == "Group":
-            groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
+            if isinstance(criteria[column].iloc[0], str) and criteria[column].iloc[0].startswith('[') and criteria[column].iloc[0].endswith(']'):
+                groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
         elif column not in ['Name', 'Total Amount', 'Value']:
             criteria_no_groups.append(column)
     for criterion in criteria_no_groups:
@@ -219,8 +207,10 @@ def submit_recommendations(user_recommendations_input, recommended_scholarship, 
         new_recommendations = new_recommendations.append(new_recommendation, ignore_index=True)
     # Check here for it too many recommendations for that scholarship, should be none if unlimited
     user_recommendations_input = user_recommendations_input.append(new_recommendations)
-    user_recommendations_input.to_excel(f'./data/{hawk_id}_Reviews.xlsx', index = False)
-    upload(os.path.abspath(f'./data/{hawk_id}_Reviews.xlsx'), '/data/', creds)
+    user_recommendations_input.to_excel(get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"), index = False)
+
+    SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", '/data/')
+
     return True, user_recommendations_input
 
 # Helper function for graph
@@ -327,5 +317,5 @@ with st.container():
                 dynamic_fig(current_data, fig_select1a, fig_select1b, option_select, SEL_ROW_INDICES)    # Exporting the selected students
     with col3:
         if st.button("Export Current Table"):
-            grid_table['data'].to_excel('./data/Exported_Data.xlsx')
+            grid_table['data'].to_excel(get_appdata_path('./data/Exported_Data.xlsx'))
             st.success('Exported data to /data as Exported_Data.xlsx')

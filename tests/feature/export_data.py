@@ -19,7 +19,7 @@ def test_export_page_visible(page: Page):
     so that I can export data,
     I would like to see an export page tabe on the side bar which I can navigate to
     '''
-    page.goto("http://localhost:9000", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000/Account", wait_until='domcontentloaded')
     page.wait_for_load_state("networkidle")
     click_export_sidebar_link(page)
 

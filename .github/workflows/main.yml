@@ -41,7 +41,7 @@ jobs:
           poetry run pylint tests
 
   playwright-linux:
-    needs: [lint]
+    needs: [lint, pyunit]
     name: test-playwright
     runs-on: ubuntu-latest
     steps:

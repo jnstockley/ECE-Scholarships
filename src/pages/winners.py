@@ -8,54 +8,44 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from src.utils.html import redirect
-from src.utils.sharepoint import logged_in, download, login, get_files
+from src.utils.output import get_appdata_path
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
 
-# Log in protecting the page
-cookie = logged_in()
-if not cookie:
-    redirect("/Log In")
-
-# Downloading the data needed on first visit
-@st.cache_data
-def download_winnerspage_data():
-    '''
-    Caching credentials and downloads so only have to do on page load
-    '''
-    # Gathering login credentials
-    creds_to_return = login(cookie)
-    hawk_id_to_return = cookie.get('cred')['hawk-id']
-
-    # Downloading needed data
-    files = get_files(creds_to_return)
-    for file in files:
-        if file == "Select File":
-            continue
-        if '/data/' in file and '/tests/' not in file:
-            download(file, f"{os.getcwd()}/data/", creds_to_return)
-
-    # Initializing session data
-    st.session_state.students = pd.read_excel("./data/Master_Sheet.xlsx")
-    st.session_state.scholarships = pd.read_excel("./data/Scholarships.xlsx")
-    directory = "./data"
-    result = []
-    for filename in os.listdir(directory):
-        file = os.path.join(directory, filename)
-        if os.path.isfile(file):
-            if 'Reviews.xlsx' in file:
-                result.append(pd.read_excel(file))
-    st.session_state.all_recommendations = result
-
-    return creds_to_return, hawk_id_to_return
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
+    redirect("/Account")
 
 # Setting variables for script
-creds, hawk_id = download_winnerspage_data()
-students = st.session_state.students
-current_data = students.copy()
-scholarships = st.session_state.scholarships
-all_recommendations = st.session_state.all_recommendations
+with st.spinner('Downloading Data...'):
+    if 'students' not in st.session_state:
+        SHAREPOINT.download('/data/Master_Sheet.xlsx', "/data/")
+        st.session_state.students = pd.read_excel(get_appdata_path("/data/Master_Sheet.xlsx"))
+    students = st.session_state.students
+    current_data = students.copy()
+    if 'scholarships' not in st.session_state:
+        SHAREPOINT.download('/data/Scholarships.xlsx', "/data/")
+        st.session_state.scholarships = pd.read_excel(get_appdata_path("/data/Scholarships.xlsx"))
+    scholarships = st.session_state.scholarships
+    if 'all_recommendations' not in st.session_state:
+        files = SHAREPOINT.get_files()
+        for file in files:
+            if file == "Select File":
+                continue
+            if '/data/' in file and 'reviews' in file and '/tests/' not in file:
+                SHAREPOINT.download(file, "/data/")
+        result = []
+        DIRECTORY = ".app_data/data"
+        for filename in os.listdir(DIRECTORY):
+            file = os.path.join(DIRECTORY, filename)
+            if os.path.isfile(file):
+                if 'Reviews.xlsx' in file:
+                    result.append(pd.read_excel(file))
+        st.session_state.all_recommendations = result
+    all_recommendations = st.session_state.all_recommendations
+
 
 # Start of display
 st.header("Export Scholarship Winners")
@@ -97,7 +87,7 @@ with st.container():
     # Export all students that received a vote score >= 0
     with col1:
         if st.button("Export All Vote Getters for Scholarship"):
-            current_data.to_excel('./data/Scholarship_Winners.xlsx')
+            current_data.to_excel(get_appdata_path('/data/Scholarship_Winners.xlsx'))
             st.success('Exported data to /data! as Scholarship_Winners.xlsx')
 
     # Choose a number of top vote scorers to export
@@ -107,5 +97,5 @@ with st.container():
     # Export the previously chosen number of top vote scorers
     with col3:
         if st.button(f"Export Top {value} Vote Getters for Scholarship"):
-            current_data.iloc[:value].to_excel('./data/Scholarship_Winners.xlsx')
+            current_data.iloc[:value].to_excel(get_appdata_path('/data/Scholarship_Winners.xlsx'))
             st.success('Exported data to /data as Scholarship_Winners.xlsx')

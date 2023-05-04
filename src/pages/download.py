@@ -2,40 +2,44 @@
 Download file from sharepoint once signed in
 """
 import os
-import time
 
 import streamlit as st
 
 from src.utils.html import redirect
-from src.utils.sharepoint import login, get_files, download, logged_in
+from src.sessions.session_manager import SessionManager
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 
+SESSION = SessionManager(st.session_state, "download", "loading")
+SHARE_POINT = SharepointSession(st.session_state)
 
-def files_dropdown():
+if not SHARE_POINT.is_signed_in():
+    redirect("/Account")
+
+def render_loading_files():
+    '''
+    Render the loading files spinner
+    '''
+    with st.spinner("Loading Sharepoint Files..."):
+        files = SHARE_POINT.get_files()
+
+    SESSION.set("files", files)
+    SESSION.set_view("main")
+
+def render_files_dropdown():
     """
     Sets up the file dropdown, makes sure user is signed in
     """
+    if not SESSION.has("files"):
+        SESSION.set_view("loading")
 
-    st.header("Download A File")
-
-    cookie = logged_in()
-
-    if not cookie:
-        redirect("/Log%20In")
-        return
-
-    with st.spinner("Loading Sharepoint Files..."):
-
-        creds = login(cookie)
-
-        files = get_files(creds)
-
+    files = SESSION.retrieve("files")
     file_selector = st.form('sharepoint-file-selector')
 
     file = file_selector.selectbox("Sharepoint Files", options=files)
 
     if file_selector.form_submit_button("Download File"):
         if file != "Select File":
-            downloaded = download(file, f"{os.getcwd()}/data/", creds)
+            downloaded = SHARE_POINT.download(file, f"{os.getcwd()}/data/")
             if downloaded:
                 file_selector.info(f"Downloaded {file}")
                 return
@@ -44,8 +48,9 @@ def files_dropdown():
         file_selector.error("Invalid File Selected")
         return
 
+st.header("Download A File")
 
-time.sleep(.2)
-
-
-files_dropdown()
+if SESSION.view == "loading":
+    render_loading_files()
+else:
+    render_files_dropdown()

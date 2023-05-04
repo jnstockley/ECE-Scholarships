@@ -5,27 +5,24 @@ Some of these are relatively general pandas dataframe functions
 import os
 
 import pandas as pd
-from office365.sharepoint.client_context import ClientContext
+from src.utils.output import get_appdata_path
+from src.managers.sharepoint.sharepoint_session import SharepointSession
 
-from src.utils.sharepoint import download, upload
-
-
-def read_rows(file_path, creds: ClientContext):
+def read_rows(file_path, sharepoint: SharepointSession):
     """
     Reads Excel spreadsheet and returns the rows
     """
-    download(f'/{file_path}', os.path.dirname(file_path), creds)
-    excel = pd.read_excel(file_path)
+    sharepoint.download(f'{file_path}', os.path.dirname(file_path))
+    excel = pd.read_excel(get_appdata_path(file_path))
     return excel.head()
 
 
-def write_rows(dataframe, file_path, sheet_name, creds: ClientContext):
+def write_rows(dataframe, file_path, sheet_name, sharepoint: SharepointSession):
     """
     Writes the rows of a dataframe to the file_path with sheet_name
     """
-    dataframe.to_excel(file_path, sheet_name=sheet_name, index=False)
-    upload(file_path, f'/{os.path.dirname(file_path)}', creds)
-
+    dataframe.to_excel(get_appdata_path(file_path), sheet_name=sheet_name, index=False)
+    sharepoint.upload(file_path, f'{os.path.dirname(file_path)}')
 
 def edit_row(dataframe, row_index, column_names_and_values):
     """
