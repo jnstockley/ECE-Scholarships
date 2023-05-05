@@ -31,6 +31,10 @@ def login_user(page: Page) -> Page:
     hawk_id_textbox.fill(TEST_HAWK_ID)
     password_textbox.fill(TEST_HAWK_ID_PASSWORD)
 
+    # Fixes weird issue where clicking the button after filling form causes button click to be missed
+    # It is streamlit related
+    page.get_by_text("Log In", exact=True).click(delay=1000)
+
     submit_button_textbox.click()
 
     page.wait_for_load_state("networkidle")

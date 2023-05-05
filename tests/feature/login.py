@@ -4,7 +4,6 @@ Login Feature Test
 import pytest
 from playwright.sync_api import Page, expect
 
-
 def test_login_page(page: Page):
     """
     Tests that the login page exists, and has the correct title
@@ -24,14 +23,11 @@ def test_login_page(page: Page):
     login_page_heading = page.get_by_role("heading", name="Log In").get_by_text("Log In")
     expect(login_page_heading).to_have_text("Log In")
 
-
 def test_invalid_login_creds(page: Page):
     """
     Tests that the login page doesn't connect to sharepoint using invalid login details
     """
-    page.goto("http://localhost:9000/Account", wait_until='domcontentloaded')
-
-    page.wait_for_load_state("networkidle")
+    page.goto("http://localhost:9000/Account")
 
     # Invalid Hawk ID
     invalid_hawk_id = "test"
@@ -43,10 +39,13 @@ def test_invalid_login_creds(page: Page):
     password_textbox = page.get_by_role("textbox", name="HawkID Password")
     submit_button_textbox = page.get_by_role("button", name="Log in to Sharepoint Site")
 
-    hawk_id_textbox.type(invalid_hawk_id)
+    hawk_id_textbox.fill(invalid_hawk_id)
     password_textbox.fill(invalid_password)
 
-    submit_button_textbox.click(delay=500)
+    # Fixes weird issue where clicking the button after filling form causes button click to be missed
+    # It is streamlit related
+    page.get_by_text("Log In", exact=True).click(delay=1000)
+    submit_button_textbox.click()
 
     page.wait_for_load_state("networkidle")
 
