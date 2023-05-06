@@ -2,16 +2,60 @@
 Main Flet app interface for the streamlit server launcher application
 '''
 import flet as ft
+import pathlib
+from streamlit.web import bootstrap
+from multiprocessing import Process, Queue
+
+HERE = pathlib.Path(__file__).parent
+
+class StreamlitButton(ft.TextButton):
+    '''
+    Streamlit button toggle object
+
+    Attributes
+    ----------
+    streamlit_running : bool
+        True if streamlit process running
+    streamlit_process : Process | None
+        The active streamlit server process
+    '''
+    def __init__(self):
+        super().__init__(text="Start Streamlit Server", on_click=self.__handle_click)
+
+        self.streamlit_running = False
+        self.streamlit_process = Process(target=start_streamlit, args=(HERE,))
+
+    def __handle_click(self, _e):
+        '''
+        Handles button click
+        '''
+        if not self.streamlit_running:
+            self.streamlit_process.start()
+            self.streamlit_running = True
+            return
+
+        self.streamlit_process.kill()
+        self.streamlit_running = False
+
+
+def start_streamlit(here: str):
+    '''
+    Starts the streamlit server
+
+    Parameters
+    ----------
+    root : str
+        path of file in file system.
+    '''
+    bootstrap.run(
+            str(here.joinpath("../router.py")),
+            command_line=None,
+            args=[],
+            flag_options={},
+        )
 
 def home(page: ft.Page):
     '''
     Homepage of flet application
     '''
-    def add_clicked(_e):
-        page.add(ft.Checkbox(label=new_task.value))
-        new_task.value = ""
-        page.update()
-
-    new_task = ft.TextField(hint_text="Whats needs to be done?")
-
-    page.add(new_task, ft.FloatingActionButton(icon=ft.icons.ADD, on_click=add_clicked))
+    page.add(StreamlitButton())
