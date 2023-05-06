@@ -5,6 +5,7 @@ import flet as ft
 import pathlib
 from streamlit.web import bootstrap
 from multiprocessing import Process, Queue
+import multiprocessing
 
 HERE = pathlib.Path(__file__).parent
 
@@ -21,6 +22,9 @@ class StreamlitButton(ft.TextButton):
     '''
     def __init__(self):
         super().__init__(text="Start Streamlit Server", on_click=self.__handle_click)
+
+        # See: https://pyoxidizer.readthedocs.io/en/stable/pyoxidizer_packaging_multiprocessing.html#spawn-only-works-on-windows-with-pyoxidizer
+        multiprocessing.set_start_method("fork", force=True)
 
         self.streamlit_running = False
         self.streamlit_process = Process(target=start_streamlit, args=(HERE,))
