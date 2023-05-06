@@ -10,9 +10,8 @@ show_pages(
     [
         Page(HERE.joinpath("pages/home.py"), "Home"),
         Page(HERE.joinpath("pages/scholarship_management.py"), "Scholarship Management"),
-        Page(HERE.joinpath("pages/login.py"), "Log In"),
+        Page(HERE.joinpath("pages/account.py"), "Account"),
         Page(HERE.joinpath("pages/download.py"), "Download File"),
-        Page(HERE.joinpath("pages/student_metrics.py"), "Student Metrics"),
         Page(HERE.joinpath("pages/import.py"), "Import Data"),
         Page(HERE.joinpath("pages/export.py"), "Export Data"),
     ]

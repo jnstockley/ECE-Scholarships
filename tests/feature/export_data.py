@@ -19,7 +19,8 @@ def test_export_page_visible(page: Page):
     so that I can export data,
     I would like to see an export page tabe on the side bar which I can navigate to
     '''
-    page.goto("http://localhost:9000")
+    page.goto("http://localhost:9000/Account", wait_until='domcontentloaded')
+    page.wait_for_load_state("networkidle")
     click_export_sidebar_link(page)
 
     export_page_heading = page.get_by_role("heading", name="Export Data").get_by_text("Export Data")
@@ -31,7 +32,8 @@ def test_export_page_with_no_data_imported(page: Page):
     when navigating the the export data page,
     I would like it to be apparent that there is no data to export.
     '''
-    page.goto("http://localhost:9000/Export Data")
+    page.goto("http://localhost:9000/Export Data", wait_until='domcontentloaded')
+    page.wait_for_load_state("networkidle")
     expect(page.get_by_text("Once you've imported data you can return to this page to export it the combined excel sheet")).to_be_visible()
 
 @pytest.mark.usefixtures("skip_all_similar_import_complete_page")
@@ -47,6 +49,7 @@ def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
 
     expect(page.get_by_text("Download your merged data locally")).to_be_visible()
     page.get_by_role("link", name="Export Data").click()
+    page.wait_for_load_state("networkidle")
     with page.expect_download() as _download_info:
         with page.expect_popup() as _page1_info:
             page.get_by_role("button", name="Export").click()

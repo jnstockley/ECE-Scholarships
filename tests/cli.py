@@ -5,7 +5,9 @@ import os
 import signal
 import time
 import subprocess
+from typing import Optional
 import typer
+from typing_extensions import Annotated
 from dotenv import dotenv_values
 
 CONFIG = dotenv_values(".env")
@@ -14,12 +16,25 @@ if 'BROWSER' not in CONFIG:
 
 CMD = {
     'STREAMLIT_RUN': 'streamlit run main.py --client.showErrorDetails false --server.port 9000 --server.headless true',
-    'PLAYWRIGHT': f"pytest ./tests/feature/*.py --browser {CONFIG['BROWSER']} --tracing=retain-on-failure",
+    'PLAYWRIGHT_CONFIG': f"--browser {CONFIG['BROWSER']} --tracing retain-on-failure",
     'PYUNIT': 'unittest discover -s tests.unit -p "*.py"',
     'REPORT': 'poetry run coverage report && poetry run coverage html'
 }
 
 app = typer.Typer()
+
+def get_playwright_cmd(focus: str | None):
+    '''
+    Generates the playwright run command with focused test if selected
+
+    Parameters
+    ----------
+    Test/marker to focus
+    '''
+    if focus is None or len(focus.strip(" ")) == 0:
+        return "pytest ./tests/feature/*.py " + CMD['PLAYWRIGHT_CONFIG']
+
+    return f"pytest ./tests/feature/*.py -m {focus} " + CMD['PLAYWRIGHT_CONFIG']
 
 def start_streamlit_subprocess(coverage: bool = True):
     '''
@@ -44,7 +59,7 @@ def start_streamlit_subprocess(coverage: bool = True):
     return process
 
 @app.command()
-def run(test: str = 'all'):
+def run(focus: Annotated[Optional[str], typer.Argument(None)] = None, test: Annotated[str, typer.Argument("all")] = "all"):
     '''
     Main run command interface for cli
     '''
@@ -56,8 +71,8 @@ def run(test: str = 'all'):
         streamlit_process = start_streamlit_subprocess()
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
-        except subprocess.CalledProcessError as exception:
+            subprocess.run(f"poetry run {get_playwright_cmd(focus)}", check=True, shell=True)
+        except Exception as exception:
             # test failed, kill streamlit
             os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)
             raise exception
@@ -70,7 +85,7 @@ def run(test: str = 'all'):
         streamlit_process = start_streamlit_subprocess(coverage = False)
 
         try:
-            subprocess.run(f"poetry run {CMD['PLAYWRIGHT']}", check=True, shell=True)
+            subprocess.run(f"poetry run {get_playwright_cmd(focus)}", check=True, shell=True)
         except subprocess.CalledProcessError as exception:
             # test failed, kill streamlit
             os.killpg(os.getpgid(streamlit_process.pid), signal.SIGTERM)

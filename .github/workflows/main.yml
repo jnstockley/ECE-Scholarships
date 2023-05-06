@@ -41,7 +41,7 @@ jobs:
           poetry run pylint tests
 
   playwright-linux:
-    needs: [lint]
+    needs: [lint, pyunit]
     name: test-playwright
     runs-on: ubuntu-latest
     steps:
@@ -115,6 +115,16 @@ jobs:
       #----------------------------------------------
       - name: Install dependencies
         run: poetry install
+      #----------------------------------------------
+      #  -----     Create .env file             -----
+      #----------------------------------------------
+      - name: Create .env file
+        run: |
+          touch .env
+          echo BROWSER=firefox >> .env
+          echo HAWK_ID=${{ secrets.HAWK_ID }} >> .env
+          echo HAWK_ID_PASSWORD=${{ secrets.HAWK_ID_PASSWORD }} >> .env
+          echo SHAREPOINT_URL=${{ secrets.SHAREPOINT_URL }} >> .env
       #----------------------------------------------
       #  -----       Run PyUnit Tests       -----
       #----------------------------------------------

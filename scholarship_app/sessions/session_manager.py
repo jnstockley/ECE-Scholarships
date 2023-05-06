@@ -1,9 +1,9 @@
 '''
-SessionManager
+SessionManagerp
 '''
 from enum import Enum
-import streamlit as st
 import pandas as pd
+import streamlit as st
 from streamlit.runtime.state import SessionStateProxy
 
 class GlobalSession(Enum):
@@ -24,53 +24,67 @@ class SessionManager:
     view : any
         Current view for pages session
     '''
-    def __init__(self, session: SessionStateProxy, default_view):
+    def __init__(self, session: SessionStateProxy, page: str, default_view):
         self._session = session
 
+        if not page in self._session:
+            self._session[page] = {}
+        
+        self._session_page = self._session[page]
+
         if not self.has(GlobalSession.VIEW):
-            self._set(GlobalSession.VIEW, default_view)
+            self.view = default_view
+            self.set(GlobalSession.VIEW, self.view)
+
+        else:
+            self.view = self.retrieve(GlobalSession.VIEW)
 
         if self.has(GlobalSession.DATA_MAIN):
-            self.data = self._retrieve(GlobalSession.DATA_MAIN)
-
-        self.view = self._retrieve(GlobalSession.VIEW)
+            self.data = self.retrieve(GlobalSession.DATA_MAIN)
 
     def set_view(self, view):
         '''
         Sets current page view
         '''
-        self._set(GlobalSession.VIEW, view)
+        self.set(GlobalSession.VIEW, view)
         st.experimental_rerun()
 
     def has(self, key: str):
         '''
         Verifies key is present in current session.
         '''
-        return key in self._session and self._session[key] is not None
+        return key in self._session_page and self._session_page[key] is not None
 
     def set_main_data_source(self, data: pd.DataFrame):
         '''
         Sets the main scholarship dataframe for the user session
         '''
-        self._set(GlobalSession.DATA_MAIN, data)
+        self.set(GlobalSession.DATA_MAIN, data)
 
-    def _retrieve(self, key: str):
+    def retrieve(self, key: str):
         '''
         Checks whether the st.session contains key. If not throws error
         '''
-        if self.has(key) and self._session[key] is not None:
-            return self._session[key]
+        if self.has(key):
+            return self._session_page[key]
 
         raise KeyError(f'Key "{key}" not found in session')
 
-    def _set(self, key: str, value):
+    def set(self, key: str, value):
         '''
         Sets session state key value.
         '''
         if self.has(key):
-            cur_type = type(self._retrieve(key))
+            cur_type = type(self.retrieve(key))
             new_type = type(value)
             if cur_type is not new_type:
                 raise TypeError(f'Trying to set session_key={key} of type {cur_type} to invalid type {new_type}\nSession state types shall not deviate!')
 
-        self._session[key] = value
+        self._session_page[key] = value
+
+    def _unset(self, key: str):
+        '''
+        Unsets a session value
+        '''
+        if self.has(key):
+            del self._session_page[key]
