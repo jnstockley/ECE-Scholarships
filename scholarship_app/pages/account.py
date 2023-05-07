@@ -29,6 +29,8 @@ def login_form_render():
         type="password",
     )
 
+    login_form.write(f"You have configured this application to use the sharepoint directory at: {SHAREPOINT.sharepoint_url}")
+
     login_button = login_form.form_submit_button("Log in to Sharepoint Site")
 
     if login_button:

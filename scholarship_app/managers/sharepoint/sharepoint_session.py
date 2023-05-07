@@ -9,15 +9,14 @@ import extra_streamlit_components as stx
 from streamlit.runtime.state import SessionStateProxy
 from office365.runtime.auth.user_credential import UserCredential
 from office365.sharepoint.client_context import ClientContext
+from scholarship_app.managers.config import ConfigManager
 from scholarship_app.utils.html import redirect
 from scholarship_app.sessions.session_manager import SessionManager
 from scholarship_app.utils.output import get_appdata_path
 
-# temporary:
-SHAREPOINT_URL = "https://iowa.sharepoint.com/sites/SEP2023-Team2/"
 COOKIE_CREDENTIALS_KEY = "sharepoint-auth"
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
-
+SHAREPOINT_CONFIG_KEY = "sharepoint_url"
 
 def get_cookie_manager():
     """
@@ -30,9 +29,9 @@ class Session(Enum):
     """
     sharepoint session keys
     """
-
     CREDENTIALS = "creds"
     REDIRECT_AFTER_SYNC = "redirect"
+    SHAREPOINT_URL = "sharepoint_url"
 
 
 class SharepointSession(SessionManager):
@@ -56,7 +55,12 @@ class SharepointSession(SessionManager):
     def __init__(self, session: SessionStateProxy):
         super().__init__(session, "auth", "default")
 
-        self.sharepoint_url = SHAREPOINT_URL.strip("/")
+        if self.has(Session.SHAREPOINT_URL):
+            self.sharepoint_url = self.retrieve(Session.SHAREPOINT_URL)
+        else:
+            self.sharepoint_url = self.retrieve_sharepoint_url()
+            self.set(Session.SHAREPOINT_URL, self.sharepoint_url)
+
         self._cookie_manager = get_cookie_manager()
         self.verified = False
         self.hawk_id = None
@@ -70,6 +74,16 @@ class SharepointSession(SessionManager):
         if self.has(Session.CREDENTIALS):
             hawk_id, password = self._retrieve_credentials()
             self._login_no_verify(hawk_id, password)
+
+    def retrieve_sharepoint_url(self) -> str | None:
+        '''
+        Gets the sharepoint URL
+        '''
+        config = ConfigManager()
+        if config.has_key(SHAREPOINT_CONFIG_KEY):
+            return config.data[SHAREPOINT_CONFIG_KEY]
+
+        return None
 
     def get_hawk_id(self) -> str | None:
         """
@@ -104,7 +118,7 @@ class SharepointSession(SessionManager):
         -------
             True for success, false for failure.
         """
-        self.client = ClientContext(SHAREPOINT_URL).with_credentials(
+        self.client = ClientContext(self.sharepoint_url.strip("/")).with_credentials(
             UserCredential(hawk_id, password)
         )
 
@@ -253,7 +267,7 @@ class SharepointSession(SessionManager):
 
         web = self.client.web.get().execute_query()
 
-        if not f"{web.url}/".strip("/") == self.sharepoint_url:
+        if not f"{web.url}/".strip("/") == self.sharepoint_url.strip("/"):
             return False
 
         self.verified = True
@@ -287,7 +301,7 @@ class SharepointSession(SessionManager):
         Same behavior as login but assumes hawk_id and password are already valid.
         This also does not modify cookie or session.
         """
-        self.client = ClientContext(SHAREPOINT_URL).with_credentials(
+        self.client = ClientContext(self.sharepoint_url).with_credentials(
             UserCredential(hawk_id, password)
         )
 
