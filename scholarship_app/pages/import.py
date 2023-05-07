@@ -35,6 +35,7 @@ from scholarship_app.components.import_data.script_editor import render_script_e
 from scholarship_app.managers.sharepoint.sharepoint_session import SharepointSession
 from scholarship_app.utils.html import redirect
 from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
+from scholarship_app.utils.output import get_appdata_path
 
 # HELPERS AND FLOW MANAGEMENT
 
@@ -259,13 +260,43 @@ def display_done_view():
     Import completed view
     """
     st.write("# import completed!")
-    set_as_master = st.button("set as master")
-    st.write("Note: setting to master will overwrite the current master data source.")
-    import_another = st.button("import another")
+    st.write("*What would you like to do next?*")
+
+    set_as_master_container = st.container()
+    set_as_master_container.write("### Update the Master Datasheet")
+    set_as_master_container.write(
+        "**Note:** The current master datasheet will be overwritten! You can go the export tab and download this sheet to prevent it being lost!"
+    )
+    set_as_master = set_as_master_container.button("Set as Master")
+
+    import_another_container = st.container()
+    import_another_container.write("### Import Another Datasheet")
+    import_another_container.write(
+        "**Note:** any unsaved changes from the current imported data will be lost."
+    )
+    import_another = import_another_container.button("Import Another")
+
+    download_container = st.container()
+    download_container.write("### Download the Imported Datasheet")
+    download_container.write("Save the datasheet you just imported locally")
+
+    SESSION.data.to_excel(
+        f"{get_appdata_path('temp/download')}/student_data_export.xls"
+    )
+    with open(
+        f"{get_appdata_path('temp/download')}/student_data_export.xls", "rb"
+    ) as file:
+        download_container.download_button(
+            label="Download Datasheet",
+            data=file,
+            file_name="student_data_export.xls",
+            mime="image/png",
+        )
 
     if set_as_master:
         file_data = DataManager(st.session_state, DataType.MAIN, SHAREPOINT)
         file_data.set_master(SESSION.data)
+        set_as_master_container.success("Master datasheet in sharepoint updated!")
         return
 
     if import_another:
