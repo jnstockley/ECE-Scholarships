@@ -28,7 +28,9 @@ class MainContainer(ft.Container):
             current_sharepoint_value = self.config.data[SHAREPOINT_CONFIG_KEY]
 
         self.status_text = ft.Text("Server not active", text_align=ft.TextAlign.CENTER)
-        self.sharepoint_link = ft.TextField(label="Sharepoint Link", value=current_sharepoint_value)
+        self.sharepoint_link = ft.TextField(
+            label="Sharepoint Link", value=current_sharepoint_value
+        )
         self.update_sharepoint_btn = ft.OutlinedButton(
             "Update", on_click=self.__handle_update_sharepoint
         )

@@ -18,6 +18,7 @@ COOKIE_CREDENTIALS_KEY = "sharepoint-auth"
 VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 SHAREPOINT_CONFIG_KEY = "sharepoint_url"
 
+
 def get_cookie_manager():
     """
     Returns (and attempts to cache) cookie manage object
@@ -29,6 +30,7 @@ class Session(Enum):
     """
     sharepoint session keys
     """
+
     CREDENTIALS = "creds"
     REDIRECT_AFTER_SYNC = "redirect"
     SHAREPOINT_URL = "sharepoint_url"
@@ -76,9 +78,9 @@ class SharepointSession(SessionManager):
             self._login_no_verify(hawk_id, password)
 
     def retrieve_sharepoint_url(self) -> str | None:
-        '''
+        """
         Gets the sharepoint URL
-        '''
+        """
         config = ConfigManager()
         if config.has_key(SHAREPOINT_CONFIG_KEY):
             return config.data[SHAREPOINT_CONFIG_KEY]
