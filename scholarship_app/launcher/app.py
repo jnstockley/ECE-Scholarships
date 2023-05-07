@@ -3,13 +3,13 @@ Main Flet app interface for the streamlit server launcher application
 '''
 import pathlib
 import subprocess
-import flet as ft
 import signal
-import time
+import flet as ft
 from scholarship_app.managers.config import ConfigManager
 
 HERE = pathlib.Path(__file__).parent
 STREAMLIT_CMD = f"streamlit run {HERE.joinpath('../router.py')} --server.port 8501"
+SHAREPOINT_CONFIG_KEY = "sharepoint_url"
 
 class MainContainer(ft.Container):
     '''
@@ -20,6 +20,7 @@ class MainContainer(ft.Container):
         self.toggle_button = ft.ElevatedButton('Start Streamlit Server', on_click=self.__handle_toggle)
         self.status_text = ft.Text('Server not active', text_align=ft.TextAlign.CENTER)
         self.sharepoint_link = ft.TextField(label="Sharepoint Link")
+        self.update_sharepoint_btn = ft.OutlinedButton('Update', on_click=self.__handle_update_sharepoint)
 
         main_col = ft.Column(
             [
@@ -27,7 +28,7 @@ class MainContainer(ft.Container):
                 self.status_text,
                 self.toggle_button,
                 ft.Text('Sharepoint Link:', text_align=ft.TextAlign.CENTER, style=ft.TextThemeStyle.HEADLINE_SMALL),
-                ft.Row([])
+                ft.Row([self.sharepoint_link, self.update_sharepoint_btn])
             ],
             alignment=ft.MainAxisAlignment.CENTER
         )
@@ -36,6 +37,14 @@ class MainContainer(ft.Container):
 
         self.streamlit_process = None
         self.streamlit_running = False
+
+    def get_sharepoint_link(self):
+        '''
+        Interfaces with config manager to get the sharepoint link
+        '''
+        if self.config.has_key(SHAREPOINT_CONFIG_KEY):
+            return self.data[SHAREPOINT_CONFIG_KEY]
+        return ""
 
     def start_streamlit(self):
         '''
@@ -89,6 +98,12 @@ class MainContainer(ft.Container):
             self.toggle_button.text = "Start streamlit server"
 
         self.toggle_button.update()
+
+    def __handle_update_sharepoint(self, _e):
+        '''
+        Handles the update sharepoint onclick
+        '''
+        self.config.set_value(SHAREPOINT_CONFIG_KEY, self.sharepoint_link.value)
 
     def __handle_toggle(self, _e):
         '''
