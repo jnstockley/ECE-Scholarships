@@ -27,7 +27,6 @@ SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
     redirect("/Account")
 
-# Setting variables for script
 with st.spinner("Downloading Data..."):
     if "students" not in st.session_state:
         SHAREPOINT.download("/data/Master_Sheet.xlsx", "/data/")

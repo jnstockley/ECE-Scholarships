@@ -32,8 +32,16 @@ from scholarship_app.managers.import_data.alignment_settings import (
     AlignmentManager,
 )
 from scholarship_app.components.import_data.script_editor import render_script_expander
+from scholarship_app.managers.sharepoint.sharepoint_session import SharepointSession
+from scholarship_app.utils.html import redirect
+from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
 
 # HELPERS AND FLOW MANAGEMENT
+
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
+    redirect("/Account")
+
 SESSION = ImportSessionManager(st.session_state)
 
 
@@ -250,8 +258,15 @@ def display_done_view():
     """
     Import completed view
     """
-    st.write("import completed!")
+    st.write("# import completed!")
+    set_as_master = st.button("set as master")
+    st.write("Note: setting to master will overwrite the current master data source.")
     import_another = st.button("import another")
+
+    if set_as_master:
+        file_data = DataManager(st.session_state, DataType.MAIN, SHAREPOINT)
+        file_data.set_master(SESSION.data)
+        return
 
     if import_another:
         SESSION.set_view(View.IMPORT_PAGE)

@@ -26,6 +26,7 @@ def test_login_page(page: Page):
     )
     expect(login_page_heading).to_have_text("Log In")
 
+
 def test_invalid_login_creds(page: Page):
     """
     Tests that the login page doesn't connect to sharepoint using invalid login details
