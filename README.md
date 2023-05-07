@@ -64,3 +64,16 @@ python -m tests.cli --focus "marker goes here"
 ```
 
 Currently markers only apply to the playwright specific tests will not carry over to the pyunit functional tests.
+
+## Code Formatting
+We use pylint and black for following pep8 formatting along with other best practices
+
+To run the linter:
+```sh
+poe lint
+```
+
+To run the auto formatter:
+```sh
+poe format
+```
