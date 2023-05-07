@@ -4,61 +4,122 @@ Main Flet app interface for the streamlit server launcher application
 import pathlib
 import subprocess
 import flet as ft
-import os
 import signal
-from streamlit.web import bootstrap
+import time
+from scholarship_app.managers.config import ConfigManager
 
 HERE = pathlib.Path(__file__).parent
 STREAMLIT_CMD = f"streamlit run {HERE.joinpath('../router.py')} --server.port 8501"
 
-class StreamlitButton(ft.TextButton):
+class MainContainer(ft.Container):
     '''
-    Streamlit button toggle object
-
-    Attributes
-    ----------
-    streamlit_running : bool
-        True if streamlit process running
-    streamlit_process : Process | None
-        The active streamlit server process
+    Main flet container
     '''
     def __init__(self):
-        super().__init__(text="Start Streamlit Server", on_click=self.__handle_click)
+        self.config = ConfigManager()
+        self.toggle_button = ft.ElevatedButton('Start Streamlit Server', on_click=self.__handle_toggle)
+        self.status_text = ft.Text('Server not active', text_align=ft.TextAlign.CENTER)
+        self.sharepoint_link = ft.TextField(label="Sharepoint Link")
+
+        main_col = ft.Column(
+            [
+                ft.Text('Status:', text_align=ft.TextAlign.CENTER, style=ft.TextThemeStyle.HEADLINE_MEDIUM),
+                self.status_text,
+                self.toggle_button,
+                ft.Text('Sharepoint Link:', text_align=ft.TextAlign.CENTER, style=ft.TextThemeStyle.HEADLINE_SMALL),
+                ft.Row([])
+            ],
+            alignment=ft.MainAxisAlignment.CENTER
+        )
+
+        super().__init__(content=main_col, alignment=ft.alignment.center, margin=ft.margin.all(10))
 
         self.streamlit_process = None
-        self.streamlit_running: bool = False
+        self.streamlit_running = False
 
-    def __handle_click(self, _e):
+    def start_streamlit(self):
         '''
-        Handles button click
+        Starts the streamlit server
+        '''
+        if self.streamlit_running:
+            return
+
+        self.streamlit_process = subprocess.Popen(STREAMLIT_CMD, shell=True)
+        self.streamlit_running = True
+
+    def stop_streamlit(self):
+        '''
+        Stops the streamlit server
         '''
         if not self.streamlit_running:
-            self.streamlit_process = subprocess.Popen(STREAMLIT_CMD, shell=True)
-            self.streamlit_running = True
             return
 
         self.streamlit_process.send_signal(signal.SIGTERM)
         self.streamlit_running = False
+        print("stopping streamlit")
 
+    def toggle_streamlit(self):
+        '''
+        Toggle streamlit server
+        '''
+        if not self.streamlit_running:
+            self.start_streamlit()
+            return
 
-def start_streamlit(here: str):
-    '''
-    Starts the streamlit server
+        self.stop_streamlit()
 
-    Parameters
-    ----------
-    root : str
-        path of file in file system.
-    '''
-    bootstrap.run(
-            str(here.joinpath("../router.py")),
-            command_line=None,
-            args=[],
-            flag_options={},
-        )
+    def update_status_text(self):
+        '''
+        Updates the text below Status:
+        '''
+        if self.streamlit_running:
+            self.status_text.value = "Server running on port 8501"
+        else:
+            self.status_text.value = "Server not active"
 
-def home(page: ft.Page):
+        self.status_text.update()
+
+    def update_toggle_text(self):
+        '''
+        Update the toggle button text
+        '''
+        if self.streamlit_running:
+            self.toggle_button.text = "Stop streamlit server"
+        else:
+            self.toggle_button.text = "Start streamlit server"
+
+        self.toggle_button.update()
+
+    def __handle_toggle(self, _e):
+        '''
+        Handles toggling of the server
+        '''
+        self.toggle_streamlit()
+        self.update_status_text()
+        self.update_toggle_text()
+
+# Register the signal handler
+class FletApp:
     '''
-    Homepage of flet application
+    Main fletapp launcher
     '''
-    page.add(StreamlitButton())
+    def __init__(self):
+        self.main_container: MainContainer = MainContainer()
+
+    def run(self):
+        '''
+        Runs the flet application
+        '''
+        ft.app(target = self.home_page)
+
+    def home_page(self, page):
+        '''
+        Main homepage render
+        '''
+        page.add(self.main_container)
+
+    def kill_hanging_processes(self):
+        '''
+        If users closes window, we want to kill the streamlit process running in background
+        '''
+        self.main_container.stop_streamlit()

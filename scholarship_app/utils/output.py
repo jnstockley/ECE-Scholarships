@@ -2,8 +2,10 @@
 Output I/O interfaces for runtime
 '''
 import os
+import pathlib
 
-APP_DATA = ".app_data"
+HERE = pathlib.Path(__file__).parent
+APP_DATA = HERE.joinpath("../../.app_data")
 
 def create_directory(path: str) -> None:
     '''
@@ -20,7 +22,7 @@ def get_appdata_path(appdata_path: str = "") -> str:
     Parameters
     ----------
     appdata_path : str, optional
-        Path of file in appdata
+        Path of folder in appdata
     '''
     path = os.path.join(APP_DATA, appdata_path.strip("/"))
 
