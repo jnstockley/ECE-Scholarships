@@ -18,11 +18,14 @@ poe run-server
 We utilize the poetry package and dependency manager to handle building and installing libraries for our project. More information regarding Poetry can be found here: https://python-poetry.org/
 
 ### Building Distributables
+Currently, building distributables is in an early state and is very unreliable. This method is not recommended currently, streamlit does not properly support this use case and our current adaptation uses several hacks in order to get it working. One of those hacks is that you must have the streamlit cli tool installed for your operating systems version of python. This can be installed with `pip install streamlit` inside your terminal.
+
+
 Pyoxidizer will build both an executable and MacOS bundle which can be used to run the application as a more portable version of the codebase. Once the build process has completed the distributables will be found under dist/build
 ```sh
 poe build
 ```
-**Note:** Windows is not currently supported
+**Note:** Windows is not currently supported, only tested on MacOS
 
 ### poethepoet
 [poethepoet](https://github.com/nat-n/poethepoet) is an extension of Poetry which adds additional functionality such as post and pre build steps, alongside integrating easy scripts (often referred to as tasks) which are equivalent to scripts found in package.json in the Node package manager.
