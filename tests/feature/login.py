@@ -4,11 +4,12 @@ Login Feature Test
 import pytest
 from playwright.sync_api import Page, expect
 
+
 def test_login_page(page: Page):
     """
     Tests that the login page exists, and has the correct title
     """
-    page.goto("http://localhost:9000", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000", wait_until="domcontentloaded")
 
     page.wait_for_load_state("networkidle")
 
@@ -20,7 +21,9 @@ def test_login_page(page: Page):
 
     page.wait_for_load_state("networkidle")
 
-    login_page_heading = page.get_by_role("heading", name="Log In").get_by_text("Log In")
+    login_page_heading = page.get_by_role("heading", name="Log In").get_by_text(
+        "Log In"
+    )
     expect(login_page_heading).to_have_text("Log In")
 
 def test_invalid_login_creds(page: Page):
@@ -45,11 +48,14 @@ def test_invalid_login_creds(page: Page):
     # Fixes weird issue where clicking the button after filling form causes button click to be missed
     # It is streamlit related
     page.get_by_text("Log In", exact=True).click(delay=1000)
-    submit_button_textbox.click()
 
     page.wait_for_load_state("networkidle")
 
-    expect(page.get_by_text("Invalid Login Credentials or Sharepoint Site URL")).to_be_visible()
+    submit_button_textbox.click()
+
+    expect(
+        page.get_by_text("Invalid Login Credentials or Sharepoint Site URL")
+    ).to_be_visible()
 
 
 @pytest.mark.usefixtures("login_user")
@@ -58,10 +64,12 @@ def test_valid_login_creds(page: Page):
     Tests that the login pages connects to the sharepoint site using valid credentials
     Also checks that download page responds correctly to being logged in
     """
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000/Download%20File", wait_until="domcontentloaded")
 
     page.wait_for_load_state("networkidle")
 
-    download_file_page_heading = page.get_by_role("heading", name="Download A File").get_by_text("Download A File")
+    download_file_page_heading = page.get_by_role(
+        "heading", name="Download A File"
+    ).get_by_text("Download A File")
 
     expect(download_file_page_heading).to_have_text("Download A File")

@@ -21,8 +21,9 @@ def setup_cred():
     # Valid Sharepoint URL
     sharepoint_url = config["SHAREPOINT_URL"]
 
-    creds: ClientContext = ClientContext(sharepoint_url).with_credentials(UserCredential(hawk_id,
-                                                                                         hawk_id_password))
+    creds: ClientContext = ClientContext(sharepoint_url).with_credentials(
+        UserCredential(hawk_id, hawk_id_password)
+    )
     creds.web.get().execute_query()
 
     return creds

@@ -10,7 +10,7 @@ def test_download_page(page: Page):
     """
     Tests that the download page exists, and has the correct title
     """
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000/Download%20File", wait_until="domcontentloaded")
 
     page.wait_for_load_state("networkidle")
 
@@ -25,12 +25,13 @@ def test_download_page(page: Page):
     download_page_heading = page.get_by_role("heading", name="Download A File")
     expect(download_page_heading).to_have_text("Download A File")
 
+
 @pytest.mark.usefixtures("login_user")
 def test_download_invalid_file(page: Page):
     """
     Tests downloading a valid file from SharePoint
     """
-    page.goto("http://localhost:9000/Download%20File", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000/Download%20File", wait_until="domcontentloaded")
 
     page.wait_for_load_state("networkidle")
 

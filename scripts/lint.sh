@@ -7,5 +7,5 @@ if [ -z ${SCRIPT_DIR+x} ]; then
   fi
 fi
 
-poetry run pylint src
+poetry run pylint scholarship_app
 poetry run pylint tests

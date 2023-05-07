@@ -18,9 +18,9 @@ def login_user(page: Page) -> Page:
     """
     Logins in a valid user account to the test session.
     """
-    page.goto("http://localhost:9000", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000", wait_until="domcontentloaded")
     page.wait_for_load_state("networkidle")
-    page.goto("http://localhost:9000/Account", wait_until='domcontentloaded')
+    page.goto("http://localhost:9000/Account", wait_until="domcontentloaded")
     page.wait_for_load_state("networkidle")
 
     hawk_id_textbox = page.get_by_role("textbox", name="HawkID", exact=True)
