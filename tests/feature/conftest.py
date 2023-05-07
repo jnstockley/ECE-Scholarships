@@ -1,13 +1,11 @@
-'''
+"""
 Pytest configuration file. Can store fixtures, hooks, and other configuration options.
-'''
+"""
 import time
 from playwright.sync_api import sync_playwright
 
-pytest_plugins = [
-   "tests.feature.fixtures.import_data",
-   "tests.feature.fixtures.login"
-]
+pytest_plugins = ["tests.feature.fixtures.import_data", "tests.feature.fixtures.login"]
+
 
 def pytest_sessionstart():
     """

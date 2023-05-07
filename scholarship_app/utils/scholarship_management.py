@@ -8,11 +8,12 @@ import pandas as pd
 from scholarship_app.utils.output import get_appdata_path
 from scholarship_app.managers.sharepoint.sharepoint_session import SharepointSession
 
+
 def read_rows(file_path, sharepoint: SharepointSession):
     """
     Reads Excel spreadsheet and returns the rows
     """
-    sharepoint.download(f'{file_path}', os.path.dirname(file_path))
+    sharepoint.download(f"{file_path}", os.path.dirname(file_path))
     excel = pd.read_excel(get_appdata_path(file_path))
     return excel.head()
 
@@ -22,7 +23,8 @@ def write_rows(dataframe, file_path, sheet_name, sharepoint: SharepointSession):
     Writes the rows of a dataframe to the file_path with sheet_name
     """
     dataframe.to_excel(get_appdata_path(file_path), sheet_name=sheet_name, index=False)
-    sharepoint.upload(file_path, f'{os.path.dirname(file_path)}')
+    sharepoint.upload(file_path, f"{os.path.dirname(file_path)}")
+
 
 def edit_row(dataframe, row_index, column_names_and_values):
     """
@@ -45,11 +47,11 @@ def groups_string_to_list(default_options):
     if default_options == "[]":
         return []
     # Removes [] from the string
-    no_brackets = default_options[1:(len(default_options) - 1)]
+    no_brackets = default_options[1 : (len(default_options) - 1)]
     # Removes ' ' around the items in the group
-    no_quotes = no_brackets.replace('\'', '')
+    no_quotes = no_brackets.replace("'", "")
     # Removes the ,_ from the string and places everything into the split list
-    list_form = no_quotes.split(', ')
+    list_form = no_quotes.split(", ")
     return list_form
 
 
@@ -77,11 +79,12 @@ def check_columns_equal(old_columns, new_columns):
 
     return fail_columns, invalid_columns, missing_columns
 
+
 def equalize_dictionary_columns(columns, dict_to_change):
-    '''
+    """
     This function takes a list of columns and a dictionary and if there are any columns
     that are not present in the dictionary as a key it adds them and gives them the value of None
-    '''
+    """
     for val in columns:
         if val not in dict_to_change:
             dict_to_change[val] = None

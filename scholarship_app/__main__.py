@@ -1,6 +1,6 @@
-'''
+"""
 Main application entry point.
-'''
+"""
 import pathlib
 from scholarship_app.launcher.app import FletApp
 

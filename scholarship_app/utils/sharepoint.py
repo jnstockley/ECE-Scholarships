@@ -22,7 +22,9 @@ VALID_EXTENSIONS = (".xls", ".xlsx", ".csv")
 
 HAWKID_REGEX = re.compile(r"[a-zA-Z][a-zA-Z0-9]{2,}@uiowa.edu")
 
-PASSWORD_REGEX = re.compile(r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$")
+PASSWORD_REGEX = re.compile(
+    r"^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*#?&]?)[A-Za-z\d@$!%*#?&]{8,}$"
+)
 
 SITE_URL_REGEX = re.compile(r"https://iowa.sharepoint.com/sites/.+")
 
@@ -44,7 +46,9 @@ def regex_validation(string: str, regex: Pattern[str]) -> bool | None:
     return re.fullmatch(regex, string)
 
 
-def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | CookieManager:
+def logged_in(
+    manager: CookieManager = None, creds: dict = None
+) -> bool | CookieManager:
     """
     Checks if the cookies are present, and in a valid format
     :param manager: Optional cookie manager, use if used more than once per page
@@ -55,7 +59,7 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
         manager = get_manager()
 
     # Work around for caching not working with cookie manager
-    time.sleep(.2)
+    time.sleep(0.2)
 
     if creds is None:
         cookies = {}
@@ -70,13 +74,21 @@ def logged_in(manager: CookieManager = None, creds: dict = None) -> bool | Cooki
         if "cred" not in cookies:
             return False
         creds = manager.get("cred")
-    if isinstance(creds, dict) and "hawk-id" not in creds and "password" not in creds and "site-url" not in creds:
+    if (
+        isinstance(creds, dict)
+        and "hawk-id" not in creds
+        and "password" not in creds
+        and "site-url" not in creds
+    ):
         return False
-    hawk_id = creds['hawk-id']
-    password = creds['password']
-    site_url = creds['site-url']
-    if regex_validation(hawk_id, HAWKID_REGEX) and regex_validation(password, PASSWORD_REGEX) \
-            and regex_validation(site_url, SITE_URL_REGEX):
+    hawk_id = creds["hawk-id"]
+    password = creds["password"]
+    site_url = creds["site-url"]
+    if (
+        regex_validation(hawk_id, HAWKID_REGEX)
+        and regex_validation(password, PASSWORD_REGEX)
+        and regex_validation(site_url, SITE_URL_REGEX)
+    ):
         return manager
     return False
 
@@ -92,9 +104,9 @@ def login(manager: CookieManager = None) -> ClientContext | None:
 
     creds = manager.get("cred")
 
-    hawk_id = creds['hawk-id']
-    password = creds['password']
-    site_url = creds['site-url']
+    hawk_id = creds["hawk-id"]
+    password = creds["password"]
+    site_url = creds["site-url"]
 
     creds = ClientContext(site_url).with_credentials(UserCredential(hawk_id, password))
     try:
@@ -119,8 +131,11 @@ def get_files(creds: ClientContext) -> list[str]:
 
     files = root_folder.get_files(True).execute_query()
 
-    data = ["Select File"] + [str(f.properties['ServerRelativeUrl']).split(target_folder_url)[1] for f in files if
-                              str(f.properties['ServerRelativeUrl']).endswith(VALID_EXTENSIONS)]
+    data = ["Select File"] + [
+        str(f.properties["ServerRelativeUrl"]).split(target_folder_url)[1]
+        for f in files
+        if str(f.properties["ServerRelativeUrl"]).endswith(VALID_EXTENSIONS)
+    ]
 
     return data
 
@@ -141,7 +156,9 @@ def download(file: str, download_location: str, cred: ClientContext) -> bool:
     if not download_location.endswith("/"):
         download_location += "/"
     with open(f"{download_location}{file_name}", "wb") as sharepoint_file:
-        cred.web.get_file_by_server_relative_url(download_url).download(sharepoint_file).execute_query()
+        cred.web.get_file_by_server_relative_url(download_url).download(
+            sharepoint_file
+        ).execute_query()
     return exists(f"{download_location}{file_name}")
 
 

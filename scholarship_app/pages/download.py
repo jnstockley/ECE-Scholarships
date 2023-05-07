@@ -15,15 +15,17 @@ SHARE_POINT = SharepointSession(st.session_state)
 if not SHARE_POINT.is_signed_in():
     redirect("/Account")
 
+
 def render_loading_files():
-    '''
+    """
     Render the loading files spinner
-    '''
+    """
     with st.spinner("Loading Sharepoint Files..."):
         files = SHARE_POINT.get_files()
 
     SESSION.set("files", files)
     SESSION.set_view("main")
+
 
 def render_files_dropdown():
     """
@@ -33,7 +35,7 @@ def render_files_dropdown():
         SESSION.set_view("loading")
 
     files = SESSION.retrieve("files")
-    file_selector = st.form('sharepoint-file-selector')
+    file_selector = st.form("sharepoint-file-selector")
 
     file = file_selector.selectbox("Sharepoint Files", options=files)
 
@@ -47,6 +49,7 @@ def render_files_dropdown():
             return
         file_selector.error("Invalid File Selected")
         return
+
 
 st.header("Download A File")
 

@@ -10,6 +10,10 @@ readme = "README.md"
 run = "python -m scholarship_app"
 run-server = "poetry run streamlit run scholarship_app/router.py"
 lint = "sh scripts/lint.sh"
+format = [
+  { cmd = "poetry run black scholarship_app" },
+  { cmd = "poetry run black tests" },
+]
 test-e2e = "sh scripts/playwright.sh"
 test-unit = "sh scripts/pyunit.sh"
 test = "sh scripts/test.sh"
@@ -38,6 +42,7 @@ python-levenshtein = "^0.20.9"
 xlwt = "^1.3.0"
 streamlit-ace = "^0.1.1"
 flet = "^0.5.2"
+black = "^23.3.0"
 
 [tool.poetry.group.dev.dependencies]
 pylint = "^2.16.1"
