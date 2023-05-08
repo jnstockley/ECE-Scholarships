@@ -219,6 +219,7 @@ class SharepointSession(SessionManager):
         """
         Checks whether sharepoint has the provided path
         """
+        print("CHECKING FOR FILE")
         try:
             self.get_client_web().get_file_by_server_relative_url(
                 sharepoint_file_path

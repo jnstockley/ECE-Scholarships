@@ -83,7 +83,7 @@ def error_view():
     """
     Displays no data error
     """
-    if MAIN_DATA.retrieve_master is not None:
+    if MAIN_DATA.retrieve_master() is not None:
         SESSION.set_view("download")
     st.error(
         "Unable to reference master sheet in sharepoint. You must import data first"
