@@ -67,6 +67,8 @@ class ImportSessionManager(SessionManager):
 
         if self.has(Session.SIMILAR_MANAGER):
             self.similar = self.retrieve(Session.SIMILAR_MANAGER)
+        else:
+            self.similar = None
 
     def import_sheets(self, files: list[ImportedSheet]):
         """
@@ -110,6 +112,7 @@ class ImportSessionManager(SessionManager):
         """
         Completes the import flow and sets final data.
         """
-        self.aligned_df.drop(columns=self.similar.columns_to_remove, inplace=True)
+        if self.similar is not None:
+            self.aligned_df.drop(columns=self.similar.columns_to_remove, inplace=True)
         self.set_main_data_source(self.aligned_df)
         self.set_view(View.IMPORT_COMPLETE)

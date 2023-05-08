@@ -25,15 +25,27 @@ aligned_dataframe : pd.Dataframe
 import streamlit as st
 from scholarship_app.managers.import_data.similar_columns import MergeSimilarDetails
 from scholarship_app.utils.html import centered_text
-from scholarship_app.utils import merge
-from scholarship_app.sessions.import_session_manager import ImportSessionManager, View
+from scholarship_app.sessions.import_session_manager import (
+    ImportSessionManager,
+    View,
+    Session,
+)
 from scholarship_app.managers.import_data.alignment_settings import (
     SelectAlignment,
     AlignmentManager,
 )
 from scholarship_app.components.import_data.script_editor import render_script_expander
+from scholarship_app.managers.sharepoint.sharepoint_session import SharepointSession
+from scholarship_app.utils.html import redirect
+from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
+from scholarship_app.utils.output import get_appdata_path
 
 # HELPERS AND FLOW MANAGEMENT
+
+SHAREPOINT = SharepointSession(st.session_state)
+if not SHAREPOINT.is_signed_in():
+    redirect("/Account")
+
 SESSION = ImportSessionManager(st.session_state)
 
 
@@ -80,8 +92,7 @@ def display_alignment_column_form():
     if len(SESSION.imported_sheets) <= 1:
         if len(SESSION.imported_sheets) == 1:
             # one sheet, set as the combined "alignment" sheet
-            st.session_state.aligned_dataframe = SESSION.imported_sheets[0].get_df()
-            update_merge_columns()
+            SESSION.set(Session.ALIGNED_DF, SESSION.imported_sheets[0].get_df())
             SESSION.set_view(View.MERGE_COLUMNS)
         else:
             # No alignment column needed when only one df imported
@@ -163,17 +174,6 @@ def display_duplicate_column_form():
         return
 
 
-def update_merge_columns():
-    """
-    Refreshes merge columns based on state
-    """
-    import_dfs = [st.session_state.aligned_dataframe]
-    columns = [column for data in import_dfs for column in data.columns]
-
-    merge_columns = merge.find_similar_columns(columns, 70)
-    st.session_state["merge_fields"] = merge_columns
-
-
 def display_merge_form(similar_details: MergeSimilarDetails):
     """
     Renders a single merge popup
@@ -250,8 +250,45 @@ def display_done_view():
     """
     Import completed view
     """
-    st.write("import completed!")
-    import_another = st.button("import another")
+    st.write("# import completed!")
+    st.write("*What would you like to do next?*")
+
+    set_as_master_container = st.container()
+    set_as_master_container.write("### Update the Master Datasheet")
+    set_as_master_container.write(
+        "**Note:** The current master datasheet will be overwritten! You can go the export tab and download this sheet to prevent it being lost!"
+    )
+    set_as_master = set_as_master_container.button("Set as Master")
+
+    import_another_container = st.container()
+    import_another_container.write("### Import Another Datasheet")
+    import_another_container.write(
+        "**Note:** any unsaved changes from the current imported data will be lost."
+    )
+    import_another = import_another_container.button("Import Another")
+
+    download_container = st.container()
+    download_container.write("### Download the Imported Datasheet")
+    download_container.write("Save the datasheet you just imported locally")
+
+    SESSION.data.to_excel(
+        f"{get_appdata_path('temp/download')}/student_data_export.xls"
+    )
+    with open(
+        f"{get_appdata_path('temp/download')}/student_data_export.xls", "rb"
+    ) as file:
+        download_container.download_button(
+            label="Download Datasheet",
+            data=file,
+            file_name="student_data_export.xls",
+            mime="image/png",
+        )
+
+    if set_as_master:
+        file_data = DataManager(st.session_state, DataType.MAIN, SHAREPOINT)
+        file_data.set_master(SESSION.data)
+        set_as_master_container.success("Master datasheet in sharepoint updated!")
+        return
 
     if import_another:
         SESSION.set_view(View.IMPORT_PAGE)

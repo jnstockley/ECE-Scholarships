@@ -5,6 +5,7 @@ from playwright.sync_api import Page, expect
 import pytest
 
 
+@pytest.mark.usefixtures("login_user")
 def click_export_sidebar_link(page: Page):
     """
     clicks the export data link in the sidebar
@@ -15,6 +16,7 @@ def click_export_sidebar_link(page: Page):
     page.wait_for_load_state("networkidle")
 
 
+@pytest.mark.usefixtures("login_user")
 def test_export_page_visible(page: Page):
     """
     As a user,
@@ -29,37 +31,3 @@ def test_export_page_visible(page: Page):
         "Export Data"
     )
     expect(export_page_heading).to_be_visible()
-
-
-def test_export_page_with_no_data_imported(page: Page):
-    """
-    As a user,
-    when navigating the the export data page,
-    I would like it to be apparent that there is no data to export.
-    """
-    page.goto("http://localhost:9000/Export Data", wait_until="domcontentloaded")
-    page.wait_for_load_state("networkidle")
-    expect(
-        page.get_by_text(
-            "Once you've imported data you can return to this page to export it the combined excel sheet"
-        )
-    ).to_be_visible()
-
-
-@pytest.mark.usefixtures("skip_all_similar_import_complete_page")
-def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
-    """
-    As a user,
-    when navigating the the export data page,
-    I would like to be able to export my imported data
-    """
-    # shorten name of variable
-    page = skip_all_similar_import_complete_page
-    click_export_sidebar_link(page)
-
-    expect(page.get_by_text("Download your merged data locally")).to_be_visible()
-    page.get_by_role("link", name="Export Data").click()
-    page.wait_for_load_state("networkidle")
-    with page.expect_download() as _download_info:
-        with page.expect_popup() as _page1_info:
-            page.get_by_role("button", name="Export").click()

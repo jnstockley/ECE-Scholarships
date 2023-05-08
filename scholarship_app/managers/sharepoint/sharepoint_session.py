@@ -5,6 +5,7 @@ from enum import Enum
 import json
 import os
 import time
+from pathlib import Path
 import extra_streamlit_components as stx
 from streamlit.runtime.state import SessionStateProxy
 from office365.runtime.auth.user_credential import UserCredential
@@ -42,7 +43,7 @@ class SharepointSession(SessionManager):
 
     Attributes
     ----------
-    client : ClientContent | None
+    _client : ClientContent | None
         Main sharepoint client config reference
     sharepoint_url : str
         Sharepoint configured URL (with no trailing /)
@@ -66,13 +67,14 @@ class SharepointSession(SessionManager):
         self._cookie_manager = get_cookie_manager()
         self.verified = False
         self.hawk_id = None
+        self._root_folder = "Shared Documents"
 
         # This manages saving session date to cookie and cookie to session date
         # Cookie manipulation can only be done at streamlit session start which is why it is
         # called on init. Since form submit reinitializes script, this will get called on login.
         self._sync_session()
 
-        self.client = None
+        self._client = None
         if self.has(Session.CREDENTIALS):
             hawk_id, password = self._retrieve_credentials()
             self._login_no_verify(hawk_id, password)
@@ -102,7 +104,7 @@ class SharepointSession(SessionManager):
             True if user signed in to sharepoint
         """
         self._wait_for_sync_complete()
-        return self.client is not None
+        return self._client is not None
 
     def logout(self):
         """
@@ -120,7 +122,7 @@ class SharepointSession(SessionManager):
         -------
             True for success, false for failure.
         """
-        self.client = ClientContext(self.sharepoint_url.strip("/")).with_credentials(
+        self._client = ClientContext(self.sharepoint_url.strip("/")).with_credentials(
             UserCredential(hawk_id, password)
         )
 
@@ -128,7 +130,7 @@ class SharepointSession(SessionManager):
         try:
             result = self._verify()
         except:
-            self.client = None
+            self._client = None
             return False
 
         if result:
@@ -136,10 +138,24 @@ class SharepointSession(SessionManager):
             self.set(Session.CREDENTIALS, {"username": hawk_id, "password": password})
             return True
 
-        self.client = None
+        self._client = None
         return False
 
-    def get_files(self) -> list[str]:
+    def get_client_web(self):
+        """
+        Returns the webclient with safety checks that it is validated
+        """
+        if self._client is None:
+            raise RuntimeError(
+                "No client defined in sharepoint session. Have you signed in?"
+            )
+
+        if not self._verify():
+            raise RuntimeError("Unable to verify sharepoint client")
+
+        return self._client.web
+
+    def get_files(self, target_directory: str = "Shared Documents") -> list[str]:
         """
         Gets a list of files on the sharepoint site
 
@@ -147,16 +163,15 @@ class SharepointSession(SessionManager):
         -------
         List of files stored in sharepoint
         """
-        target_folder_url = "Shared Documents"
 
-        root_folder = self.client.web.get_folder_by_server_relative_path(
-            target_folder_url
+        root_folder = self.get_client_web().get_folder_by_server_relative_path(
+            target_directory
         )
 
         files = root_folder.get_files(True).execute_query()
 
         data = ["Select File"] + [
-            str(f.properties["ServerRelativeUrl"]).split(target_folder_url)[1]
+            str(f.properties["ServerRelativeUrl"]).split(target_directory)[1]
             for f in files
             if str(f.properties["ServerRelativeUrl"]).endswith(VALID_EXTENSIONS)
         ]
@@ -172,7 +187,7 @@ class SharepointSession(SessionManager):
         appdata_path
             Full path to the location of the file inside appdata
         upload_location
-            Location for where to upload the file to Sharepoint
+            Location for where to upload the file to Sharepoint (parent directory file will be placed in)
 
         Returns
         -------
@@ -183,14 +198,15 @@ class SharepointSession(SessionManager):
         if not os.path.exists(local_file_path):
             return False
 
-        self._verify()
+        client_web = self.get_client_web()
 
-        full_site_url: str = f"{self.client.web.url}/"
+        full_site_url: str = f"{client_web.url}/"
         site_url = full_site_url.split(".com")[1]
         root_folder = "Shared Documents/"
         upload_url = f"{site_url}{root_folder}{upload_location}"
 
-        folder = self.client.web.get_folder_by_server_relative_url(upload_url)
+        client_web.ensure_folder_path(f"{root_folder}{upload_location}").execute_query()
+        folder = client_web.get_folder_by_server_relative_url(upload_url)
 
         with open(local_file_path, "rb") as file:
             file = folder.files.create_upload_session(file, 1000000).execute_query()
@@ -199,6 +215,28 @@ class SharepointSession(SessionManager):
             f"{upload_url}/{os.path.basename(local_file_path)}"
             == file.serverRelativeUrl
         )
+
+    def has_file(self, sharepoint_file_path: str) -> bool:
+        """
+        Checks whether sharepoint has the provided path
+        """
+        client_web = self.get_client_web()
+
+        full_site_url: str = f"{client_web.url}/"
+        site_path = full_site_url.split(".com")[1]
+
+        try:
+            result = (
+                client_web.get_file_by_server_relative_path(
+                    os.path.join(site_path, self._root_folder, sharepoint_file_path)
+                )
+                .get()
+                .execute_query()
+            )
+
+            return True
+        except:
+            return False
 
     def download(self, sharepoint_path: str, appdata_path: str) -> bool:
         """
@@ -209,31 +247,35 @@ class SharepointSession(SessionManager):
         sharepoint_path
             Full path to the location of the file inside appdata
         appdata_path
-            Location, on disk, to download the file
+            Location, on disk, to download the file (relative to appdata directory)
 
         Returns
         -------
             True if file downloaded successfully, False otherwise
         """
-        self._verify()
+        appdata_path = appdata_path.strip("/")
+        sharepoint_path = sharepoint_path.strip("/")
 
         full_appdata_path = get_appdata_path(appdata_path)
 
-        full_site_url: str = f"{self.client.web.url}/"
-        site_url = full_site_url.split(".com")[1]
-        root_folder = "Shared Documents"
-        download_url = f"{site_url}{root_folder}{sharepoint_path}"
-        file_name = sharepoint_path.split("/")[len(sharepoint_path.split("/")) - 1]
+        client_web = self.get_client_web()
 
-        if not full_appdata_path.endswith("/"):
-            full_appdata_path += "/"
-        with open(f"{full_appdata_path}{file_name}", "wb") as sharepoint_file:
-            self.client.web.get_file_by_server_relative_url(download_url).download(
-                sharepoint_file
-            ).execute_query()
-        if not os.path.exists(full_appdata_path):
-            os.mkdir(full_appdata_path)
-        return os.path.exists(f"{full_appdata_path}{file_name}")
+        full_site_url: str = f"{client_web.url}/"
+        site_path = full_site_url.split(".com")[1]
+
+        file_name = os.path.basename(sharepoint_path)
+        appdata_file_path = os.path.join(full_appdata_path, file_name)
+
+        full_sharepoint_file_path = os.path.join(
+            site_path, self._root_folder, sharepoint_path
+        )
+
+        with open(appdata_file_path, "wb") as sharepoint_file:
+            client_web.get_file_by_server_relative_path(
+                full_sharepoint_file_path
+            ).download(sharepoint_file).execute_query()
+
+        return os.path.exists(appdata_file_path)
 
     def set_redirect(self, url: str):
         """
@@ -264,10 +306,10 @@ class SharepointSession(SessionManager):
         if self.verified:
             return True
 
-        if self.client is None:
+        if self._client is None:
             return False
 
-        web = self.client.web.get().execute_query()
+        web = self._client.web.get().execute_query()
 
         if not f"{web.url}/".strip("/") == self.sharepoint_url.strip("/"):
             return False
@@ -303,7 +345,7 @@ class SharepointSession(SessionManager):
         Same behavior as login but assumes hawk_id and password are already valid.
         This also does not modify cookie or session.
         """
-        self.client = ClientContext(self.sharepoint_url).with_credentials(
+        self._client = ClientContext(self.sharepoint_url).with_credentials(
             UserCredential(hawk_id, password)
         )
 
@@ -337,6 +379,6 @@ class SharepointSession(SessionManager):
         """
         sleep = 0.01
         elapsed = 0
-        while not self.client and elapsed < max_wait:
+        while not self._client and elapsed < max_wait:
             time.sleep(0.01)
             elapsed += sleep

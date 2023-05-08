@@ -13,6 +13,7 @@ SAMPLE_FILE_PATHS = [
 ]
 
 
+@pytest.mark.usefixtures("login_user")
 def test_import_page(page: Page):
     """
     As a user I should be able to find and navigate to
@@ -31,6 +32,7 @@ def test_import_page(page: Page):
     expect(import_data_heading).to_have_text("Import Data")
 
 
+@pytest.mark.usefixtures("login_user")
 def test_add_file_button(page: Page):
     """
     As a user I should be able to add files I can import
@@ -43,6 +45,7 @@ def test_add_file_button(page: Page):
     expect(add_files_btn).to_have_text("Browse files")
 
 
+@pytest.mark.usefixtures("login_user")
 @pytest.mark.usefixtures("skip_all_similar_import_complete_page")
 def test_import_files_start_to_end(skip_all_similar_import_complete_page: Page):
     """
@@ -60,6 +63,7 @@ def test_import_files_start_to_end(skip_all_similar_import_complete_page: Page):
     ).to_have_text("Import Data")
 
 
+@pytest.mark.usefixtures("login_user")
 @pytest.mark.usefixtures("merge_all_similar_import_complete_page")
 def test_import_files_start_to_end_with_merging(
     merge_all_similar_import_complete_page: Page,
@@ -81,6 +85,7 @@ def test_import_files_start_to_end_with_merging(
     ).to_have_text("Import Data")
 
 
+@pytest.mark.usefixtures("login_user")
 def test_import_files_with_no_files_selected(page: Page):
     """
     As a user so that I can understand how to use the application, I would like to be notified
@@ -93,6 +98,7 @@ def test_import_files_with_no_files_selected(page: Page):
     expect(page.get_by_text("No files selected!")).to_be_visible()
 
 
+@pytest.mark.usefixtures("login_user")
 def test_import_files_with_no_final_alignment_name(page: Page):
     """
     As a user so that I can understand how to use the application, I would like to be notified
@@ -128,6 +134,7 @@ def test_import_files_with_no_final_alignment_name(page: Page):
     ).to_be_visible()
 
 
+@pytest.mark.usefixtures("login_user")
 @pytest.mark.usefixtures("import_similar_column_page")
 def test_merge_similar_columns_script_editor(page: Page):
     """
