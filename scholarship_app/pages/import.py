@@ -26,7 +26,7 @@ import streamlit as st
 from scholarship_app.managers.import_data.similar_columns import MergeSimilarDetails
 from scholarship_app.utils.html import centered_text
 from scholarship_app.utils import merge
-from scholarship_app.sessions.import_session_manager import ImportSessionManager, View
+from scholarship_app.sessions.import_session_manager import ImportSessionManager, View, Session
 from scholarship_app.managers.import_data.alignment_settings import (
     SelectAlignment,
     AlignmentManager,
@@ -89,8 +89,7 @@ def display_alignment_column_form():
     if len(SESSION.imported_sheets) <= 1:
         if len(SESSION.imported_sheets) == 1:
             # one sheet, set as the combined "alignment" sheet
-            st.session_state.aligned_dataframe = SESSION.imported_sheets[0].get_df()
-            update_merge_columns()
+            SESSION.set(Session.ALIGNED_DF, SESSION.imported_sheets[0].get_df())
             SESSION.set_view(View.MERGE_COLUMNS)
         else:
             # No alignment column needed when only one df imported
@@ -170,18 +169,6 @@ def display_duplicate_column_form():
         st.experimental_rerun()
     else:
         return
-
-
-def update_merge_columns():
-    """
-    Refreshes merge columns based on state
-    """
-    import_dfs = [st.session_state.aligned_dataframe]
-    columns = [column for data in import_dfs for column in data.columns]
-
-    merge_columns = merge.find_similar_columns(columns, 70)
-    st.session_state["merge_fields"] = merge_columns
-
 
 def display_merge_form(similar_details: MergeSimilarDetails):
     """

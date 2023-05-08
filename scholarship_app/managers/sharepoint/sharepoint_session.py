@@ -224,7 +224,6 @@ class SharepointSession(SessionManager):
             self.get_client_web().get_file_by_server_relative_path(
                 os.path.join(self._root_folder, sharepoint_file_path)
             ).execute_query()
-            print(f"This exists: {sharepoint_file_path}")
         except:
             return False
 
