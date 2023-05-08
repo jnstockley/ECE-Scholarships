@@ -383,30 +383,12 @@ def main_view():
         with col2:
             with st.expander("See Distribution of Students"):
                 with st.container():
-                    numeric_cols = current_data.copy().apply(
-                        lambda s: pd.to_numeric(s, errors="coerce").notnull().all()
+                    numeric_cols = (
+                        current_data.copy().select_dtypes(include="number").columns
                     )
-                    numeric_cols = numeric_cols.loc[numeric_cols == True]
-                    for label in ["UID", "Duplicate", "Categorized At"]:
-                        try:
-                            numeric_cols = numeric_cols.drop(
-                                labels=[label], axis="index"
-                            )
-                        except:
-                            print("column not found:", label)
-                    # numeric_cols = numeric_cols.drop(labels=['UID','Duplicate','Categorized At'],axis='index')
-                    numeric_cols = numeric_cols.append(
-                        pd.Series(
-                            [True],
-                            index=["Upcoming Financial Need After Grants/Scholarships"],
-                        )
-                    )
-                    fig_select1a = st.selectbox(
-                        "Select X axis", numeric_cols.index.values
-                    )
-                    fig_select1b = st.selectbox(
-                        "Select Y axis", numeric_cols.index.values
-                    )
+
+                    fig_select1a = st.selectbox("Select X axis", numeric_cols.values)
+                    fig_select1b = st.selectbox("Select Y axis", numeric_cols.values)
                     fig_select1c = st.selectbox(
                         "Highlight Scheme", ["None", "Selected Students"]
                     )  # , 'Scholarship Status'
