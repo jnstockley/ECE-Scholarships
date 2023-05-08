@@ -2,7 +2,6 @@
 Home: Primary page for viewing student data, leaving reviews, and exporting selections
 """
 import streamlit as st
-import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
 from st_aggrid import (
@@ -20,6 +19,7 @@ from scholarship_app.utils.output import get_appdata_path
 from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
 from scholarship_app.sessions.session_manager import SessionManager
 from scholarship_app.components.home.graphing import dynamic_fig
+from scholarship_app.components.home.statistics import main_data_statistics
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -65,14 +65,6 @@ jscode = JsCode(
             };
             """
 )
-CLEARJS = """<script>
-     ((e) => {
-        const iframe = window.parent.document.querySelectorAll('[title="st_aggrid.agGrid"]')[0] || null;
-        if(!iframe) return;
-        iframe.contentWindow.dispatchEvent( new Event('clear.rows'));
-     })()
-    </script>
-    """
 
 # Start of displayed page
 st.title("Home")
@@ -253,31 +245,7 @@ def main_view():
     )
 
     # Displaying statistics about main data frame
-    with st.container():
-        col1, col2, col3, col4, col5 = st.columns(5)
-        with col1:
-            st.markdown(
-                "Key: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#00B985'>Yes</span>**"
-                + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#EA0101'>No</span>**"
-                + "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; **<span style='color:#D6D600'>Maybe</span>**",
-                unsafe_allow_html=True,
-            )
-        with col2:
-            st.write(
-                "Number of Students: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; Selected: ",
-                len([student["Name"] for student in grid_table["selected_rows"]]),
-                unsafe_allow_html=True,
-            )
-        with col3:
-            st.write("Eligible for Selected Scholarship: ", len(current_data))
-        with col4:
-            st.write(
-                "Ineligible for Selected Scholarship: ",
-                len(students) - len(current_data),
-            )
-        with col5:
-            if st.button("Clear Selection"):
-                components.html(CLEARJS)
+    main_data_statistics(current_data, students, grid_table)
 
     # Helper function used for processing the scholarship reviews
     def submit_recommendations(
