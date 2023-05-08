@@ -4,6 +4,7 @@ UI tests for the export data page
 from playwright.sync_api import Page, expect
 import pytest
 
+
 @pytest.mark.usefixtures("login_user")
 def click_export_sidebar_link(page: Page):
     """
@@ -13,6 +14,7 @@ def click_export_sidebar_link(page: Page):
     expect(export_link).to_be_visible()
     export_link.click()
     page.wait_for_load_state("networkidle")
+
 
 @pytest.mark.usefixtures("login_user")
 def test_export_page_visible(page: Page):
