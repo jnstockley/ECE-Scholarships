@@ -121,6 +121,78 @@ def downloading_data_view():
     SESSION.set_view("main")
 
 
+def compute_reviews(
+    current_data, user_recommendations, current_scholarship, scholarships
+):
+    """
+    Compute the selected reviews for current scholarship???
+    """
+    current_data_reviews = []
+    for index, row in current_data.iterrows():
+        student_recommendation = user_recommendations.loc[
+            (user_recommendations["UID"] == row["UID"])
+            & (user_recommendations["Scholarship"] == current_scholarship)
+        ]
+        if len(student_recommendation) > 0:
+            current_data_reviews.append(student_recommendation["Rating"].iloc[0])
+        else:
+            current_data_reviews.append("N/A")
+    current_data["Review"] = current_data_reviews
+
+    # Filtering current data with scholarship criteria
+    criteria = scholarships.loc[scholarships["Name"] == current_scholarship]
+    groups_columns = []
+    criteria_no_groups = []
+    for column in criteria.columns.tolist():
+        if column[0:5] == "Group":
+            if (
+                isinstance(criteria[column].iloc[0], str)
+                and criteria[column].iloc[0].startswith("[")
+                and criteria[column].iloc[0].endswith("]")
+            ):
+                groups_columns.append(groups_string_to_list(criteria[column].iloc[0]))
+        elif column not in ["Name", "Total Amount", "Value"]:
+            criteria_no_groups.append(column)
+    for criterion in criteria_no_groups:
+        if criterion in current_data.columns.tolist():
+            try:
+                value = float(criteria[criterion])
+                in_group = False
+                for group in groups_columns:
+                    if criterion in group:
+                        in_group = True
+                        met_criteria = False
+                        for index, student in current_data.iterrows():
+                            for group_c in group:
+                                if student[group_c] >= value:
+                                    met_criteria = True
+                            if met_criteria == False:
+                                current_data.drop(index)
+                if in_group == False:
+                    current_data.drop(
+                        current_data.loc[current_data[criterion] < value].index,
+                        inplace=True,
+                    )
+            except ValueError:
+                value = criteria[criterion]
+                in_group = False
+                for group in groups_columns:
+                    if criterion in group:
+                        in_group = True
+                        met_criteria = False
+                        for index, student in current_data.iterrows():
+                            for group_c in group:
+                                if student[group_c] >= value:
+                                    met_criteria = True
+                            if met_criteria == False:
+                                current_data.drop(index)
+                if in_group == False:
+                    current_data.drop(
+                        current_data.loc[current_data[criterion] != value].index,
+                        inplace=True,
+                    )
+
+
 def submit_recommendations(
     user_recommendations_input,
     recommended_scholarship,
@@ -196,72 +268,9 @@ def main_view():
     )
     if current_scholarship != "None":
         # Adding previos reviews to current data
-        current_data_reviews = []
-        for index, row in current_data.iterrows():
-            student_recommendation = user_recommendations.loc[
-                (user_recommendations["UID"] == row["UID"])
-                & (user_recommendations["Scholarship"] == current_scholarship)
-            ]
-            if len(student_recommendation) > 0:
-                current_data_reviews.append(student_recommendation["Rating"].iloc[0])
-            else:
-                current_data_reviews.append("N/A")
-        current_data["Review"] = current_data_reviews
-
-        # Filtering current data with scholarship criteria
-        criteria = scholarships.loc[scholarships["Name"] == current_scholarship]
-        groups_columns = []
-        criteria_no_groups = []
-        for column in criteria.columns.tolist():
-            if column[0:5] == "Group":
-                if (
-                    isinstance(criteria[column].iloc[0], str)
-                    and criteria[column].iloc[0].startswith("[")
-                    and criteria[column].iloc[0].endswith("]")
-                ):
-                    groups_columns.append(
-                        groups_string_to_list(criteria[column].iloc[0])
-                    )
-            elif column not in ["Name", "Total Amount", "Value"]:
-                criteria_no_groups.append(column)
-        for criterion in criteria_no_groups:
-            if criterion in current_data.columns.tolist():
-                try:
-                    value = float(criteria[criterion])
-                    in_group = False
-                    for group in groups_columns:
-                        if criterion in group:
-                            in_group = True
-                            met_criteria = False
-                            for index, student in current_data.iterrows():
-                                for group_c in group:
-                                    if student[group_c] >= value:
-                                        met_criteria = True
-                                if met_criteria == False:
-                                    current_data.drop(index)
-                    if in_group == False:
-                        current_data.drop(
-                            current_data.loc[current_data[criterion] < value].index,
-                            inplace=True,
-                        )
-                except ValueError:
-                    value = criteria[criterion]
-                    in_group = False
-                    for group in groups_columns:
-                        if criterion in group:
-                            in_group = True
-                            met_criteria = False
-                            for index, student in current_data.iterrows():
-                                for group_c in group:
-                                    if student[group_c] >= value:
-                                        met_criteria = True
-                                if met_criteria == False:
-                                    current_data.drop(index)
-                    if in_group == False:
-                        current_data.drop(
-                            current_data.loc[current_data[criterion] != value].index,
-                            inplace=True,
-                        )
+        compute_reviews(
+            current_data, user_recommendations, current_scholarship, scholarships
+        )
 
     # Configuring options for table functionality
     current_data.insert(0, "Select All", None)
