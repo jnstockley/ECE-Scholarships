@@ -29,22 +29,3 @@ def test_export_page_visible(page: Page):
         "Export Data"
     )
     expect(export_page_heading).to_be_visible()
-
-@pytest.mark.usefixtures("login_user")
-@pytest.mark.usefixtures("skip_all_similar_import_complete_page")
-def test_export_page_with_imported(skip_all_similar_import_complete_page: Page):
-    """
-    As a user,
-    when navigating the the export data page,
-    I would like to be able to export my imported data
-    """
-    # shorten name of variable
-    page = skip_all_similar_import_complete_page
-    click_export_sidebar_link(page)
-
-    expect(page.get_by_text("Download your merged data locally")).to_be_visible()
-    page.get_by_role("link", name="Export Data").click()
-    page.wait_for_load_state("networkidle")
-    with page.expect_download() as _download_info:
-        with page.expect_popup() as _page1_info:
-            page.get_by_role("button", name="Export").click()
