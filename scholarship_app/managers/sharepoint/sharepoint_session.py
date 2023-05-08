@@ -220,15 +220,21 @@ class SharepointSession(SessionManager):
         """
         Checks whether sharepoint has the provided path
         """
+        client_web = self.get_client_web()
+
+        full_site_url: str = f"{client_web.url}/"
+        site_path = full_site_url.split(".com")[1]
+
         try:
-            result = self.get_client_web().get_file_by_server_relative_path(
-                os.path.join(self._root_folder, sharepoint_file_path)
-            ).execute_query()
+            result = (
+                client_web.get_file_by_server_relative_path(
+                    os.path.join(site_path, self._root_folder, sharepoint_file_path)
+                )
+                .get()
+                .execute_query()
+            )
 
-            if result.exists is None:
-                return False
-
-            return result.exists
+            return True
         except:
             return False
 
