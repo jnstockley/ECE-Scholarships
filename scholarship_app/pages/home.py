@@ -21,6 +21,7 @@ from scholarship_app.utils.scholarship_management import groups_string_to_list
 from scholarship_app.utils.output import get_appdata_path
 from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
 from scholarship_app.sessions.session_manager import SessionManager
+from scholarship_app.components.home.graphing import dynamic_fig
 
 # Default setting for Streamlit page
 st.set_page_config(layout="wide")
@@ -222,22 +223,22 @@ def main_view():
 
     # Configuring options for table functionality
     current_data.insert(0, "Select All", None)
-    gd = GridOptionsBuilder.from_dataframe(current_data)
-    gd.configure_pagination(enabled=True)  # Add pagination
-    gd.configure_side_bar()  # Add a sidebar
-    gd.configure_default_column(editable=False, groupable=True)
-    gd.configure_selection(
+    graph_data = GridOptionsBuilder.from_dataframe(current_data)
+    graph_data.configure_pagination(enabled=True)  # Add pagination
+    graph_data.configure_side_bar()  # Add a sidebar
+    graph_data.configure_default_column(editable=False, groupable=True)
+    graph_data.configure_selection(
         selection_mode="multiple", use_checkbox=True
     )  # Enable multi-row selection
-    gd.configure_column("Select All", headerCheckboxSelection=True)
-    gd.configure_grid_options(onFirstDataRendered=js)
-    gd.configure_column(
+    graph_data.configure_column("Select All", headerCheckboxSelection=True)
+    graph_data.configure_grid_options(onFirstDataRendered=js)
+    graph_data.configure_column(
         "Describe any relevant life experience related to engineering. ",
         onCellClicked=JsCode(
             "function(params) { alert(params.node.data['Describe any relevant life experience related to engineering. ']); };"
         ),
     )
-    gridoptions = gd.build()
+    gridoptions = graph_data.build()
     gridoptions["getRowStyle"] = jscode
     custom_css = {}
 
@@ -334,56 +335,6 @@ def main_view():
         SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", "/data/")
 
         return True, user_recommendations_input
-
-    # Helper function for graph
-    def dynamic_fig(var_df, x_axis, y_axis, options=None, highlights=None):
-        """
-        Function to generate dynamic graph of student data
-        """
-        fig, _ = plt.subplots()
-        var_xs = var_df[x_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
-        var_ys = var_df[y_axis][var_df[x_axis] != 0][var_df[y_axis] != 0]
-        weighted_bins = np.zeros((len(var_xs), 3))
-        for i in var_xs.index:
-            found = False
-            for j in range(weighted_bins.shape[0]):
-                if found:
-                    continue
-                if weighted_bins[j][0] == 0 or (
-                    weighted_bins[j][0] == var_xs[i]
-                    and weighted_bins[j][1] == var_ys[i]
-                ):
-                    weighted_bins[j][0] = var_xs[i]
-                    weighted_bins[j][1] = var_ys[i]
-                    weighted_bins[j][2] += 1
-                    found = True
-        weighted_bins = weighted_bins[~np.all(weighted_bins == 0, axis=1)]
-        for wbin in weighted_bins:
-            if options[1]:
-                wbin[-1] = wbin[-1] - (np.min(weighted_bins[:, 2]) - 1)
-            else:
-                wbin[-1] = 1
-            if wbin[-1] > 10:
-                wbin[-1] = 10
-        plt.scatter(
-            weighted_bins[:, 0], weighted_bins[:, 1], s=32 * weighted_bins[:, 2]
-        )
-        if highlights is not None and options[2] == "Selected Students":
-            highlights = [h for h in highlights if h is not None]
-            hxs = var_df.iloc[highlights][x_axis]
-            hys = var_df.iloc[highlights][y_axis]
-            colors = iter(cm.rainbow(np.linspace(0, 1, len(hys) + 1)))
-            next(colors)
-            for var_x, var_y in zip(hxs, hys):
-                plt.scatter(var_x, var_y, color=next(colors))
-            legend_names = ["Other Students"]
-            legend_names.extend(var_df.iloc[highlights]["Name"].values)
-            if options[0]:
-                plt.legend(legend_names)
-        plt.xlabel(x_axis)
-        plt.ylabel(y_axis)
-        st.pyplot(fig)
-        return fig
 
     # Actions for user to take on main data frame
     with st.container():
