@@ -24,7 +24,9 @@ if main_data is None:
 else:
     st.write("Download your sharepoint master datasheet")
 
-    main_data.to_excel(f"{get_appdata_path('temp/download')}/student_data_export.xls")
+    main_data.to_excel(
+        f"{get_appdata_path('temp/download')}/student_data_export.xls", index=False
+    )
 
     with open(
         f"{get_appdata_path('temp/download')}/student_data_export.xls", "rb"

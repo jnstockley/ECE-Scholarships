@@ -5,7 +5,6 @@ import streamlit as st
 import streamlit.components.v1 as components
 import pandas as pd
 import numpy as np
-import matplotlib.pyplot as plt
 from st_aggrid import (
     JsCode,
     GridOptionsBuilder,
@@ -13,7 +12,6 @@ from st_aggrid import (
     ColumnsAutoSizeMode,
     GridUpdateMode,
 )
-from matplotlib import cm
 
 from scholarship_app.utils.html import redirect
 from scholarship_app.managers.sharepoint.sharepoint_session import SharepointSession
