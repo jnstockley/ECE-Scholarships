@@ -25,7 +25,6 @@ aligned_dataframe : pd.Dataframe
 import streamlit as st
 from scholarship_app.managers.import_data.similar_columns import MergeSimilarDetails
 from scholarship_app.utils.html import centered_text
-from scholarship_app.utils import merge
 from scholarship_app.sessions.import_session_manager import (
     ImportSessionManager,
     View,

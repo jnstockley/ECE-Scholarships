@@ -121,7 +121,59 @@ def downloading_data_view():
     SESSION.set_view("main")
 
 
-# JavaScript functions for styling table
+def submit_recommendations(
+    user_recommendations_input,
+    recommended_scholarship,
+    rating_input,
+    additional_feedback_input,
+    grid_table,
+):
+    """
+    Helper function used for processing the scholarship reviews
+    Method used to complete the review process by updating local and sharepoint data
+    """
+    if len(grid_table["selected_rows"]) == 0:
+        return False, "Must select students to recommend"
+    sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
+    new_recommendations = pd.DataFrame(
+        columns=["UID", "Scholarship", "Rating", "Additional Feedback"]
+    )
+    for uid in sel_uids:
+        new_recommendation = {
+            "UID": uid,
+            "Scholarship": recommended_scholarship,
+            "Rating": rating_input,
+            "Additional Feedback": additional_feedback_input,
+        }
+        if (
+            len(
+                user_recommendations_input.loc[
+                    (user_recommendations_input["UID"] == uid)
+                    & (
+                        user_recommendations_input["Scholarship"]
+                        == recommended_scholarship
+                    )
+                ]
+            )
+            > 0
+        ):
+            return False, str(
+                "Already reviewed student " + str(uid) + " for this scholarship"
+            )
+        # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
+        new_recommendations = new_recommendations.append(
+            new_recommendation, ignore_index=True
+        )
+    # Check here for it too many recommendations for that scholarship, should be none if unlimited
+    user_recommendations_input = user_recommendations_input.append(new_recommendations)
+    user_recommendations_input.to_excel(
+        get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"),
+        index=False,
+    )
+
+    SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", "/data/")
+
+    return True, user_recommendations_input
 
 
 def main_view():
@@ -247,61 +299,6 @@ def main_view():
     # Displaying statistics about main data frame
     main_data_statistics(current_data, students, grid_table)
 
-    # Helper function used for processing the scholarship reviews
-    def submit_recommendations(
-        user_recommendations_input,
-        recommended_scholarship,
-        rating_input,
-        additional_feedback_input,
-    ):
-        """
-        Method used to complete the review process by updating local and sharepoint data
-        """
-        if len(grid_table["selected_rows"]) == 0:
-            return False, "Must select students to recommend"
-        sel_uids = [key["UID"] for key in grid_table["selected_rows"]]
-        new_recommendations = pd.DataFrame(
-            columns=["UID", "Scholarship", "Rating", "Additional Feedback"]
-        )
-        for uid in sel_uids:
-            new_recommendation = {
-                "UID": uid,
-                "Scholarship": recommended_scholarship,
-                "Rating": rating_input,
-                "Additional Feedback": additional_feedback_input,
-            }
-            if (
-                len(
-                    user_recommendations_input.loc[
-                        (user_recommendations_input["UID"] == uid)
-                        & (
-                            user_recommendations_input["Scholarship"]
-                            == recommended_scholarship
-                        )
-                    ]
-                )
-                > 0
-            ):
-                return False, str(
-                    "Already reviewed student " + str(uid) + " for this scholarship"
-                )
-            # Check here if students meets requirements of scholarship (Need to wait to merge Austin's PR before these)
-            new_recommendations = new_recommendations.append(
-                new_recommendation, ignore_index=True
-            )
-        # Check here for it too many recommendations for that scholarship, should be none if unlimited
-        user_recommendations_input = user_recommendations_input.append(
-            new_recommendations
-        )
-        user_recommendations_input.to_excel(
-            get_appdata_path(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx"),
-            index=False,
-        )
-
-        SHAREPOINT.upload(f"/data/{SHAREPOINT.get_hawk_id()}_Reviews.xlsx", "/data/")
-
-        return True, user_recommendations_input
-
     # Actions for user to take on main data frame
     with st.container():
         col1, col2, col3 = st.columns(3)
@@ -337,6 +334,7 @@ def main_view():
                                 current_scholarship,
                                 rating,
                                 additional_feedback,
+                                grid_table,
                             )
                             if success is True:
                                 st.session_state.user_recommendations = result

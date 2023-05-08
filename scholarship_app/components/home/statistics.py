@@ -1,9 +1,7 @@
 import streamlit as st
 import pandas as pd
 import streamlit.components.v1 as components
-from st_aggrid import (
-    AgGrid
-)
+from st_aggrid import AgGrid
 
 CLEARJS = """<script>
      ((e) => {
@@ -14,7 +12,10 @@ CLEARJS = """<script>
     </script>
     """
 
-def main_data_statistics(current_data: pd.DataFrame, students: pd.DataFrame, grid_table: AgGrid):
+
+def main_data_statistics(
+    current_data: pd.DataFrame, students: pd.DataFrame, grid_table: AgGrid
+):
     """
     Renders the table statistics found below the main homepage table.
     """
