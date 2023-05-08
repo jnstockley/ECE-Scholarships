@@ -88,7 +88,7 @@ class DataManager(SessionManager):
             return data
 
         if self.__in_sharepoint(self.master_path):
-            self.sharepoint.download(self.master_path, self.master_path)
+            self.sharepoint.download(self.master_path, self.relative_path)
 
             data = self.retrieve_appdata_file(self.master_path)
             self.set(Session.MASTER, data)

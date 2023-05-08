@@ -67,6 +67,7 @@ class SharepointSession(SessionManager):
         self._cookie_manager = get_cookie_manager()
         self.verified = False
         self.hawk_id = None
+        self._root_folder = "Shared Documents"
 
         # This manages saving session date to cookie and cookie to session date
         # Cookie manipulation can only be done at streamlit session start which is why it is
@@ -219,11 +220,11 @@ class SharepointSession(SessionManager):
         """
         Checks whether sharepoint has the provided path
         """
-        print("CHECKING FOR FILE")
         try:
-            self.get_client_web().get_file_by_server_relative_url(
-                sharepoint_file_path
-            ).get().execute_query()
+            self.get_client_web().get_file_by_server_relative_path(
+                os.path.join(self._root_folder, sharepoint_file_path)
+            ).execute_query()
+            print(f"This exists: {sharepoint_file_path}")
         except:
             return False
 
@@ -249,20 +250,21 @@ class SharepointSession(SessionManager):
         client_web = self.get_client_web()
 
         full_site_url: str = f"{client_web.url}/"
-        site_url = full_site_url.split(".com")[1]
-        root_folder = "Shared Documents"
-        download_url = f"{site_url}{root_folder}{sharepoint_path}"
-        file_name = sharepoint_path.split("/")[len(sharepoint_path.split("/")) - 1]
+        site_path = full_site_url.split(".com")[1]
 
-        if not full_appdata_path.endswith("/"):
-            full_appdata_path += "/"
-        with open(f"{full_appdata_path}{file_name}", "wb") as sharepoint_file:
-            client_web.get_file_by_server_relative_url(download_url).download(
-                sharepoint_file
-            ).execute_query()
-        if not os.path.exists(full_appdata_path):
-            os.mkdir(full_appdata_path)
-        return os.path.exists(f"{full_appdata_path}{file_name}")
+        file_name = os.path.basename(sharepoint_path)
+        appdata_file_path = os.path.join(full_appdata_path, file_name)
+
+        full_sharepoint_file_path = os.path.join(
+            site_path, self._root_folder, sharepoint_path
+        )
+
+        with open(appdata_file_path, "wb") as sharepoint_file:
+            client_web.get_file_by_server_relative_path(
+                full_sharepoint_file_path
+            ).download(sharepoint_file).execute_query()
+
+        return os.path.exists(appdata_file_path)
 
     def set_redirect(self, url: str):
         """
