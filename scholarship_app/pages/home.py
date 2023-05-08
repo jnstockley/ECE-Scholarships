@@ -1,3 +1,4 @@
+# pylint: disable=too-many-nested-blocks, too-many-branches
 """
 Home: Primary page for viewing student data, leaving reviews, and exporting selections
 """
