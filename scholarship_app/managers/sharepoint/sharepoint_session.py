@@ -244,6 +244,9 @@ class SharepointSession(SessionManager):
         -------
             True if file downloaded successfully, False otherwise
         """
+        appdata_path = appdata_path.strip("/")
+        sharepoint_path = sharepoint_path.strip("/")
+
         full_appdata_path = get_appdata_path(appdata_path)
 
         client_web = self.get_client_web()

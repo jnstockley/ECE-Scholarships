@@ -26,7 +26,11 @@ import streamlit as st
 from scholarship_app.managers.import_data.similar_columns import MergeSimilarDetails
 from scholarship_app.utils.html import centered_text
 from scholarship_app.utils import merge
-from scholarship_app.sessions.import_session_manager import ImportSessionManager, View, Session
+from scholarship_app.sessions.import_session_manager import (
+    ImportSessionManager,
+    View,
+    Session,
+)
 from scholarship_app.managers.import_data.alignment_settings import (
     SelectAlignment,
     AlignmentManager,
@@ -169,6 +173,7 @@ def display_duplicate_column_form():
         st.experimental_rerun()
     else:
         return
+
 
 def display_merge_form(similar_details: MergeSimilarDetails):
     """
