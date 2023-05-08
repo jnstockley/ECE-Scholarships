@@ -52,3 +52,34 @@ def dynamic_fig(var_df, x_axis, y_axis, options=None, highlights=None):
     plt.ylabel(y_axis)
     st.pyplot(fig)
     return fig
+
+
+def distribution_graph_expander(current_data, grid_table):
+    """
+    Renders the expander for the graphing distribution
+    """
+    with st.expander("See Distribution of Students"):
+        with st.container():
+            numeric_cols = current_data.copy().select_dtypes(include="number").columns
+
+            fig_select1a = st.selectbox("Select X axis", numeric_cols.values)
+            fig_select1b = st.selectbox("Select Y axis", numeric_cols.values)
+            fig_select1c = st.selectbox(
+                "Highlight Scheme", ["None", "Selected Students"]
+            )  # , 'Scholarship Status'
+            show_legend = st.checkbox("Show Legend", True)
+            weight_bins = st.checkbox("Weight Plot", True)
+            sel_row_indices = None
+            if fig_select1c == "Selected Students":
+                sel_rows = grid_table["selected_rows"]
+                sel_row_indices = [
+                    rows["_selectedRowNodeInfo"]["nodeRowIndex"] for rows in sel_rows
+                ]
+            option_select = [show_legend, weight_bins, fig_select1c]
+            dynamic_fig(
+                current_data,
+                fig_select1a,
+                fig_select1b,
+                option_select,
+                sel_row_indices,
+            )  # Exporting the selected students

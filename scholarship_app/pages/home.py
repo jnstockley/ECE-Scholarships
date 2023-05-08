@@ -18,7 +18,7 @@ from scholarship_app.utils.scholarship_management import groups_string_to_list
 from scholarship_app.utils.output import get_appdata_path
 from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
 from scholarship_app.sessions.session_manager import SessionManager
-from scholarship_app.components.home.graphing import dynamic_fig
+from scholarship_app.components.home.graphing import distribution_graph_expander
 from scholarship_app.components.home.statistics import main_data_statistics
 from scholarship_app.components.home.review import submit_review_expander
 
@@ -266,34 +266,8 @@ def main_view():
 
         # Viewing graphs of student distributions
         with col2:
-            with st.expander("See Distribution of Students"):
-                with st.container():
-                    numeric_cols = (
-                        current_data.copy().select_dtypes(include="number").columns
-                    )
+            distribution_graph_expander(current_data, grid_table)
 
-                    fig_select1a = st.selectbox("Select X axis", numeric_cols.values)
-                    fig_select1b = st.selectbox("Select Y axis", numeric_cols.values)
-                    fig_select1c = st.selectbox(
-                        "Highlight Scheme", ["None", "Selected Students"]
-                    )  # , 'Scholarship Status'
-                    show_legend = st.checkbox("Show Legend", True)
-                    weight_bins = st.checkbox("Weight Plot", True)
-                    sel_row_indices = None
-                    if fig_select1c == "Selected Students":
-                        sel_rows = grid_table["selected_rows"]
-                        sel_row_indices = [
-                            rows["_selectedRowNodeInfo"]["nodeRowIndex"]
-                            for rows in sel_rows
-                        ]
-                    option_select = [show_legend, weight_bins, fig_select1c]
-                    dynamic_fig(
-                        current_data,
-                        fig_select1a,
-                        fig_select1b,
-                        option_select,
-                        sel_row_indices,
-                    )  # Exporting the selected students
         with col3:
             if st.button("Export Current Table"):
                 grid_table["data"].to_excel(

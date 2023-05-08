@@ -221,13 +221,16 @@ class SharepointSession(SessionManager):
         Checks whether sharepoint has the provided path
         """
         try:
-            self.get_client_web().get_file_by_server_relative_path(
+            result = self.get_client_web().get_file_by_server_relative_path(
                 os.path.join(self._root_folder, sharepoint_file_path)
             ).execute_query()
+
+            if result.exists is None:
+                return False
+
+            return result.exists
         except:
             return False
-
-        return True
 
     def download(self, sharepoint_path: str, appdata_path: str) -> bool:
         """

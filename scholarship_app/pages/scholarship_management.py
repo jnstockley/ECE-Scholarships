@@ -14,6 +14,7 @@ from scholarship_app.utils.scholarship_management import (
     equalize_dictionary_columns,
 )
 from scholarship_app.utils.output import get_appdata_path
+from scholarship_app.managers.sharepoint.file_versioning import DataManager, DataType
 
 SHAREPOINT = SharepointSession(st.session_state)
 if not SHAREPOINT.is_signed_in():
@@ -22,10 +23,8 @@ if not SHAREPOINT.is_signed_in():
 # Setting variables for script
 with st.spinner("Downloading Data..."):
     if "master_sheet" not in st.session_state:
-        SHAREPOINT.download("/data/Master_Sheet.xlsx", "/data/")
-        st.session_state.master_sheet = pd.read_excel(
-            get_appdata_path("/data/Master_Sheet.xlsx")
-        )
+        data = DataManager(st.session_state, DataType.MAIN, SHAREPOINT)
+        st.session_state.master_sheet = data.retrieve_master()
     master_sheet = st.session_state.master_sheet
     if "scholarships" not in st.session_state:
         try:
